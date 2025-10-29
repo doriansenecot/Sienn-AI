@@ -26,3 +26,6 @@ Thumbs.db
 
 # Docker
 docker-compose.override.yml
+
+# Other
+docs/contexte/*.md
