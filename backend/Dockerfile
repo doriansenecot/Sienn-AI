@@ -13,11 +13,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copier les fichiers de dépendances
-COPY requirements.txt .
+# Use a small core requirements file for the API runtime during development
+# Heavy ML packages remain in `requirements.txt` but are intentionally not
+# installed by default to avoid long native builds during dev iteration.
+COPY requirements-core.txt requirements-core.txt
 
-# Installer les dépendances Python
+# Installer les dépendances Python légères pour l'API
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r requirements-core.txt
 
 # Copier le code de l'application
 COPY . .
