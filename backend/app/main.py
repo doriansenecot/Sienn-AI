@@ -1,7 +1,10 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from datetime import datetime
 import uuid
+import zipfile
+import io
+from pathlib import Path
 
 from .core.config import settings
 from .db import get_db, init_db
@@ -306,4 +309,94 @@ async def test_model(request: TestModelRequest):
         raise HTTPException(
             status_code=500,
             detail=f"Failed to generate text: {str(e)}"
+        )
+
+
+@app.get("/api/download-model/{job_id}")
+async def download_model(job_id: str):
+    """
+    Download fine-tuned model as a ZIP archive
+    
+    Args:
+        job_id: The job ID of the completed fine-tuning job
+        
+    Returns:
+        ZIP file containing the fine-tuned model (adapter, tokenizer, metadata)
+    """
+    # Validate and get job information
+    try:
+        async with get_db() as db:
+            cursor = await db.execute(
+                "SELECT id, status, meta FROM jobs WHERE id = ?",
+                (job_id,)
+            )
+            row = await cursor.fetchone()
+            
+            if not row:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Job with id {job_id} not found"
+                )
+            
+            job_status = row[1]
+            if job_status != "completed":
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Job status is '{job_status}', model download is only available for completed jobs"
+                )
+            
+            # Get model path from meta
+            import json
+            meta = json.loads(row[2]) if row[2] else {}
+            model_path = meta.get("model_path")
+            
+            if not model_path:
+                raise HTTPException(
+                    status_code=500,
+                    detail="Model path not found in job metadata"
+                )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to retrieve job information: {str(e)}"
+        )
+    
+    # Check if model directory exists
+    model_dir = Path(model_path)
+    if not model_dir.exists() or not model_dir.is_dir():
+        raise HTTPException(
+            status_code=404,
+            detail=f"Model directory not found: {model_path}"
+        )
+    
+    # Create ZIP archive in memory
+    try:
+        zip_buffer = io.BytesIO()
+        
+        with zipfile.ZipFile(zip_buffer, mode='w', compression=zipfile.ZIP_DEFLATED) as zip_file:
+            # Add all files from model directory
+            for file_path in model_dir.rglob('*'):
+                if file_path.is_file():
+                    # Get relative path for archive
+                    arcname = file_path.relative_to(model_dir)
+                    zip_file.write(file_path, arcname=str(arcname))
+        
+        # Reset buffer position
+        zip_buffer.seek(0)
+        
+        # Return as streaming response
+        return StreamingResponse(
+            zip_buffer,
+            media_type="application/zip",
+            headers={
+                "Content-Disposition": f"attachment; filename=model_{job_id}.zip"
+            }
+        )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to create model archive: {str(e)}"
         )
