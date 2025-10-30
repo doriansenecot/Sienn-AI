@@ -6,6 +6,7 @@ import uuid
 from .core.config import settings
 from .db import get_db, init_db
 from .services.dataset_service import dataset_service
+from .services.model_service import model_service
 from .models import (
     DatasetUploadResponse,
     DatasetMetadata,
@@ -13,6 +14,8 @@ from .models import (
     StartFinetuningRequest,
     StartFinetuningResponse,
     TrainingStatusResponse,
+    TestModelRequest,
+    TestModelResponse,
 )
 from .tasks import finetune_model
 
@@ -230,3 +233,77 @@ async def start_finetuning(request: StartFinetuningRequest):
         message="Fine-tuning job submitted successfully",
         created_at=created_at
     )
+
+
+@app.post("/api/test-model", response_model=TestModelResponse)
+async def test_model(request: TestModelRequest):
+    """Test a fine-tuned model with a prompt"""
+    try:
+        # Verify job exists and is completed
+        async with get_db() as db:
+            cursor = await db.execute(
+                "SELECT id, status, meta FROM jobs WHERE id = ?",
+                (request.job_id,)
+            )
+            row = await cursor.fetchone()
+            
+            if not row:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Job with id {request.job_id} not found"
+                )
+            
+            job_status = row[1]
+            if job_status != "completed":
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Job status is '{job_status}', model testing is only available for completed jobs"
+                )
+            
+            # Get model path from meta
+            import json
+            meta = json.loads(row[2]) if row[2] else {}
+            model_path = meta.get("model_path")
+            
+            if not model_path:
+                raise HTTPException(
+                    status_code=500,
+                    detail="Model path not found in job metadata"
+                )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to retrieve job information: {str(e)}"
+        )
+    
+    # Check if model exists
+    if not model_service.model_exists(model_path):
+        raise HTTPException(
+            status_code=404,
+            detail=f"Model not found at path: {model_path}"
+        )
+    
+    # Test the model
+    try:
+        generated_text, generation_time = await model_service.test_model(
+            model_path=model_path,
+            prompt=request.prompt,
+            max_new_tokens=request.max_new_tokens,
+            temperature=request.temperature
+        )
+        
+        return TestModelResponse(
+            job_id=request.job_id,
+            prompt=request.prompt,
+            generated_text=generated_text,
+            model_path=model_path,
+            generation_time=generation_time,
+            timestamp=datetime.utcnow()
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate text: {str(e)}"
+        )
