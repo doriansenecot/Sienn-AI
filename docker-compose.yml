@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  # Base de données SQLite (via volume partagé)
+  # Note: SQLite n'a pas besoin de service dédié, on utilise un volume partagé
+  
+  # Redis - pour la queue de jobs Celery
+  redis:
+    image: redis:7-alpine
+    container_name: sienn-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - sienn-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # MinIO - stockage S3-compatible pour modèles et datasets
+  minio:
+    image: minio/minio:latest
+    container_name: sienn-minio
+    ports:
+      - "9000:9000"      # API
+      - "9001:9001"      # Console Web UI
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - sienn-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # Backend API - FastAPI
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sienn-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_PATH=/app/data/data.db
+      - REDIS_URL=redis://redis:6379/0
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
+      - MINIO_SECURE=false
+    volumes:
+      - ./data:/app/data
+      - ./backend:/app
+      - models-cache:/root/.cache/huggingface
+    depends_on:
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - sienn-network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Worker Celery - traitement des jobs de fine-tuning
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.worker
+    container_name: sienn-worker
+    environment:
+      - DATABASE_PATH=/app/data/data.db
+      - REDIS_URL=redis://redis:6379/0
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
+      - MINIO_SECURE=false
+    volumes:
+      - ./data:/app/data
+      - ./backend:/app
+      - models-cache:/root/.cache/huggingface
+    depends_on:
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - sienn-network
+    command: celery -A app.worker.celery_app worker --loglevel=info
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # Frontend - React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sienn-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - api
+    networks:
+      - sienn-network
+    command: npm start
+
+networks:
+  sienn-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  minio-data:
+  models-cache:
