@@ -10,6 +10,7 @@ sqlalchemy==2.0.36
 aiosqlite==0.20.0
 python-multipart==0.0.12
 celery==5.4.0
+aiofiles==24.1.0
 
 # Machine Learning / Fine-tuning dependencies
 transformers==4.46.0

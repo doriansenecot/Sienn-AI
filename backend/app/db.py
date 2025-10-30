@@ -25,6 +25,7 @@ async def get_db():
 async def init_db():
     """Create basic tables if missing. Can be called at app startup."""
     async with get_db() as conn:
+        # Jobs table
         await conn.execute(
             """
             CREATE TABLE IF NOT EXISTS jobs (
@@ -36,4 +37,25 @@ async def init_db():
             )
             """
         )
+        
+        # Datasets table
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS datasets (
+                id TEXT PRIMARY KEY,
+                filename TEXT NOT NULL,
+                original_filename TEXT NOT NULL,
+                file_path TEXT NOT NULL,
+                size_bytes INTEGER NOT NULL,
+                content_type TEXT,
+                status TEXT DEFAULT 'uploaded',
+                num_rows INTEGER,
+                num_columns INTEGER,
+                column_names TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        
         await conn.commit()
