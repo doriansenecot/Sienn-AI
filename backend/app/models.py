@@ -40,3 +40,34 @@ class JobStatus(BaseModel):
     message: Optional[str] = None
     created_at: datetime
     updated_at: datetime
+
+
+class StartFinetuningRequest(BaseModel):
+    """Request to start fine-tuning"""
+    dataset_id: str
+    model_name: str = "gpt2"
+    learning_rate: float = Field(default=2e-5, gt=0, le=1e-3)
+    num_epochs: int = Field(default=3, ge=1, le=20)
+    batch_size: int = Field(default=4, ge=1, le=32)
+    max_length: int = Field(default=512, ge=128, le=2048)
+
+
+class StartFinetuningResponse(BaseModel):
+    """Response after starting fine-tuning"""
+    job_id: str
+    status: str = "pending"
+    dataset_id: str
+    message: str = "Fine-tuning job submitted successfully"
+    created_at: datetime
+
+
+class TrainingStatusResponse(BaseModel):
+    """Response for training status query"""
+    job_id: str
+    dataset_id: Optional[str]
+    status: str
+    progress: float
+    message: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+    meta: Optional[dict] = None

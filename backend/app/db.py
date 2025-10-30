@@ -30,10 +30,14 @@ async def init_db():
             """
             CREATE TABLE IF NOT EXISTS jobs (
                 id TEXT PRIMARY KEY,
+                dataset_id TEXT,
                 status TEXT NOT NULL,
+                progress REAL DEFAULT 0.0,
+                message TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                meta TEXT
+                meta TEXT,
+                FOREIGN KEY (dataset_id) REFERENCES datasets(id)
             )
             """
         )

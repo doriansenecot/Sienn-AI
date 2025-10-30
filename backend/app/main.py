@@ -1,11 +1,20 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
 from datetime import datetime
+import uuid
 
 from .core.config import settings
 from .db import get_db, init_db
 from .services.dataset_service import dataset_service
-from .models import DatasetUploadResponse
+from .models import (
+    DatasetUploadResponse,
+    DatasetMetadata,
+    JobStatus,
+    StartFinetuningRequest,
+    StartFinetuningResponse,
+    TrainingStatusResponse,
+)
+from .tasks import finetune_model
 
 app = FastAPI(title="Sienn-AI API", version="0.1.0")
 
@@ -49,7 +58,50 @@ async def upload_dataset(file: UploadFile = File(...)):
     try:
         metadata, preview = await dataset_service.save_upload(file)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to start fine-tuning: {str(e)}")
+
+
+@app.get("/api/training-status/{job_id}", response_model=TrainingStatusResponse)
+async def get_training_status(job_id: str):
+    """Get the status of a fine-tuning job"""
+    try:
+        async with get_db() as db:
+            cursor = await db.execute(
+                """
+                SELECT id, dataset_id, status, progress, message, created_at, updated_at, meta
+                FROM jobs
+                WHERE id = ?
+                """,
+                (job_id,)
+            )
+            row = await cursor.fetchone()
+            
+            if not row:
+                raise HTTPException(status_code=404, detail=f"Job with id {job_id} not found")
+            
+            # Parse meta JSON if present
+            import json
+            meta = None
+            if row[7]:  # meta field
+                try:
+                    meta = json.loads(row[7])
+                except json.JSONDecodeError:
+                    meta = None
+            
+            return TrainingStatusResponse(
+                job_id=row[0],
+                dataset_id=row[1],
+                status=row[2],
+                progress=row[3],
+                message=row[4],
+                created_at=row[5],
+                updated_at=row[6],
+                meta=meta
+            )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get training status: {str(e)}")
     
     # Store metadata in database
     try:
@@ -88,4 +140,93 @@ async def upload_dataset(file: UploadFile = File(...)):
         status=metadata["status"],
         preview=preview,
         created_at=datetime.fromisoformat(metadata["created_at"])
+    )
+
+
+@app.post("/api/start-finetuning", response_model=StartFinetuningResponse)
+async def start_finetuning(request: StartFinetuningRequest):
+    """
+    Start a fine-tuning job for a dataset
+    
+    Creates a job in the database and submits it to the Celery worker queue.
+    Returns the job ID for tracking progress.
+    """
+    # Verify dataset exists
+    async with get_db() as conn:
+        cursor = await conn.execute(
+            "SELECT id FROM datasets WHERE id = ?",
+            (request.dataset_id,)
+        )
+        dataset = await cursor.fetchone()
+        
+        if not dataset:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Dataset {request.dataset_id} not found"
+            )
+    
+    # Generate job ID
+    job_id = str(uuid.uuid4())
+    created_at = datetime.utcnow()
+    
+    # Create job in database
+    try:
+        async with get_db() as conn:
+            await conn.execute(
+                """
+                INSERT INTO jobs (
+                    id, dataset_id, status, progress, message, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    job_id,
+                    request.dataset_id,
+                    "pending",
+                    0.0,
+                    "Job submitted, waiting to start...",
+                    created_at.isoformat(),
+                    created_at.isoformat()
+                )
+            )
+            await conn.commit()
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to create job: {str(e)}"
+        )
+    
+    # Submit job to Celery
+    try:
+        finetune_model.apply_async(
+            args=[
+                job_id,
+                request.dataset_id,
+                request.model_name,
+                request.learning_rate,
+                request.num_epochs,
+                request.batch_size,
+                request.max_length,
+            ],
+            task_id=job_id
+        )
+    except Exception as e:
+        # Update job status to failed
+        async with get_db() as conn:
+            await conn.execute(
+                "UPDATE jobs SET status = ?, message = ? WHERE id = ?",
+                ("failed", f"Failed to submit job: {str(e)}", job_id)
+            )
+            await conn.commit()
+        
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to submit job to queue: {str(e)}"
+        )
+    
+    return StartFinetuningResponse(
+        job_id=job_id,
+        status="pending",
+        dataset_id=request.dataset_id,
+        message="Fine-tuning job submitted successfully",
+        created_at=created_at
     )

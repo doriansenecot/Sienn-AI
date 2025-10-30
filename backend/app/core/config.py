@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     environment: str = "development"
-    database_path: str = "/app/data/data.db"
+    database_path: str = "data/data.db"
     redis_url: str = "redis://redis:6379/0"
     minio_endpoint: str = "minio:9000"
     minio_access_key: str = "minioadmin"
