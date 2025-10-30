@@ -1,0 +1,39 @@
+from contextlib import asynccontextmanager
+from pathlib import Path
+import aiosqlite
+
+from .core.config import settings
+
+
+@asynccontextmanager
+async def get_db():
+    """Async context manager yielding an aiosqlite connection.
+
+    Usage in FastAPI endpoints:
+        async with get_db() as conn:
+            await conn.execute(...)
+    """
+    db_path = Path(settings.database_path)
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    conn = await aiosqlite.connect(str(db_path))
+    try:
+        yield conn
+    finally:
+        await conn.close()
+
+
+async def init_db():
+    """Create basic tables if missing. Can be called at app startup."""
+    async with get_db() as conn:
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS jobs (
+                id TEXT PRIMARY KEY,
+                status TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                meta TEXT
+            )
+            """
+        )
+        await conn.commit()
