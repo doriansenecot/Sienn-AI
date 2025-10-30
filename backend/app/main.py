@@ -61,7 +61,46 @@ async def upload_dataset(file: UploadFile = File(...)):
     try:
         metadata, preview = await dataset_service.save_upload(file)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to start fine-tuning: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to process upload: {str(e)}")
+    
+    # Store metadata in database
+    try:
+        async with get_db() as conn:
+            await conn.execute(
+                """
+                INSERT INTO datasets (
+                    id, filename, original_filename, file_path, size_bytes,
+                    content_type, status, num_rows, num_columns, column_names,
+                    created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    metadata["id"],
+                    metadata["filename"],
+                    metadata["original_filename"],
+                    metadata["file_path"],
+                    metadata["size_bytes"],
+                    metadata["content_type"],
+                    metadata["status"],
+                    metadata.get("num_rows"),
+                    metadata.get("num_columns"),
+                    metadata.get("column_names"),
+                    metadata["created_at"],
+                    metadata["updated_at"]
+                )
+            )
+            await conn.commit()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to store metadata: {str(e)}")
+    
+    return DatasetUploadResponse(
+        dataset_id=metadata["id"],
+        filename=metadata["original_filename"],
+        size_bytes=metadata["size_bytes"],
+        status=metadata["status"],
+        preview=preview,
+        created_at=datetime.fromisoformat(metadata["created_at"])
+    )
 
 
 @app.get("/api/training-status/{job_id}", response_model=TrainingStatusResponse)
@@ -105,45 +144,6 @@ async def get_training_status(job_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get training status: {str(e)}")
-    
-    # Store metadata in database
-    try:
-        async with get_db() as conn:
-            await conn.execute(
-                """
-                INSERT INTO datasets (
-                    id, filename, original_filename, file_path, size_bytes,
-                    content_type, status, num_rows, num_columns, column_names,
-                    created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    metadata["id"],
-                    metadata["filename"],
-                    metadata["original_filename"],
-                    metadata["file_path"],
-                    metadata["size_bytes"],
-                    metadata["content_type"],
-                    metadata["status"],
-                    metadata.get("num_rows"),
-                    metadata.get("num_columns"),
-                    metadata.get("column_names"),
-                    metadata["created_at"],
-                    metadata["updated_at"]
-                )
-            )
-            await conn.commit()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to store metadata: {str(e)}")
-    
-    return DatasetUploadResponse(
-        dataset_id=metadata["id"],
-        filename=metadata["original_filename"],
-        size_bytes=metadata["size_bytes"],
-        status=metadata["status"],
-        preview=preview,
-        created_at=datetime.fromisoformat(metadata["created_at"])
-    )
 
 
 @app.post("/api/start-finetuning", response_model=StartFinetuningResponse)
