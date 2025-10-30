@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class DatasetUploadResponse(BaseModel):
@@ -44,6 +44,8 @@ class JobStatus(BaseModel):
 
 class StartFinetuningRequest(BaseModel):
     """Request to start fine-tuning"""
+    model_config = ConfigDict(protected_namespaces=())
+    
     dataset_id: str
     model_name: str = "gpt2"
     learning_rate: float = Field(default=2e-5, gt=0, le=1e-3)
@@ -83,9 +85,34 @@ class TestModelRequest(BaseModel):
 
 class TestModelResponse(BaseModel):
     """Response from model testing"""
+    model_config = ConfigDict(protected_namespaces=())
+    
     job_id: str
     prompt: str
     generated_text: str
     model_path: str
     generation_time: float
+    timestamp: datetime
+
+
+class ExportModelRequest(BaseModel):
+    """Request to export a model"""
+    model_config = ConfigDict(protected_namespaces=())
+    
+    format: str = Field(..., pattern="^(ollama|huggingface|gguf)$")
+    model_name: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    temperature: float = Field(default=0.7, ge=0.1, le=2.0)
+    top_p: float = Field(default=0.9, ge=0.0, le=1.0)
+    top_k: int = Field(default=40, ge=1, le=100)
+    quantization: str = Field(default="q4_k_m", pattern="^(q4_k_m|q5_k_m|q8_0|f16|f32)$")
+
+
+class ExportModelResponse(BaseModel):
+    """Response from model export"""
+    job_id: str
+    format: str
+    status: str
+    message: str
+    download_url: Optional[str] = None
+    file_size_bytes: Optional[int] = None
     timestamp: datetime

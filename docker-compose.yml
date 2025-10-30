@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Base de données SQLite (via volume partagé)
   # Note: SQLite n'a pas besoin de service dédié, on utilise un volume partagé

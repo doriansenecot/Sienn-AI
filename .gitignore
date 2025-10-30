@@ -1,15 +1,30 @@
 # Python
 venv/
-.venv
+.venv/
+.venv-*/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.py[cod]
+*$py.class
 env/
 .env
+.env.local
 *.sqlite3
-data/data.db
+*.db
+*.db-journal
+
+# Project data directories
+data/
 backend/data/
+test_data/
+
+# Logs
+*.log
+logs/
+*.log.*
+nohup.out
 
 # Node
 node_modules/
@@ -17,18 +32,60 @@ build/
 dist/
 npm-debug.log
 yarn-error.log
+.npm/
+.yarn/
 
 # OS
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+*~
 
 # Editor
 .vscode/
 .idea/
+*.sublime-*
+.project
+.settings/
 
 # Docker
 docker-compose.override.yml
+*.dockerignore
 
-# Other
+# Temporary files
+temp
+tmp/
+*.tmp
+*.bak
+*.backup
+
+# Documentation locale (à ne pas versionner)
 docs/contexte/
-test_data/
+
+# Model artifacts (trop volumineux)
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.pkl
+*.h5
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Testing
+.pytest_cache/
+.tox/
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
