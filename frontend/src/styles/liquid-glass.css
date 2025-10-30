@@ -1,0 +1,188 @@
+/* ==============================================
+   LIQUID GLASS DESIGN SYSTEM
+   Modern 2026 Glassmorphism Design Tokens
+   ============================================== */
+
+:root {
+  /* Glass Effect Tokens */
+  --glass-bg-light: rgba(255, 255, 255, 0.05);
+  --glass-bg-medium: rgba(255, 255, 255, 0.1);
+  --glass-bg-heavy: rgba(255, 255, 255, 0.15);
+  
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-hover: rgba(255, 255, 255, 0.2);
+  
+  --glass-blur: 20px;
+  --glass-blur-heavy: 40px;
+  
+  /* Shadow System */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.25);
+  
+  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+  --shadow-glow-hover: 0 0 40px rgba(99, 102, 241, 0.5);
+  
+  /* Spacing */
+  --glass-padding: 1.5rem;
+  --glass-gap: 1rem;
+}
+
+/* ==============================================
+   GLASS CARD VARIANTS
+   ============================================== */
+
+.glass-card {
+  background: var(--glass-bg-light);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.5rem;
+  box-shadow: 
+    var(--shadow-lg),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--glass-border-hover);
+  box-shadow: 
+    var(--shadow-xl),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.glass-card-medium {
+  background: var(--glass-bg-medium);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow-md);
+}
+
+.glass-card-heavy {
+  background: var(--glass-bg-heavy);
+  backdrop-filter: blur(var(--glass-blur-heavy)) saturate(200%);
+  border: 1px solid var(--glass-border-hover);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow-xl);
+}
+
+/* ==============================================
+   GLASS BUTTON
+   ============================================== */
+
+.glass-button {
+  background: var(--glass-bg-medium);
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.glass-button:hover {
+  background: var(--glass-bg-heavy);
+  border-color: var(--glass-border-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-glow);
+}
+
+.glass-button:active {
+  transform: translateY(0);
+}
+
+.glass-button-primary {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.8), rgba(139, 92, 246, 0.8));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-glow);
+}
+
+.glass-button-primary:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 1), rgba(139, 92, 246, 1));
+  box-shadow: var(--shadow-glow-hover);
+}
+
+/* ==============================================
+   GLASS INPUT
+   ============================================== */
+
+.glass-input {
+  background: var(--glass-bg-light);
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+  color: inherit;
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  background: var(--glass-bg-medium);
+}
+
+.glass-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ==============================================
+   GLASS MODAL/OVERLAY
+   ============================================== */
+
+.glass-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+.glass-modal {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(var(--glass-blur-heavy)) saturate(180%);
+  border: 1px solid var(--glass-border-hover);
+  border-radius: 2rem;
+  box-shadow: var(--shadow-xl);
+}
+
+/* ==============================================
+   GLASS BADGE
+   ============================================== */
+
+.glass-badge {
+  background: var(--glass-bg-medium);
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* ==============================================
+   IRIDESCENT BORDER EFFECT
+   ============================================== */
+
+.glass-border-iridescent {
+  position: relative;
+  border: 1px solid transparent;
+  background: linear-gradient(var(--glass-bg-light), var(--glass-bg-light)) padding-box,
+              linear-gradient(135deg, 
+                rgba(99, 102, 241, 0.5), 
+                rgba(168, 85, 247, 0.5), 
+                rgba(236, 72, 153, 0.5)
+              ) border-box;
+  border-radius: 1.5rem;
+}
+
+/* ==============================================
+   FROSTED GLASS (Less transparent)
+   ============================================== */
+
+.glass-frosted {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(40px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
