@@ -1,5 +1,6 @@
 # Python
 venv/
+.venv
 __pycache__/
 *.pyc
 *.pyo
@@ -8,6 +9,7 @@ env/
 .env
 *.sqlite3
 data/data.db
+backend/data/
 
 # Node
 node_modules/
@@ -28,4 +30,5 @@ Thumbs.db
 docker-compose.override.yml
 
 # Other
-docs/contexte/*.md
+docs/contexte/
+test_data/

@@ -1,0 +1,33 @@
+# Worker Dockerfile - Celery worker for fine-tuning tasks
+FROM python:3.11-slim
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Installer les dépendances système nécessaires (incluant CUDA si disponible)
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copier les fichiers de dépendances
+COPY requirements.txt .
+
+# Installer les dépendances Python + PyTorch et librairies ML
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+# Note: Pour GPU, remplacer la ligne ci-dessus par:
+# RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# Copier le code de l'application
+COPY . .
+
+# Créer le répertoire data s'il n'existe pas
+RUN mkdir -p /app/data
+
+# Commande par défaut (peut être override dans docker-compose)
+CMD ["celery", "-A", "app.worker.celery_app", "worker", "--loglevel=info"]

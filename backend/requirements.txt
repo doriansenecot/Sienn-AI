@@ -1,0 +1,22 @@
+# Core API dependencies (same as requirements-core.txt)
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+pydantic==2.9.2
+pydantic-settings==2.6.0
+python-dotenv==1.0.0
+redis==5.2.0
+minio==7.2.9
+sqlalchemy==2.0.36
+aiosqlite==0.20.0
+python-multipart==0.0.12
+celery==5.4.0
+aiofiles==24.1.0
+
+# Machine Learning / Fine-tuning dependencies
+transformers==4.46.0
+peft==0.13.0
+accelerate==1.1.1
+datasets==3.1.0
+sentencepiece==0.2.0
+protobuf==5.28.3
+torch>=2.0.0
