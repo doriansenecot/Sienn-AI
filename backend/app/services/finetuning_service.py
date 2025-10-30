@@ -21,7 +21,8 @@ class FinetuningService:
     """Service for fine-tuning language models with LoRA"""
     
     def __init__(self):
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        # Force CPU when running in Celery worker (CUDA doesn't work with multiprocessing fork)
+        self.device = "cpu"
         logger.info(f"FinetuningService initialized on device: {self.device}")
     
     def prepare_dataset(self, dataset_path: str, tokenizer, max_length: int = 512):
@@ -85,13 +86,21 @@ class FinetuningService:
     
     def create_lora_config(self, model_name: str) -> LoraConfig:
         """Create LoRA configuration"""
+        # Different models use different layer names for attention projections
+        # GPT-2: c_attn (combined Q,K,V), c_proj (output projection)
+        # Llama/Mistral: q_proj, k_proj, v_proj, o_proj
+        if "gpt2" in model_name.lower():
+            target_modules = ["c_attn", "c_proj"]
+        else:
+            target_modules = ["q_proj", "v_proj"]
+        
         return LoraConfig(
             task_type=TaskType.CAUSAL_LM,
             inference_mode=False,
             r=8,  # LoRA rank
             lora_alpha=32,  # LoRA scaling factor
             lora_dropout=0.1,
-            target_modules=["q_proj", "v_proj"],  # Target attention layers
+            target_modules=target_modules,
         )
     
     def finetune(
