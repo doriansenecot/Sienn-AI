@@ -30,4 +30,5 @@ Thumbs.db
 docker-compose.override.yml
 
 # Other
-docs/contexte/*.mdtest_data/
+docs/contexte/
+test_data/
