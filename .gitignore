@@ -18,7 +18,10 @@ env/
 # Project data directories
 data/
 backend/data/
-test_data/
+
+# Test data (keep only production samples)
+test_data/*.csv
+!test_data/python_dataset_large.csv
 
 # Logs
 *.log
@@ -59,6 +62,7 @@ tmp/
 *.tmp
 *.bak
 *.backup
+*.cache
 
 # Documentation locale (à ne pas versionner)
 docs/contexte/
