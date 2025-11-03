@@ -55,7 +55,10 @@ class ModelService:
         model_path: str,
         prompt: str,
         max_new_tokens: int = 100,
-        temperature: float = 0.7
+        temperature: float = 0.7,
+        top_p: float = 0.95,
+        repetition_penalty: float = 1.2,
+        do_sample: bool = True
     ) -> tuple[str, float]:
         """
         Test a fine-tuned model with a prompt.
@@ -67,6 +70,9 @@ class ModelService:
             prompt: Input prompt for generation
             max_new_tokens: Maximum number of tokens to generate
             temperature: Sampling temperature
+            top_p: Nucleus sampling parameter
+            repetition_penalty: Penalty for repeating tokens (1.0 = no penalty)
+            do_sample: Whether to use sampling (False = greedy decoding)
             
         Returns:
             Tuple of (generated_text, generation_time)
@@ -86,30 +92,50 @@ class ModelService:
             model = model_data["model"]
             tokenizer = model_data["tokenizer"]
             
+            # Define stop sequences to prevent repetition of format
+            stop_strings = ["### Instruction:", "### Input:", "Below is an instruction"]
+            
             # Tokenize input
             inputs = tokenizer(prompt, return_tensors="pt")
             if self.device == "cuda":
                 inputs = {k: v.cuda() for k, v in inputs.items()}
             
-            # Generate
+            # Get input length to extract only new tokens
+            input_length = inputs["input_ids"].shape[1]
+            
+            # Generate with anti-repetition parameters
             with torch.no_grad():
                 outputs = model.generate(
                     **inputs,
                     max_new_tokens=max_new_tokens,
-                    temperature=temperature,
-                    do_sample=True,
-                    top_p=0.95,
+                    temperature=temperature if do_sample else 1.0,
+                    do_sample=do_sample,
+                    top_p=top_p if do_sample else 1.0,
+                    top_k=50 if do_sample else 0,
+                    repetition_penalty=repetition_penalty,
+                    no_repeat_ngram_size=3,  # Prevent repetition of 3-grams
                     pad_token_id=tokenizer.pad_token_id or tokenizer.eos_token_id,
+                    eos_token_id=tokenizer.eos_token_id,
                 )
             
-            # Decode
-            generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+            # Decode full output
+            full_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
             
+            # Extract only the generated part (after prompt)
+            generated_only = tokenizer.decode(outputs[0][input_length:], skip_special_tokens=True)
+            
+            # Stop at first occurrence of stop strings
+            for stop_str in stop_strings:
+                if stop_str in generated_only:
+                    generated_only = generated_only.split(stop_str)[0].strip()
+                    break
+            
+            # Return full text for now (includes prompt)
             generation_time = time.time() - start_time
             
-            logger.info(f"Generated {len(outputs[0])} tokens in {generation_time:.2f}s")
+            logger.info(f"Generated {len(outputs[0]) - input_length} new tokens in {generation_time:.2f}s")
             
-            return generated_text, generation_time
+            return full_text, generation_time
             
         except Exception as e:
             logger.error(f"Generation failed: {str(e)}")

@@ -45,7 +45,10 @@ async def test_model(request: TestModelRequest):
             model_path=model_path,
             prompt=request.prompt,
             max_new_tokens=request.max_new_tokens,
-            temperature=request.temperature
+            temperature=request.temperature,
+            top_p=getattr(request, 'top_p', 0.95),
+            repetition_penalty=getattr(request, 'repetition_penalty', 1.2),
+            do_sample=getattr(request, 'do_sample', True)
         )
         
         return TestModelResponse(

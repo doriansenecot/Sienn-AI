@@ -81,6 +81,9 @@ class TestModelRequest(BaseModel):
     prompt: str = Field(..., min_length=1, max_length=2000)
     max_new_tokens: int = Field(default=100, ge=10, le=500)
     temperature: float = Field(default=0.7, ge=0.1, le=2.0)
+    top_p: float = Field(default=0.95, ge=0.1, le=1.0)
+    repetition_penalty: float = Field(default=1.2, ge=1.0, le=2.0)
+    do_sample: bool = Field(default=True)
 
 
 class TestModelResponse(BaseModel):
