@@ -52,25 +52,48 @@ class FinetuningService:
         else:
             raise ValueError(f"Unsupported file format: {extension}")
         
-        # Ensure 'text' column exists
+        # Ensure 'text' column exists or create it from multiple columns
         if 'text' not in dataset.column_names:
-            # Try to find a suitable column
-            possible_columns = ['content', 'prompt', 'input', 'question']
-            text_col = None
-            for col in possible_columns:
-                if col in dataset.column_names:
-                    text_col = col
-                    break
-            
-            if text_col:
-                dataset = dataset.rename_column(text_col, 'text')
+            # Check for instruction-based format (instruction, input, output)
+            if all(col in dataset.column_names for col in ['instruction', 'output']):
+                def format_instruction(examples):
+                    texts = []
+                    for i in range(len(examples['instruction'])):
+                        inst = examples['instruction'][i]
+                        inp = examples.get('input', [''] * len(examples['instruction']))[i]
+                        out = examples['output'][i]
+                        
+                        if inp and inp.strip():
+                            text = f"Instruction: {inst}\nInput: {inp}\nOutput: {out}"
+                        else:
+                            text = f"Instruction: {inst}\nOutput: {out}"
+                        texts.append(text)
+                    return {'text': texts}
+                
+                dataset = dataset.map(format_instruction, batched=True, remove_columns=dataset.column_names)
             else:
-                raise ValueError(f"Could not find text column. Available columns: {dataset.column_names}")
+                # Try to find a suitable column
+                possible_columns = ['content', 'prompt', 'input', 'question']
+                text_col = None
+                for col in possible_columns:
+                    if col in dataset.column_names:
+                        text_col = col
+                        break
+                
+                if text_col:
+                    dataset = dataset.rename_column(text_col, 'text')
+                else:
+                    raise ValueError(f"Could not find text column. Available columns: {dataset.column_names}")
         
         # Tokenize dataset
         def tokenize_function(examples):
+            # Make sure text is a list of strings
+            texts = examples['text']
+            if not isinstance(texts, list):
+                texts = [texts]
+            
             return tokenizer(
-                examples['text'],
+                texts,
                 truncation=True,
                 max_length=max_length,
                 padding='max_length',
