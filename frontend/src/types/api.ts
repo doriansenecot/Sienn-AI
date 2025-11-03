@@ -4,14 +4,28 @@
 
 export type JobStatus = 'pending' | 'running' | 'completed' | 'failed';
 
+// Dataset Types
 export interface Dataset {
-  dataset_id: string;
-  filename: string;
-  filepath: string;
-  row_count?: number;
+  id: string;
+  original_filename: string;
+  stored_filename: string;
+  size_bytes: number;
+  status: 'uploaded' | 'processing' | 'ready' | 'error';
+  format?: string;
+  num_samples?: number;
   created_at: string;
 }
 
+export interface DatasetUploadResponse {
+  dataset_id: string;
+  filename: string;
+  size_bytes: number;
+  status: string;
+  preview: string[];
+  created_at: string;
+}
+
+// Job Types
 export interface Job {
   job_id: string;
   dataset_id: string;
@@ -32,39 +46,94 @@ export interface Job {
   };
 }
 
-export interface TrainingConfig {
+export interface StartFinetuningRequest {
   dataset_id: string;
   model_name: string;
-  base_model?: string;
   learning_rate?: number;
   num_epochs?: number;
   batch_size?: number;
-  lora_r?: number;
-  lora_alpha?: number;
-  lora_dropout?: number;
+  max_length?: number;
 }
 
-export interface ModelTestRequest {
+export interface StartFinetuningResponse {
+  job_id: string;
+  status: string;
+  dataset_id: string;
+  message: string;
+  created_at: string;
+}
+
+export interface TrainingStatusResponse {
+  job_id: string;
+  dataset_id: string;
+  status: JobStatus;
+  progress: number;
+  message: string;
+  created_at: string;
+  updated_at: string;
+  meta?: {
+    model_name?: string;
+    learning_rate?: number;
+    num_epochs?: number;
+    batch_size?: number;
+    current_epoch?: number;
+    train_loss?: number;
+    eval_loss?: number;
+  };
+}
+
+// Inference Types
+export interface TestModelRequest {
   job_id: string;
   prompt: string;
-  max_length?: number;
+  max_new_tokens?: number;
   temperature?: number;
+  top_p?: number;
 }
 
-export interface ModelTestResponse {
+export interface TestModelResponse {
   job_id: string;
   prompt: string;
   generated_text: string;
-  model_path: string;
+  generation_time: number;
+  tokens_generated: number;
 }
 
+// Export Types
 export interface ExportFormat {
-  format: string;
+  id: string;
+  name: string;
   description: string;
-  available: boolean;
+  file_extension: string;
 }
 
-export interface ApiError {
+export interface ExportModelRequest {
+  job_id: string;
+  format: 'ollama' | 'huggingface' | 'gguf';
+}
+
+export interface ExportModelResponse {
+  export_id: string;
+  job_id: string;
+  format: string;
+  status: string;
+  download_url?: string;
+  created_at: string;
+}
+
+// Error Types
+export interface APIError {
   detail: string;
-  status?: number;
+  status_code?: number;
+}
+
+// Legacy aliases for backward compatibility
+export type ApiError = APIError;
+export type ModelTestRequest = TestModelRequest;
+export type ModelTestResponse = TestModelResponse;
+export interface TrainingConfig extends StartFinetuningRequest {
+  base_model?: string;
+  lora_r?: number;
+  lora_alpha?: number;
+  lora_dropout?: number;
 }

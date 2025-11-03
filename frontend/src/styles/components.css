@@ -1,0 +1,406 @@
+/* Component Styles */
+
+/* Buttons */
+.btn {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-base;
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-primary {
+  @apply bg-primary-600 text-white;
+  @apply hover:bg-primary-700 active:bg-primary-800;
+  @apply focus:ring-primary-500;
+  @apply shadow-md hover:shadow-primary;
+}
+
+.btn-secondary {
+  @apply bg-secondary-600 text-white;
+  @apply hover:bg-secondary-700 active:bg-secondary-800;
+  @apply focus:ring-secondary-500;
+  @apply shadow-md hover:shadow-lg;
+}
+
+.btn-outline {
+  @apply border-2 border-primary-600 text-primary-600 bg-transparent;
+  @apply hover:bg-primary-50 active:bg-primary-100;
+  @apply focus:ring-primary-500;
+}
+
+.btn-ghost {
+  @apply bg-transparent text-gray-700;
+  @apply hover:bg-gray-100 active:bg-gray-200;
+  @apply focus:ring-gray-400;
+}
+
+.btn-danger {
+  @apply bg-error text-white;
+  @apply hover:bg-red-600 active:bg-red-700;
+  @apply focus:ring-error;
+  @apply shadow-md hover:shadow-lg;
+}
+
+.btn-sm {
+  @apply px-3 py-1.5 text-sm;
+}
+
+.btn-lg {
+  @apply px-6 py-3 text-base;
+}
+
+/* CARDS */
+.card {
+  @apply bg-glass-medium backdrop-blur-md rounded-lg;
+  @apply border border-gray-700/50;
+  @apply shadow-lg transition-all duration-base;
+}
+
+.card-hover {
+  @apply hover:shadow-xl hover:border-primary-500/50;
+  @apply hover:-translate-y-1;
+}
+
+.card-body {
+  @apply p-6;
+}
+
+.card-header {
+  @apply px-6 py-4 border-b border-gray-700/50;
+}
+
+.card-footer {
+  @apply px-6 py-4 border-t border-gray-700/50;
+}
+
+/* FORMS */
+.input {
+  @apply w-full px-4 py-2 rounded-lg;
+  @apply bg-glass-light border border-gray-700;
+  @apply text-white placeholder-gray-400;
+  @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  @apply transition-all duration-base;
+}
+
+.input-error {
+  @apply border-error focus:ring-error;
+}
+
+.input-success {
+  @apply border-success focus:ring-success;
+}
+
+.label {
+  @apply block text-sm font-medium text-gray-300 mb-2;
+}
+
+.label-required::after {
+  content: ' *';
+  @apply text-error;
+}
+
+.error-message {
+  @apply text-sm text-error mt-1;
+}
+
+.help-text {
+  @apply text-sm text-gray-400 mt-1;
+}
+
+/* Select Dropdown */
+.select {
+  @apply input appearance-none;
+  @apply bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEyIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMUw2IDZMMTEgMSIgc3Ryb2tlPSIjOTRhM2I4IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==')];
+  @apply bg-no-repeat bg-right bg-center;
+  padding-right: 2.5rem;
+  background-position: right 1rem center;
+}
+
+/* Checkbox & Radio */
+.checkbox,
+.radio {
+  @apply w-4 h-4 border border-gray-700 rounded;
+  @apply bg-glass-light text-primary-600;
+  @apply focus:ring-2 focus:ring-primary-500 focus:ring-offset-0;
+  @apply transition-all duration-fast;
+}
+
+.radio {
+  @apply rounded-full;
+}
+
+/* BADGES */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-success {
+  @apply bg-success/20 text-success border border-success/50;
+}
+
+.badge-error {
+  @apply bg-error/20 text-error border border-error/50;
+}
+
+.badge-warning {
+  @apply bg-warning/20 text-warning border border-warning/50;
+}
+
+.badge-info {
+  @apply bg-info/20 text-info border border-info/50;
+}
+
+.badge-primary {
+  @apply bg-primary-600/20 text-primary-400 border border-primary-500/50;
+}
+
+.badge-secondary {
+  @apply bg-secondary-600/20 text-secondary-400 border border-secondary-500/50;
+}
+
+/* ALERTS */
+.alert {
+  @apply p-4 rounded-lg border;
+  @apply flex items-start gap-3;
+}
+
+.alert-success {
+  @apply bg-success/10 border-success/50 text-success;
+}
+
+.alert-error {
+  @apply bg-error/10 border-error/50 text-error;
+}
+
+.alert-warning {
+  @apply bg-warning/10 border-warning/50 text-warning;
+}
+
+.alert-info {
+  @apply bg-info/10 border-info/50 text-info;
+}
+
+/* NAVIGATION */
+.nav-link {
+  @apply px-4 py-2 rounded-lg font-medium;
+  @apply text-gray-300 hover:text-white hover:bg-glass-medium;
+  @apply transition-all duration-base;
+  @apply focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.nav-link-active {
+  @apply bg-primary-600/20 text-primary-400 border border-primary-500/50;
+}
+
+/* MODALS */
+.modal-overlay {
+  @apply fixed inset-0 bg-black/70 backdrop-blur-sm;
+  @apply flex items-center justify-center p-4;
+  @apply z-modal;
+  @apply animate-fade-in;
+}
+
+.modal-content {
+  @apply bg-gray-800 rounded-xl shadow-2xl;
+  @apply border border-gray-700;
+  @apply max-w-lg w-full;
+  @apply animate-slide-up;
+}
+
+.modal-header {
+  @apply px-6 py-4 border-b border-gray-700;
+  @apply flex items-center justify-between;
+}
+
+.modal-body {
+  @apply px-6 py-4;
+}
+
+.modal-footer {
+  @apply px-6 py-4 border-t border-gray-700;
+  @apply flex items-center justify-end gap-3;
+}
+
+/* TABLES */
+.table-container {
+  @apply overflow-x-auto rounded-lg;
+  @apply border border-gray-700;
+}
+
+.table {
+  @apply w-full text-sm text-left;
+}
+
+.table-header {
+  @apply text-xs uppercase tracking-wider;
+  @apply bg-glass-medium text-gray-300;
+  @apply border-b border-gray-700;
+}
+
+.table-header th {
+  @apply px-6 py-3 font-semibold;
+}
+
+.table-body {
+  @apply divide-y divide-gray-700;
+}
+
+.table-row {
+  @apply hover:bg-glass-light transition-colors;
+}
+
+.table-cell {
+  @apply px-6 py-4 text-gray-300;
+}
+
+/* LOADING SPINNERS */
+.spinner {
+  @apply inline-block w-6 h-6;
+  @apply border-4 border-gray-600 border-t-primary-600;
+  @apply rounded-full;
+  @apply animate-spin;
+}
+
+.spinner-sm {
+  @apply w-4 h-4 border-2;
+}
+
+.spinner-lg {
+  @apply w-8 h-8 border-4;
+}
+
+/* PROGRESS BARS */
+.progress-bar {
+  @apply w-full h-2 bg-gray-700 rounded-full overflow-hidden;
+}
+
+.progress-fill {
+  @apply h-full bg-gradient-to-r from-primary-600 to-primary-500;
+  @apply transition-all duration-slow;
+  @apply rounded-full;
+}
+
+.progress-fill-success {
+  @apply from-success to-green-400;
+}
+
+.progress-fill-error {
+  @apply from-error to-red-400;
+}
+
+/* TOOLTIPS */
+.tooltip {
+  @apply absolute z-tooltip;
+  @apply px-2 py-1 text-xs;
+  @apply bg-gray-900 text-white rounded;
+  @apply border border-gray-700;
+  @apply shadow-lg;
+  @apply opacity-0 pointer-events-none;
+  @apply transition-opacity duration-fast;
+}
+
+.tooltip-visible {
+  @apply opacity-100 pointer-events-auto;
+}
+
+/* DIVIDERS */
+.divider {
+  @apply border-t border-gray-700;
+}
+
+.divider-vertical {
+  @apply border-l border-gray-700 h-full;
+}
+
+/* SKELETON LOADERS */
+.skeleton {
+  @apply bg-gray-700 rounded animate-pulse;
+}
+
+.skeleton-text {
+  @apply h-4 skeleton;
+}
+
+.skeleton-title {
+  @apply h-6 skeleton;
+}
+
+.skeleton-avatar {
+  @apply w-10 h-10 rounded-full skeleton;
+}
+
+/* GLASS PANELS */
+.glass-panel {
+  @apply bg-glass-medium backdrop-blur-xl;
+  @apply border border-gray-700/50;
+  @apply rounded-xl shadow-xl;
+}
+
+.glass-panel-hover {
+  @apply transition-all duration-base;
+  @apply hover:bg-glass-light hover:border-primary-500/30;
+  @apply hover:shadow-2xl hover:shadow-primary-600/10;
+}
+
+/* EMPTY STATES */
+.empty-state {
+  @apply flex flex-col items-center justify-center;
+  @apply py-12 px-4 text-center;
+}
+
+.empty-state-icon {
+  @apply w-16 h-16 text-gray-600 mb-4;
+}
+
+.empty-state-title {
+  @apply text-xl font-semibold text-gray-300 mb-2;
+}
+
+.empty-state-description {
+  @apply text-gray-400 max-w-md;
+}
+
+/* ACCESSIBILITY */
+/* Keyboard navigation focus indicators */
+*:focus-visible {
+  @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-gray-900;
+}
+
+/* Skip to main content link (for screen readers) */
+.skip-to-main {
+  @apply absolute -top-full left-0 bg-primary-600 text-white px-4 py-2 rounded;
+  @apply focus:top-4 focus:left-4 z-tooltip;
+}
+
+/* Prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* RESPONSIVE UTILITIES */
+.container-fluid {
+  @apply w-full px-4 mx-auto;
+}
+
+@media (min-width: 640px) {
+  .container-fluid {
+    @apply px-6;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-fluid {
+    @apply px-8;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-fluid {
+    @apply max-w-7xl;
+  }
+}
