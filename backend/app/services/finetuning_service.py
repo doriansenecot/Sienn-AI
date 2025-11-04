@@ -165,10 +165,11 @@ class FinetuningService:
             inference_mode=False,
             r=lora_rank,  # Adaptive rank based on model
             lora_alpha=lora_rank * 2,  # Alpha = 2x rank for stability
-            lora_dropout=0.05,  # Low dropout for better learning
+            lora_dropout=0.1,  # Increased dropout from 0.05 to 0.1 to prevent overfitting
             target_modules=target_modules,
             bias="none",  # Don't adapt biases
             modules_to_save=None,  # Don't save additional modules
+            use_rslora=False,  # Can be enabled for better scaling
         )
 
     def finetune(
@@ -260,16 +261,21 @@ class FinetuningService:
                 learning_rate=learning_rate,
                 weight_decay=0.01,  # L2 regularization
                 lr_scheduler_type="cosine",  # Cosine learning rate schedule with decay
-                warmup_ratio=0.1,  # 10% warmup for stable training
+                warmup_ratio=0.15,  # 15% warmup for more stable training (increased from 10%)
+                warmup_steps=max(100, int(steps_per_epoch * num_epochs * 0.15)),  # Explicit warmup steps
                 logging_steps=max(1, steps_per_epoch // 4),  # Log 4 times per epoch
+                logging_first_step=True,  # Log the first step to see initial loss
                 eval_strategy="steps" if eval_dataset else "no",
                 eval_steps=eval_steps if eval_dataset else None,
                 save_strategy="steps",
                 save_steps=eval_steps,
-                save_total_limit=2,  # Keep only 2 best checkpoints
+                save_total_limit=3,  # Keep 3 best checkpoints (increased from 2)
                 load_best_model_at_end=bool(eval_dataset),
                 metric_for_best_model="loss" if eval_dataset else None,
                 greater_is_better=False,  # Lower loss is better
+                # Early stopping to prevent overfitting
+                early_stopping_patience=3 if eval_dataset else None,  # Stop if no improvement after 3 evals
+                early_stopping_threshold=0.001,  # Minimum improvement required
                 fp16=self.device == "cuda",
                 optim="adamw_torch",  # AdamW optimizer
                 max_grad_norm=1.0,  # Gradient clipping
