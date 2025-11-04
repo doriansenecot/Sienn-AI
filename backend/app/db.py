@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
+
 import aiosqlite
 
 from .core.config import settings
@@ -41,7 +42,7 @@ async def init_db():
             )
             """
         )
-        
+
         # Datasets table
         await conn.execute(
             """
@@ -61,5 +62,5 @@ async def init_db():
             )
             """
         )
-        
+
         await conn.commit()

@@ -26,18 +26,29 @@ ENV/
 htmlcov/
 
 # Data
-data/*.db
-data/*.sqlite
-*.csv
-*.json
-!requirements.txt
+data/
+model_full_training/
+test_results_quick/
+storage/
+*.db
+*.sqlite3
+*.log
+test_data/
 
-# Models
+# Models (volumineux)
 models/
 checkpoints/
 *.pt
 *.pth
 *.safetensors
+
+# Documentation
+docs/
+README.md
+*.md
+
+# CI/CD
+.github/
 
 # OS
 .DS_Store

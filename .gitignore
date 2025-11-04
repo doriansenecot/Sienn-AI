@@ -18,13 +18,22 @@ env/
 # Project data directories
 data/
 backend/data/
-test_data/
+backend/model_full_training/
+backend/test_results_quick/
+
+# Test data (keep only sample dataset)
+test_data/*.csv
+test_data/*.json
+test_data/*.jsonl
+!test_data/conversations_quality.csv
 
 # Logs
 *.log
 logs/
 *.log.*
 nohup.out
+backend/training.log
+backend/training_conversations.log
 
 # Node
 node_modules/
@@ -59,11 +68,9 @@ tmp/
 *.tmp
 *.bak
 *.backup
+*.cache
 
-# Documentation locale (à ne pas versionner)
-docs/contexte/
-
-# Model artifacts (trop volumineux)
+# Model artifacts (trop volumineux - sauf adapters légers)
 *.safetensors
 *.bin
 *.pt
@@ -71,6 +78,12 @@ docs/contexte/
 *.ckpt
 *.pkl
 *.h5
+# Exception: allow small adapter files if needed
+# !**/adapter_*.safetensors
+
+# MinIO/Storage data
+backend/storage/
+minio-data/
 
 # Coverage reports
 htmlcov/
@@ -78,10 +91,21 @@ htmlcov/
 .coverage.*
 coverage.xml
 *.cover
+.nyc_output/
 
 # Testing
 .pytest_cache/
 .tox/
+test.db
+test-results/
+
+# Mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff
+.ruff_cache/
 
 # Jupyter Notebooks checkpoints
 .ipynb_checkpoints/
