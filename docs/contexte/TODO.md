@@ -199,11 +199,6 @@ PHASE 10 — Documentation & Packaging
   - Critère: toutes les routes documentées
   - ✅ COMPLÉTÉ: Documentation API complète avec tous endpoints, exemples cURL, responses détaillées.
 
-- [ ] chore/docs/install-fedora — `docs/INSTALLATION_FEDORA.md` (instructions pas-à-pas)  
-  - Dépendance: scripts/install_fedora.sh  
-  - Critère: nouvel utilisateur peut suivre le guide
-  - ⏳ SKIPPED: Non requis (utilisation via Docker).
-
 - [x] chore/docs/user-guide — `docs/USER_GUIDE.md` (utilisation UI + démo)  
   - Dépendance: frontend stable
   - ✅ COMPLÉTÉ: Guide utilisateur complet avec workflow détaillé, best practices, troubleshooting.

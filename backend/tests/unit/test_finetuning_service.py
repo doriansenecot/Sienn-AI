@@ -36,7 +36,9 @@ class TestFinetuningService:
         """Test LoRA config for Llama models"""
         config = finetuning_service.create_lora_config("llama-2-7b")
         
-        assert config.r == 32
+        # Llama models use rank 16 (larger models, smaller rank)
+        assert config.r == 16
+        assert config.lora_alpha == 32  # Alpha = 2x rank
         assert 'q_proj' in config.target_modules or 'query' in str(config.target_modules).lower()
     
     @patch('app.services.finetuning_service.AutoTokenizer')
