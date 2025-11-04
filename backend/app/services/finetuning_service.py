@@ -207,32 +207,18 @@ class FinetuningService:
             if tokenizer.pad_token is None:
                 tokenizer.pad_token = tokenizer.eos_token
 
-            # Use 4-bit quantization for large models (>3B params) to save memory
-            use_4bit = any(size in model_name.lower() for size in ["7b", "8b", "13b", "70b"])
-
-            if use_4bit and self.device == "cuda":
-                from transformers import BitsAndBytesConfig
-
-                logger.info("Using 4-bit quantization for memory efficiency...")
-
-                bnb_config = BitsAndBytesConfig(
-                    load_in_4bit=True,
-                    bnb_4bit_quant_type="nf4",
-                    bnb_4bit_compute_dtype=torch.float16,
-                    bnb_4bit_use_double_quant=True,
-                )
-
-                model = AutoModelForCausalLM.from_pretrained(
-                    model_name,
-                    quantization_config=bnb_config,
-                    device_map="auto",
-                )
-            else:
-                model = AutoModelForCausalLM.from_pretrained(
-                    model_name,
-                    torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-                    device_map="auto" if self.device == "cuda" else None,
-                )
+            # Load model without quantization to avoid bitsandbytes/triton issues
+            # For production with large models, consider using bitsandbytes in a properly configured environment
+            logger.info(f"Loading model without quantization for compatibility...")
+            
+            model = AutoModelForCausalLM.from_pretrained(
+                model_name,
+                torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
+            )
+            
+            # Move to device explicitly (safer than device_map="auto")
+            if self.device == "cuda":
+                model = model.to(self.device)
 
             if progress_callback:
                 progress_callback(10, "Model loaded, preparing LoRA...")
@@ -326,6 +312,12 @@ class FinetuningService:
                 logger.info(f"Final evaluation loss: {eval_loss}")
 
             # Save training metadata
+            # Convert LoRA config to dict and handle non-JSON-serializable types (sets)
+            lora_config_dict = lora_config.to_dict()
+            for key, value in lora_config_dict.items():
+                if isinstance(value, set):
+                    lora_config_dict[key] = list(value)
+            
             metadata = {
                 "model_name": model_name,
                 "dataset_path": dataset_path,
@@ -339,7 +331,7 @@ class FinetuningService:
                 "final_train_loss": train_result.training_loss,
                 "final_eval_loss": eval_loss,
                 "total_steps": train_result.global_step,
-                "lora_config": lora_config.to_dict(),
+                "lora_config": lora_config_dict,
                 "device": self.device,
                 "training_duration_seconds": train_result.metrics.get("train_runtime", 0),
             }

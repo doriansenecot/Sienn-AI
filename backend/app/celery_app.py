@@ -41,4 +41,5 @@ celery_app.conf.update(
     task_time_limit=3600 * 12,  # 12 hours max
     result_expires=3600 * 24,  # Results expire after 24 hours
     broker_connection_retry_on_startup=True,  # Celery 6.0+ compatibility
+    worker_pool="solo",  # Use solo pool for CUDA compatibility (single process)
 )
