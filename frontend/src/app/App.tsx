@@ -6,10 +6,8 @@ import { Toaster } from "react-hot-toast";
 
 import { Layout } from "../components/Layout";
 import { UploadPage } from "../pages/Upload";
-import { TrainingPage } from "../pages/Training";
 import { DashboardPage } from "../pages/Dashboard";
 import { InferencePage } from "../pages/Inference";
-import { HomePage } from "../pages/Home";
 
 function App() {
   return (
@@ -43,10 +41,8 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<HomePage />} />
+          <Route index element={<DashboardPage />} />
           <Route path="upload" element={<UploadPage />} />
-          <Route path="training" element={<TrainingPage />} />
-          <Route path="dashboard" element={<DashboardPage />} />
           <Route path="inference" element={<InferencePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

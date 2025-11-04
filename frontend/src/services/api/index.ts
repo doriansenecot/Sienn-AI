@@ -41,6 +41,14 @@ export const datasetAPI = {
  */
 export const jobAPI = {
   /**
+   * Get all jobs
+   */
+  getAllJobs: async (): Promise<{ jobs: TrainingStatusResponse[] }> => {
+    const response = await apiClient.get<{ jobs: TrainingStatusResponse[] }>("/api/jobs");
+    return response.data;
+  },
+
+  /**
    * Start a fine-tuning job
    */
   startFinetuning: async (request: StartFinetuningRequest): Promise<StartFinetuningResponse> => {
