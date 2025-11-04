@@ -5,10 +5,13 @@ node_modules
 
 # Testing
 coverage
+.nyc_output
+test-results
 
 # Production
 dist
 build
+*.tsbuildinfo
 
 # Misc
 .DS_Store
@@ -17,6 +20,10 @@ build
 .env.test.local
 .env.production.local
 .env
+
+# ESLint & Prettier cache
+.eslintcache
+.prettiercache
 
 # Logs
 npm-debug.log*

@@ -103,3 +103,38 @@ async def get_training_status(job_id: str):
             status_code=500,
             detail=f"Failed to get training status: {str(e)}"
         )
+
+
+@router.get("/jobs")
+async def list_jobs():
+    """List all jobs, most recent first."""
+    try:
+        async with get_db() as db:
+            cursor = await db.execute(
+                """
+                SELECT id, dataset_id, status, progress, message, created_at, updated_at
+                FROM jobs
+                ORDER BY created_at DESC
+                LIMIT 50
+                """
+            )
+            rows = await cursor.fetchall()
+            
+            jobs = []
+            for row in rows:
+                jobs.append({
+                    "job_id": row[0],
+                    "dataset_id": row[1],
+                    "status": row[2],
+                    "progress": row[3],
+                    "message": row[4],
+                    "created_at": row[5],
+                    "updated_at": row[6]
+                })
+            
+            return {"jobs": jobs, "count": len(jobs)}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to list jobs: {str(e)}"
+        )

@@ -205,11 +205,31 @@ class FinetuningService:
             if tokenizer.pad_token is None:
                 tokenizer.pad_token = tokenizer.eos_token
             
-            model = AutoModelForCausalLM.from_pretrained(
-                model_name,
-                torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-                device_map="auto" if self.device == "cuda" else None,
-            )
+            # Use 4-bit quantization for large models (>3B params) to save memory
+            use_4bit = any(size in model_name.lower() for size in ['7b', '8b', '13b', '70b'])
+            
+            if use_4bit and self.device == "cuda":
+                from transformers import BitsAndBytesConfig
+                logger.info("Using 4-bit quantization for memory efficiency...")
+                
+                bnb_config = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_quant_type="nf4",
+                    bnb_4bit_compute_dtype=torch.float16,
+                    bnb_4bit_use_double_quant=True,
+                )
+                
+                model = AutoModelForCausalLM.from_pretrained(
+                    model_name,
+                    quantization_config=bnb_config,
+                    device_map="auto",
+                )
+            else:
+                model = AutoModelForCausalLM.from_pretrained(
+                    model_name,
+                    torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
+                    device_map="auto" if self.device == "cuda" else None,
+                )
             
             if progress_callback:
                 progress_callback(10, "Model loaded, preparing LoRA...")

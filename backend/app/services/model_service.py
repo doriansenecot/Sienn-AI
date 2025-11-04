@@ -30,12 +30,18 @@ class ModelService:
             # Load tokenizer
             tokenizer = AutoTokenizer.from_pretrained(model_path)
             
-            # Load model (LoRA adapter)
-            model = AutoModelForCausalLM.from_pretrained(
-                model_path,
+            # Load base model first, then apply LoRA adapters
+            logger.info("Loading base model (gpt2)...")
+            base_model = AutoModelForCausalLM.from_pretrained(
+                "gpt2",
                 torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
                 device_map="auto" if self.device == "cuda" else None,
             )
+            
+            # Load LoRA adapter on top of base model
+            logger.info(f"Loading LoRA adapters from {model_path}...")
+            model = PeftModel.from_pretrained(base_model, model_path)
+            model.eval()
             
             # Cache the model
             self.loaded_models[model_path] = {
@@ -43,7 +49,7 @@ class ModelService:
                 "tokenizer": tokenizer,
             }
             
-            logger.info(f"Model loaded successfully from {model_path}")
+            logger.info(f"Model with LoRA adapters loaded successfully")
             return self.loaded_models[model_path]
             
         except Exception as e:
@@ -92,11 +98,17 @@ class ModelService:
             model = model_data["model"]
             tokenizer = model_data["tokenizer"]
             
+            # Format prompt in Alpaca style if not already formatted
+            if not prompt.startswith("Below is an instruction"):
+                formatted_prompt = f"Below is an instruction. Write a response that completes the request.\n\n### Instruction:\n{prompt}\n\n### Response:\n"
+            else:
+                formatted_prompt = prompt
+            
             # Define stop sequences to prevent repetition of format
             stop_strings = ["### Instruction:", "### Input:", "Below is an instruction"]
             
             # Tokenize input
-            inputs = tokenizer(prompt, return_tensors="pt")
+            inputs = tokenizer(formatted_prompt, return_tensors="pt")
             if self.device == "cuda":
                 inputs = {k: v.cuda() for k, v in inputs.items()}
             
