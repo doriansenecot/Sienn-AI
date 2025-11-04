@@ -2,9 +2,9 @@
  * Empty State Component
  * Follows UX Strategy: Illustration + message + CTA for empty data states
  */
-import { ReactNode } from 'react';
-import { clsx } from 'clsx';
-import { Button, ButtonVariant } from './Button';
+import { ReactNode } from "react";
+import { clsx } from "clsx";
+import { Button, ButtonVariant } from "./Button";
 
 interface EmptyStateProps {
   icon: ReactNode;
@@ -23,55 +23,35 @@ interface EmptyStateProps {
   className?: string;
 }
 
-export function EmptyState({
-  icon,
-  title,
-  description,
-  action,
-  secondaryAction,
-  className,
-}: EmptyStateProps) {
+export function EmptyState({ icon, title, description, action, secondaryAction, className }: EmptyStateProps) {
   return (
     <div
       className={clsx(
-        'flex flex-col items-center justify-center',
-        'py-16 px-4 text-center',
-        'animate-fade-in',
+        "flex flex-col items-center justify-center",
+        "py-16 px-4 text-center",
+        "animate-fade-in",
         className
       )}
     >
       {/* Icon */}
-      <div className="w-20 h-20 mb-6 text-gray-600 flex items-center justify-center">
-        {icon}
-      </div>
+      <div className="w-20 h-20 mb-6 text-gray-600 flex items-center justify-center">{icon}</div>
 
       {/* Title */}
-      <h3 className="text-2xl font-bold text-white mb-3">
-        {title}
-      </h3>
+      <h3 className="text-2xl font-bold text-white mb-3">{title}</h3>
 
       {/* Description */}
-      <p className="text-slate-400 max-w-md mb-8 leading-relaxed">
-        {description}
-      </p>
+      <p className="text-slate-400 max-w-md mb-8 leading-relaxed">{description}</p>
 
       {/* Actions */}
       {(action || secondaryAction) && (
         <div className="flex flex-col sm:flex-row gap-3">
           {action && (
-            <Button
-              variant={action.variant || 'primary'}
-              onClick={action.onClick}
-              icon={action.icon}
-            >
+            <Button variant={action.variant || "primary"} onClick={action.onClick} icon={action.icon}>
               {action.label}
             </Button>
           )}
           {secondaryAction && (
-            <Button
-              variant="secondary"
-              onClick={secondaryAction.onClick}
-            >
+            <Button variant="secondary" onClick={secondaryAction.onClick}>
               {secondaryAction.label}
             </Button>
           )}
@@ -87,16 +67,11 @@ interface CommonEmptyStateProps {
   actionLabel?: string;
 }
 
-export function NoDatasets({ onAction, actionLabel = 'Upload Dataset' }: CommonEmptyStateProps) {
+export function NoDatasets({ onAction, actionLabel = "Upload Dataset" }: CommonEmptyStateProps) {
   return (
     <EmptyState
       icon={
-        <svg
-          className="w-full h-full"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -110,10 +85,15 @@ export function NoDatasets({ onAction, actionLabel = 'Upload Dataset' }: CommonE
       action={{
         label: actionLabel,
         onClick: onAction,
-        variant: 'primary',
+        variant: "primary",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+            />
           </svg>
         ),
       }}
@@ -121,22 +101,12 @@ export function NoDatasets({ onAction, actionLabel = 'Upload Dataset' }: CommonE
   );
 }
 
-export function NoJobs({ onAction, actionLabel = 'Start Training' }: CommonEmptyStateProps) {
+export function NoJobs({ onAction, actionLabel = "Start Training" }: CommonEmptyStateProps) {
   return (
     <EmptyState
       icon={
-        <svg
-          className="w-full h-full"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M13 10V3L4 14h7v7l9-11h-7z"
-          />
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
       }
       title="No training jobs"
@@ -144,7 +114,7 @@ export function NoJobs({ onAction, actionLabel = 'Start Training' }: CommonEmpty
       action={{
         label: actionLabel,
         onClick: onAction,
-        variant: 'primary',
+        variant: "primary",
       }}
     />
   );
@@ -154,12 +124,7 @@ export function NoModels({ onAction }: CommonEmptyStateProps) {
   return (
     <EmptyState
       icon={
-        <svg
-          className="w-full h-full"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -171,9 +136,9 @@ export function NoModels({ onAction }: CommonEmptyStateProps) {
       title="No completed models"
       description="Once your training jobs are completed, your fine-tuned models will appear here. You can then test and download them."
       action={{
-        label: 'View Training Jobs',
+        label: "View Training Jobs",
         onClick: onAction,
-        variant: 'secondary',
+        variant: "secondary",
       }}
     />
   );
@@ -183,12 +148,7 @@ export function NoSearchResults({ onClear }: { onClear?: () => void }) {
   return (
     <EmptyState
       icon={
-        <svg
-          className="w-full h-full"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -199,11 +159,15 @@ export function NoSearchResults({ onClear }: { onClear?: () => void }) {
       }
       title="No results found"
       description="We couldn't find anything matching your search. Try adjusting your filters or search terms."
-      action={onClear ? {
-        label: 'Clear Filters',
-        onClick: onClear,
-        variant: 'secondary',
-      } : undefined}
+      action={
+        onClear
+          ? {
+              label: "Clear Filters",
+              onClick: onClear,
+              variant: "secondary",
+            }
+          : undefined
+      }
     />
   );
 }

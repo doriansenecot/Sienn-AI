@@ -2,29 +2,22 @@
  * Model Inference/Testing Page
  * Test trained models with custom prompts
  */
-import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { TestTube, Send, Sparkles } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { TestTube, Send, Sparkles } from "lucide-react";
+import toast from "react-hot-toast";
 
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardContent, 
-  Button, 
-  Input 
-} from '../../components/ui';
-import { api } from '../../services/api';
-import type { TestModelRequest, TestModelResponse } from '../../types/api';
+import { Card, CardHeader, CardTitle, CardContent, Button, Input } from "../../components/ui";
+import { api } from "../../services/api";
+import type { TestModelRequest, TestModelResponse } from "../../types/api";
 
 export function InferencePage() {
   const location = useLocation();
   const navigate = useNavigate();
   const initialJobId = location.state?.jobId as string | undefined;
 
-  const [jobId, setJobId] = useState<string>(initialJobId || '');
-  const [prompt, setPrompt] = useState('');
+  const [jobId, setJobId] = useState<string>(initialJobId || "");
+  const [prompt, setPrompt] = useState("");
   const [maxTokens, setMaxTokens] = useState(100);
   const [temperature, setTemperature] = useState(0.7);
   const [topP, setTopP] = useState(0.9);
@@ -33,7 +26,7 @@ export function InferencePage() {
 
   useEffect(() => {
     if (!initialJobId) {
-      toast('Please enter a Job ID of a completed training job', { icon: 'ℹ️' });
+      toast("Please enter a Job ID of a completed training job", { icon: "ℹ️" });
     }
   }, [initialJobId]);
 
@@ -41,12 +34,12 @@ export function InferencePage() {
     e.preventDefault();
 
     if (!jobId) {
-      toast.error('Please enter a Job ID');
+      toast.error("Please enter a Job ID");
       return;
     }
 
     if (!prompt.trim()) {
-      toast.error('Please enter a prompt');
+      toast.error("Please enter a prompt");
       return;
     }
 
@@ -64,9 +57,9 @@ export function InferencePage() {
     try {
       const response = await api.inference.testModel(request);
       setResult(response);
-      toast.success('Generation completed!');
+      toast.success("Generation completed!");
     } catch (error) {
-      console.error('Inference failed:', error);
+      console.error("Inference failed:", error);
     } finally {
       setTesting(false);
     }
@@ -92,9 +85,7 @@ export function InferencePage() {
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary-400 to-purple-500 bg-clip-text text-transparent">
           Test Your Model
         </h1>
-        <p className="text-slate-400 max-w-2xl mx-auto">
-          Generate text using your fine-tuned model
-        </p>
+        <p className="text-slate-400 max-w-2xl mx-auto">Generate text using your fine-tuned model</p>
       </div>
 
       <div className="max-w-4xl mx-auto space-y-6">
@@ -119,9 +110,7 @@ export function InferencePage() {
           <CardContent>
             <form onSubmit={handleTest} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Prompt
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Prompt</label>
                 <textarea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
@@ -180,13 +169,7 @@ export function InferencePage() {
                 />
               </div>
 
-              <Button
-                type="submit"
-                variant="primary"
-                fullWidth
-                loading={testing}
-                icon={<Send className="w-4 h-4" />}
-              >
+              <Button type="submit" variant="primary" fullWidth loading={testing} icon={<Send className="w-4 h-4" />}>
                 Generate
               </Button>
             </form>
@@ -203,7 +186,7 @@ export function InferencePage() {
                 <div>
                   <h3 className="text-lg font-bold text-white mb-1">Generated Text</h3>
                   <p className="text-sm text-slate-400">
-                    Generated in {result.generation_time.toFixed(2)}s 
+                    Generated in {result.generation_time.toFixed(2)}s
                     {result.tokens_generated && ` • ${result.tokens_generated} tokens`}
                   </p>
                 </div>
@@ -224,16 +207,12 @@ export function InferencePage() {
                     size="sm"
                     onClick={() => {
                       navigator.clipboard.writeText(result.generated_text);
-                      toast.success('Copied to clipboard!');
+                      toast.success("Copied to clipboard!");
                     }}
                   >
                     Copy Text
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setResult(null)}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => setResult(null)}>
                     Clear
                   </Button>
                 </div>
@@ -246,7 +225,8 @@ export function InferencePage() {
           <h4 className="text-sm font-bold text-white mb-3">💡 Generation Tips</h4>
           <ul className="text-sm text-slate-400 space-y-2">
             <li>
-              <strong className="text-slate-300">Temperature:</strong> Lower (0.3-0.7) = more focused, Higher (0.8-1.5) = more creative
+              <strong className="text-slate-300">Temperature:</strong> Lower (0.3-0.7) = more focused, Higher (0.8-1.5)
+              = more creative
             </li>
             <li>
               <strong className="text-slate-300">Max Tokens:</strong> Controls output length. ~1 token = ~4 characters
@@ -261,10 +241,7 @@ export function InferencePage() {
         </Card>
 
         <div className="flex justify-center">
-          <Button
-            variant="secondary"
-            onClick={() => navigate('/dashboard', { state: { jobId } })}
-          >
+          <Button variant="secondary" onClick={() => navigate("/dashboard", { state: { jobId } })}>
             ← Back to Dashboard
           </Button>
         </div>

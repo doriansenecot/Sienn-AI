@@ -2,7 +2,7 @@
  * API Service Methods
  * Wraps all backend API calls
  */
-import apiClient from './client';
+import apiClient from "./client";
 import type {
   DatasetUploadResponse,
   StartFinetuningRequest,
@@ -13,7 +13,7 @@ import type {
   ExportFormat,
   ExportModelRequest,
   ExportModelResponse,
-} from '../../types/api';
+} from "../../types/api";
 
 /**
  * Dataset API
@@ -24,18 +24,14 @@ export const datasetAPI = {
    */
   uploadDataset: async (file: File): Promise<DatasetUploadResponse> => {
     const formData = new FormData();
-    formData.append('file', file);
-    
-    const response = await apiClient.post<DatasetUploadResponse>(
-      '/api/upload-dataset',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
-    
+    formData.append("file", file);
+
+    const response = await apiClient.post<DatasetUploadResponse>("/api/upload-dataset", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
     return response.data;
   },
 };
@@ -47,13 +43,8 @@ export const jobAPI = {
   /**
    * Start a fine-tuning job
    */
-  startFinetuning: async (
-    request: StartFinetuningRequest
-  ): Promise<StartFinetuningResponse> => {
-    const response = await apiClient.post<StartFinetuningResponse>(
-      '/api/start-finetuning',
-      request
-    );
+  startFinetuning: async (request: StartFinetuningRequest): Promise<StartFinetuningResponse> => {
+    const response = await apiClient.post<StartFinetuningResponse>("/api/start-finetuning", request);
     return response.data;
   },
 
@@ -61,9 +52,7 @@ export const jobAPI = {
    * Get training status for a job
    */
   getTrainingStatus: async (jobId: string): Promise<TrainingStatusResponse> => {
-    const response = await apiClient.get<TrainingStatusResponse>(
-      `/api/training-status/${jobId}`
-    );
+    const response = await apiClient.get<TrainingStatusResponse>(`/api/training-status/${jobId}`);
     return response.data;
   },
 
@@ -72,7 +61,7 @@ export const jobAPI = {
    */
   downloadModel: async (jobId: string): Promise<Blob> => {
     const response = await apiClient.get(`/api/download-model/${jobId}`, {
-      responseType: 'blob',
+      responseType: "blob",
     });
     return response.data;
   },
@@ -86,10 +75,7 @@ export const inferenceAPI = {
    * Test a trained model with a prompt
    */
   testModel: async (request: TestModelRequest): Promise<TestModelResponse> => {
-    const response = await apiClient.post<TestModelResponse>(
-      '/api/test-model',
-      request
-    );
+    const response = await apiClient.post<TestModelResponse>("/api/test-model", request);
     return response.data;
   },
 };
@@ -102,20 +88,17 @@ export const exportAPI = {
    * Get available export formats
    */
   getExportFormats: async (): Promise<ExportFormat[]> => {
-    const response = await apiClient.get<ExportFormat[]>('/api/export-formats');
+    const response = await apiClient.get<ExportFormat[]>("/api/export-formats");
     return response.data;
   },
 
   /**
    * Export a model in specific format
    */
-  exportModel: async (
-    request: ExportModelRequest
-  ): Promise<ExportModelResponse> => {
-    const response = await apiClient.post<ExportModelResponse>(
-      `/api/export-model/${request.job_id}`,
-      { format: request.format }
-    );
+  exportModel: async (request: ExportModelRequest): Promise<ExportModelResponse> => {
+    const response = await apiClient.post<ExportModelResponse>(`/api/export-model/${request.job_id}`, {
+      format: request.format,
+    });
     return response.data;
   },
 };
@@ -125,7 +108,7 @@ export const exportAPI = {
  */
 export const healthAPI = {
   check: async (): Promise<{ status: string; env: string }> => {
-    const response = await apiClient.get('/health');
+    const response = await apiClient.get("/health");
     return response.data;
   },
 };

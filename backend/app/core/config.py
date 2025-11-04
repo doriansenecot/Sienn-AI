@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Optional
+
 from pydantic_settings import BaseSettings
 
 
@@ -11,7 +12,7 @@ class Settings(BaseSettings):
     minio_access_key: str = "minioadmin"
     minio_secret_key: str = "minioadmin"
     minio_secure: bool = False
-    
+
     # Logging configuration
     log_level: str = "INFO"
     log_dir: Optional[Path] = Path("data/logs")

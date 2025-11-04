@@ -2,11 +2,11 @@
  * Modal Component with Backdrop and Animations
  * Follows UX Strategy: slide-up animation, backdrop blur, accessible
  */
-import { ReactNode, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
-import { clsx } from 'clsx';
-import { Button } from './Button';
+import { ReactNode, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import { X } from "lucide-react";
+import { clsx } from "clsx";
+import { Button } from "./Button";
 
 interface ModalProps {
   isOpen: boolean;
@@ -14,7 +14,7 @@ interface ModalProps {
   title?: string;
   children: ReactNode;
   footer?: ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: "sm" | "md" | "lg" | "xl";
   closeOnBackdrop?: boolean;
   closeOnEscape?: boolean;
   showCloseButton?: boolean;
@@ -22,10 +22,10 @@ interface ModalProps {
 }
 
 const sizeClasses = {
-  sm: 'max-w-md',
-  md: 'max-w-lg',
-  lg: 'max-w-2xl',
-  xl: 'max-w-4xl',
+  sm: "max-w-md",
+  md: "max-w-lg",
+  lg: "max-w-2xl",
+  xl: "max-w-4xl",
 };
 
 export function Modal({
@@ -34,7 +34,7 @@ export function Modal({
   title,
   children,
   footer,
-  size = 'md',
+  size = "md",
   closeOnBackdrop = true,
   closeOnEscape = true,
   showCloseButton = true,
@@ -48,13 +48,13 @@ export function Modal({
     if (!isOpen || !closeOnEscape) return;
 
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         onClose();
       }
     };
 
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
   }, [isOpen, closeOnEscape, onClose]);
 
   // Focus management
@@ -62,7 +62,7 @@ export function Modal({
     if (isOpen) {
       // Save current focus
       previousActiveElement.current = document.activeElement as HTMLElement;
-      
+
       // Focus first focusable element in modal
       const focusableElements = modalRef.current?.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -71,15 +71,15 @@ export function Modal({
       firstElement?.focus();
 
       // Prevent body scroll
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
       // Restore focus
       previousActiveElement.current?.focus();
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     }
 
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
@@ -88,7 +88,7 @@ export function Modal({
     if (!isOpen) return;
 
     const handleTab = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab' || !modalRef.current) return;
+      if (e.key !== "Tab" || !modalRef.current) return;
 
       const focusableElements = modalRef.current.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -105,8 +105,8 @@ export function Modal({
       }
     };
 
-    document.addEventListener('keydown', handleTab);
-    return () => document.removeEventListener('keydown', handleTab);
+    document.addEventListener("keydown", handleTab);
+    return () => document.removeEventListener("keydown", handleTab);
   }, [isOpen]);
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -123,7 +123,7 @@ export function Modal({
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
-      aria-labelledby={title ? 'modal-title' : undefined}
+      aria-labelledby={title ? "modal-title" : undefined}
     >
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fade-in" />
@@ -132,9 +132,9 @@ export function Modal({
       <div
         ref={modalRef}
         className={clsx(
-          'relative w-full bg-gray-800 rounded-xl shadow-2xl',
-          'border border-gray-700',
-          'animate-slide-up',
+          "relative w-full bg-gray-800 rounded-xl shadow-2xl",
+          "border border-gray-700",
+          "animate-slide-up",
           sizeClasses[size],
           className
         )}
@@ -160,15 +160,11 @@ export function Modal({
         )}
 
         {/* Body */}
-        <div className="px-6 py-4 max-h-[70vh] overflow-y-auto">
-          {children}
-        </div>
+        <div className="px-6 py-4 max-h-[70vh] overflow-y-auto">{children}</div>
 
         {/* Footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-700">
-            {footer}
-          </div>
+          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-700">{footer}</div>
         )}
       </div>
     </div>,
@@ -185,7 +181,7 @@ interface ConfirmModalProps {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  variant?: 'danger' | 'primary';
+  variant?: "danger" | "primary";
   loading?: boolean;
 }
 
@@ -195,9 +191,9 @@ export function ConfirmModal({
   onConfirm,
   title,
   message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
-  variant = 'primary',
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  variant = "primary",
   loading = false,
 }: ConfirmModalProps) {
   return (
@@ -211,11 +207,7 @@ export function ConfirmModal({
           <Button variant="ghost" onClick={onClose} disabled={loading}>
             {cancelText}
           </Button>
-          <Button
-            variant={variant}
-            onClick={onConfirm}
-            loading={loading}
-          >
+          <Button variant={variant} onClick={onConfirm} loading={loading}>
             {confirmText}
           </Button>
         </>

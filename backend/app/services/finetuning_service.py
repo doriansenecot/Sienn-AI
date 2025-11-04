@@ -1,123 +1,125 @@
 """Real fine-tuning service using Transformers and PEFT (LoRA)"""
+
 import json
 import logging
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Any, Optional
+
 import torch
+from datasets import load_dataset
+from peft import LoraConfig, TaskType, get_peft_model
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
-    TrainingArguments,
-    Trainer,
     DataCollatorForLanguageModeling,
+    Trainer,
+    TrainingArguments,
 )
-from datasets import load_dataset
-from peft import LoraConfig, get_peft_model, TaskType, PeftModel
 
 logger = logging.getLogger(__name__)
 
 
 class FinetuningService:
     """Service for fine-tuning language models with LoRA"""
-    
+
     def __init__(self):
         # Force CPU when running in Celery worker (CUDA doesn't work with multiprocessing fork)
         self.device = "cpu"
         logger.info(f"FinetuningService initialized on device: {self.device}")
-    
+
     def prepare_dataset(self, dataset_path: str, tokenizer, max_length: int = 512, validation_split: float = 0.1):
         """
         Load and prepare dataset for training with train/validation split.
-        
+
         Supports CSV, JSON, JSONL formats with 'text' column.
         Returns tuple (train_dataset, eval_dataset)
         """
         # Detect file format
         path = Path(dataset_path)
         extension = path.suffix.lower()
-        
+
         # Load dataset based on format
-        if extension == '.csv':
-            dataset = load_dataset('csv', data_files=str(path), split='train')
-        elif extension == '.json':
-            dataset = load_dataset('json', data_files=str(path), split='train')
-        elif extension == '.jsonl':
-            dataset = load_dataset('json', data_files=str(path), split='train')
-        elif extension == '.txt':
+        if extension == ".csv":
+            dataset = load_dataset("csv", data_files=str(path), split="train")
+        elif extension == ".json" or extension == ".jsonl":
+            dataset = load_dataset("json", data_files=str(path), split="train")
+        elif extension == ".txt":
             # For txt files, read as plain text and split into lines
-            with open(path, 'r', encoding='utf-8') as f:
+            with open(path, encoding="utf-8") as f:
                 lines = [line.strip() for line in f if line.strip()]
-            dataset = {'text': lines}
+            dataset = {"text": lines}
             from datasets import Dataset
+
             dataset = Dataset.from_dict(dataset)
         else:
             raise ValueError(f"Unsupported file format: {extension}")
-        
+
         # Ensure 'text' column exists or create it from multiple columns
-        if 'text' not in dataset.column_names:
+        if "text" not in dataset.column_names:
             # Check for instruction-based format (instruction, input, output)
-            if all(col in dataset.column_names for col in ['instruction', 'output']):
+            if all(col in dataset.column_names for col in ["instruction", "output"]):
+
                 def format_instruction(examples):
                     texts = []
-                    for i in range(len(examples['instruction'])):
-                        inst = examples['instruction'][i]
-                        inp = examples.get('input', [''] * len(examples['instruction']))[i]
-                        out = examples['output'][i]
-                        
+                    for i in range(len(examples["instruction"])):
+                        inst = examples["instruction"][i]
+                        inp = examples.get("input", [""] * len(examples["instruction"]))[i]
+                        out = examples["output"][i]
+
                         # Format optimisé: Simple et direct comme Alpaca
                         if inp and inp.strip():
                             text = f"Below is an instruction with additional context. Write a response that completes the request.\n\n### Instruction:\n{inst}\n\n### Input:\n{inp}\n\n### Response:\n{out}{tokenizer.eos_token}"
                         else:
                             text = f"Below is an instruction. Write a response that completes the request.\n\n### Instruction:\n{inst}\n\n### Response:\n{out}{tokenizer.eos_token}"
                         texts.append(text)
-                    return {'text': texts}
-                
+                    return {"text": texts}
+
                 dataset = dataset.map(format_instruction, batched=True, remove_columns=dataset.column_names)
             else:
                 # Try to find a suitable column
-                possible_columns = ['content', 'prompt', 'input', 'question']
+                possible_columns = ["content", "prompt", "input", "question"]
                 text_col = None
                 for col in possible_columns:
                     if col in dataset.column_names:
                         text_col = col
                         break
-                
+
                 if text_col:
-                    dataset = dataset.rename_column(text_col, 'text')
+                    dataset = dataset.rename_column(text_col, "text")
                 else:
                     raise ValueError(f"Could not find text column. Available columns: {dataset.column_names}")
-        
+
         # Split dataset into train and validation
         if validation_split > 0 and len(dataset) > 10:
             split_dataset = dataset.train_test_split(test_size=validation_split, seed=42)
-            train_dataset = split_dataset['train']
-            eval_dataset = split_dataset['test']
+            train_dataset = split_dataset["train"]
+            eval_dataset = split_dataset["test"]
             logger.info(f"Dataset split: {len(train_dataset)} train, {len(eval_dataset)} validation")
         else:
             train_dataset = dataset
             eval_dataset = None
             logger.info(f"Using full dataset for training: {len(train_dataset)} samples")
-        
+
         # Tokenize datasets
         def tokenize_function(examples):
             # Make sure text is a list of strings
-            texts = examples['text']
+            texts = examples["text"]
             if not isinstance(texts, list):
                 texts = [texts]
-            
+
             return tokenizer(
                 texts,
                 truncation=True,
                 max_length=max_length,
-                padding='max_length',
+                padding="max_length",
             )
-        
+
         train_tokenized = train_dataset.map(
             tokenize_function,
             batched=True,
             remove_columns=train_dataset.column_names,
         )
-        
+
         eval_tokenized = None
         if eval_dataset is not None:
             eval_tokenized = eval_dataset.map(
@@ -125,18 +127,18 @@ class FinetuningService:
                 batched=True,
                 remove_columns=eval_dataset.column_names,
             )
-        
+
         return train_tokenized, eval_tokenized
-    
+
     def create_lora_config(self, model_name: str) -> LoraConfig:
         """Create LoRA configuration with optimized parameters for different model architectures"""
         # Different models use different layer names for attention projections
         # GPT-2: c_attn (combined Q,K,V), c_proj (output projection), mlp layers
         # Llama/TinyLlama/Mistral: q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj
         # Phi-2: Wqkv, out_proj, fc1, fc2
-        
+
         model_lower = model_name.lower()
-        
+
         if "gpt2" in model_lower:
             # GPT-2 architecture
             target_modules = ["c_attn", "c_proj", "c_fc"]
@@ -157,7 +159,7 @@ class FinetuningService:
             # Default: common transformer layers
             target_modules = ["q_proj", "v_proj", "o_proj"]
             lora_rank = 16
-        
+
         return LoraConfig(
             task_type=TaskType.CAUSAL_LM,
             inference_mode=False,
@@ -168,7 +170,7 @@ class FinetuningService:
             bias="none",  # Don't adapt biases
             modules_to_save=None,  # Don't save additional modules
         )
-    
+
     def finetune(
         self,
         model_name: str,
@@ -179,10 +181,10 @@ class FinetuningService:
         batch_size: int = 4,
         max_length: int = 512,
         progress_callback: Optional[callable] = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Fine-tune a model using LoRA.
-        
+
         Args:
             model_name: Base model to fine-tune (e.g., 'gpt2')
             dataset_path: Path to training dataset
@@ -192,7 +194,7 @@ class FinetuningService:
             batch_size: Training batch size
             max_length: Maximum sequence length
             progress_callback: Optional callback for progress updates
-            
+
         Returns:
             Dictionary with training metrics
         """
@@ -200,25 +202,26 @@ class FinetuningService:
             # Load tokenizer and model
             logger.info(f"Loading model {model_name}...")
             tokenizer = AutoTokenizer.from_pretrained(model_name)
-            
+
             # Set padding token if not set
             if tokenizer.pad_token is None:
                 tokenizer.pad_token = tokenizer.eos_token
-            
+
             # Use 4-bit quantization for large models (>3B params) to save memory
-            use_4bit = any(size in model_name.lower() for size in ['7b', '8b', '13b', '70b'])
-            
+            use_4bit = any(size in model_name.lower() for size in ["7b", "8b", "13b", "70b"])
+
             if use_4bit and self.device == "cuda":
                 from transformers import BitsAndBytesConfig
+
                 logger.info("Using 4-bit quantization for memory efficiency...")
-                
+
                 bnb_config = BitsAndBytesConfig(
                     load_in_4bit=True,
                     bnb_4bit_quant_type="nf4",
                     bnb_4bit_compute_dtype=torch.float16,
                     bnb_4bit_use_double_quant=True,
                 )
-                
+
                 model = AutoModelForCausalLM.from_pretrained(
                     model_name,
                     quantization_config=bnb_config,
@@ -230,36 +233,38 @@ class FinetuningService:
                     torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
                     device_map="auto" if self.device == "cuda" else None,
                 )
-            
+
             if progress_callback:
                 progress_callback(10, "Model loaded, preparing LoRA...")
-            
+
             # Apply LoRA
             logger.info("Applying LoRA configuration...")
             lora_config = self.create_lora_config(model_name)
             model = get_peft_model(model, lora_config)
             model.print_trainable_parameters()
-            
+
             if progress_callback:
                 progress_callback(20, "LoRA applied, loading dataset...")
-            
+
             # Prepare dataset with train/validation split
             logger.info(f"Loading dataset from {dataset_path}...")
-            train_dataset, eval_dataset = self.prepare_dataset(dataset_path, tokenizer, max_length, validation_split=0.1)
-            
+            train_dataset, eval_dataset = self.prepare_dataset(
+                dataset_path, tokenizer, max_length, validation_split=0.1
+            )
+
             train_size = len(train_dataset)
             eval_size = len(eval_dataset) if eval_dataset else 0
             if progress_callback:
                 progress_callback(30, f"Dataset loaded ({train_size} train, {eval_size} val), starting training...")
-            
+
             # Training arguments
             output_path = Path(output_dir)
             output_path.mkdir(parents=True, exist_ok=True)
-            
+
             # Calculate optimal steps for evaluation and saving
             steps_per_epoch = max(1, train_size // (batch_size * 2))  # account for gradient accumulation
             eval_steps = max(5, steps_per_epoch // 2)  # Evaluate twice per epoch
-            
+
             training_args = TrainingArguments(
                 output_dir=str(output_path),
                 num_train_epochs=num_epochs,
@@ -276,7 +281,7 @@ class FinetuningService:
                 save_strategy="steps",
                 save_steps=eval_steps,
                 save_total_limit=2,  # Keep only 2 best checkpoints
-                load_best_model_at_end=True if eval_dataset else False,
+                load_best_model_at_end=bool(eval_dataset),
                 metric_for_best_model="loss" if eval_dataset else None,
                 greater_is_better=False,  # Lower loss is better
                 fp16=self.device == "cuda",
@@ -285,13 +290,13 @@ class FinetuningService:
                 dataloader_num_workers=0,  # Single worker for stability
                 report_to="none",  # Disable wandb, tensorboard
             )
-            
+
             # Data collator
             data_collator = DataCollatorForLanguageModeling(
                 tokenizer=tokenizer,
                 mlm=False,  # Causal LM, not masked LM
             )
-            
+
             # Trainer
             trainer = Trainer(
                 model=model,
@@ -300,26 +305,26 @@ class FinetuningService:
                 eval_dataset=eval_dataset,
                 data_collator=data_collator,
             )
-            
+
             # Train
             logger.info("Starting training...")
             train_result = trainer.train()
-            
+
             if progress_callback:
                 progress_callback(90, "Training complete, saving model...")
-            
+
             # Save model and tokenizer
             logger.info(f"Saving model to {output_dir}...")
             model.save_pretrained(output_dir)
             tokenizer.save_pretrained(output_dir)
-            
+
             # Get evaluation metrics if available
             eval_loss = None
             if eval_dataset:
                 eval_results = trainer.evaluate()
-                eval_loss = eval_results.get('eval_loss')
+                eval_loss = eval_results.get("eval_loss")
                 logger.info(f"Final evaluation loss: {eval_loss}")
-            
+
             # Save training metadata
             metadata = {
                 "model_name": model_name,
@@ -336,18 +341,22 @@ class FinetuningService:
                 "total_steps": train_result.global_step,
                 "lora_rank": 32,
                 "lora_alpha": 64,
-                "target_modules": ["c_attn", "c_proj", "c_fc", "c_mlp"] if "gpt2" in model_name.lower() else ["q_proj", "k_proj", "v_proj", "o_proj"],
+                "target_modules": (
+                    ["c_attn", "c_proj", "c_fc", "c_mlp"]
+                    if "gpt2" in model_name.lower()
+                    else ["q_proj", "k_proj", "v_proj", "o_proj"]
+                ),
             }
-            
+
             with open(output_path / "training_metadata.json", "w") as f:
                 json.dump(metadata, f, indent=2)
-            
+
             if progress_callback:
                 progress_callback(100, "Fine-tuning completed successfully!")
-            
+
             logger.info("Fine-tuning completed successfully")
             return metadata
-            
+
         except Exception as e:
             logger.error(f"Fine-tuning failed: {str(e)}")
             raise

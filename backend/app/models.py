@@ -1,10 +1,12 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field, ConfigDict
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class DatasetUploadResponse(BaseModel):
     """Response model for dataset upload"""
+
     dataset_id: str
     filename: str
     size_bytes: int
@@ -15,6 +17,7 @@ class DatasetUploadResponse(BaseModel):
 
 class DatasetMetadata(BaseModel):
     """Dataset metadata stored in database"""
+
     id: str
     filename: str
     original_filename: str
@@ -31,6 +34,7 @@ class DatasetMetadata(BaseModel):
 
 class JobStatus(BaseModel):
     """Training job status"""
+
     job_id: str
     status: str  # pending, running, completed, failed
     progress: float = 0.0
@@ -44,8 +48,9 @@ class JobStatus(BaseModel):
 
 class StartFinetuningRequest(BaseModel):
     """Request to start fine-tuning"""
+
     model_config = ConfigDict(protected_namespaces=())
-    
+
     dataset_id: str
     model_name: str = "gpt2"
     learning_rate: float = Field(default=2e-5, gt=0, le=1e-3)
@@ -56,6 +61,7 @@ class StartFinetuningRequest(BaseModel):
 
 class StartFinetuningResponse(BaseModel):
     """Response after starting fine-tuning"""
+
     job_id: str
     status: str = "pending"
     dataset_id: str
@@ -65,6 +71,7 @@ class StartFinetuningResponse(BaseModel):
 
 class TrainingStatusResponse(BaseModel):
     """Response for training status query"""
+
     job_id: str
     dataset_id: Optional[str]
     status: str
@@ -77,6 +84,7 @@ class TrainingStatusResponse(BaseModel):
 
 class TestModelRequest(BaseModel):
     """Request to test a fine-tuned model"""
+
     job_id: str
     prompt: str = Field(..., min_length=1, max_length=2000)
     max_new_tokens: int = Field(default=100, ge=10, le=500)
@@ -88,8 +96,9 @@ class TestModelRequest(BaseModel):
 
 class TestModelResponse(BaseModel):
     """Response from model testing"""
+
     model_config = ConfigDict(protected_namespaces=())
-    
+
     job_id: str
     prompt: str
     generated_text: str
@@ -100,8 +109,9 @@ class TestModelResponse(BaseModel):
 
 class ExportModelRequest(BaseModel):
     """Request to export a model"""
+
     model_config = ConfigDict(protected_namespaces=())
-    
+
     format: str = Field(..., pattern="^(ollama|huggingface|gguf)$")
     model_name: Optional[str] = Field(default=None, min_length=1, max_length=100)
     temperature: float = Field(default=0.7, ge=0.1, le=2.0)
@@ -112,6 +122,7 @@ class ExportModelRequest(BaseModel):
 
 class ExportModelResponse(BaseModel):
     """Response from model export"""
+
     job_id: str
     format: str
     status: str

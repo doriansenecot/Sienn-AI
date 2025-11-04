@@ -2,11 +2,11 @@
  * Tooltip Component with Auto-positioning
  * Follows UX Strategy: 200ms delay, accessible with aria-describedby
  */
-import { ReactNode, useState, useRef, useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { clsx } from 'clsx';
+import { ReactNode, useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { clsx } from "clsx";
 
-export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
+export type TooltipPosition = "top" | "bottom" | "left" | "right";
 
 interface TooltipProps {
   content: ReactNode;
@@ -20,7 +20,7 @@ interface TooltipProps {
 export function Tooltip({
   content,
   children,
-  position = 'top',
+  position = "top",
   delay = 200,
   disabled = false,
   className,
@@ -34,7 +34,7 @@ export function Tooltip({
 
   const showTooltip = () => {
     if (disabled) return;
-    
+
     timeoutRef.current = setTimeout(() => {
       setIsVisible(true);
     }, delay);
@@ -60,19 +60,19 @@ export function Tooltip({
 
     // Calculate position based on prop
     switch (position) {
-      case 'top':
+      case "top":
         top = triggerRect.top - tooltipRect.height - 8;
         left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
         break;
-      case 'bottom':
+      case "bottom":
         top = triggerRect.bottom + 8;
         left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
         break;
-      case 'left':
+      case "left":
         top = triggerRect.top + (triggerRect.height - tooltipRect.height) / 2;
         left = triggerRect.left - tooltipRect.width - 8;
         break;
-      case 'right':
+      case "right":
         top = triggerRect.top + (triggerRect.height - tooltipRect.height) / 2;
         left = triggerRect.right + 8;
         break;
@@ -120,31 +120,33 @@ export function Tooltip({
         {children}
       </div>
 
-      {isVisible && tooltipPosition && createPortal(
-        <div
-          ref={tooltipRef}
-          id={tooltipId.current}
-          role="tooltip"
-          className={clsx(
-            'fixed z-tooltip',
-            'px-3 py-2 text-sm',
-            'bg-gray-900 text-white rounded-lg',
-            'border border-gray-700',
-            'shadow-lg',
-            'animate-fade-in',
-            'pointer-events-none',
-            'max-w-xs',
-            className
-          )}
-          style={{
-            top: `${tooltipPosition.top}px`,
-            left: `${tooltipPosition.left}px`,
-          }}
-        >
-          {content}
-        </div>,
-        document.body
-      )}
+      {isVisible &&
+        tooltipPosition &&
+        createPortal(
+          <div
+            ref={tooltipRef}
+            id={tooltipId.current}
+            role="tooltip"
+            className={clsx(
+              "fixed z-tooltip",
+              "px-3 py-2 text-sm",
+              "bg-gray-900 text-white rounded-lg",
+              "border border-gray-700",
+              "shadow-lg",
+              "animate-fade-in",
+              "pointer-events-none",
+              "max-w-xs",
+              className
+            )}
+            style={{
+              top: `${tooltipPosition.top}px`,
+              left: `${tooltipPosition.left}px`,
+            }}
+          >
+            {content}
+          </div>,
+          document.body
+        )}
     </>
   );
 }

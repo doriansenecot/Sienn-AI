@@ -2,41 +2,34 @@
  * Skeleton Loader Component
  * Follows UX Strategy: Animated gradient shimmer for loading states
  */
-import { clsx } from 'clsx';
+import { clsx } from "clsx";
 
 interface SkeletonProps {
   className?: string;
-  variant?: 'text' | 'title' | 'avatar' | 'button' | 'card' | 'rect';
+  variant?: "text" | "title" | "avatar" | "button" | "card" | "rect";
   width?: string;
   height?: string;
-  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
+  rounded?: "none" | "sm" | "md" | "lg" | "full";
   animate?: boolean;
 }
 
 const roundedClasses = {
-  none: '',
-  sm: 'rounded-sm',
-  md: 'rounded-md',
-  lg: 'rounded-lg',
-  full: 'rounded-full',
+  none: "",
+  sm: "rounded-sm",
+  md: "rounded-md",
+  lg: "rounded-lg",
+  full: "rounded-full",
 };
 
-export function Skeleton({
-  className,
-  variant = 'text',
-  width,
-  height,
-  rounded,
-  animate = true,
-}: SkeletonProps) {
+export function Skeleton({ className, variant = "text", width, height, rounded, animate = true }: SkeletonProps) {
   // Default sizes based on variant
   const defaultConfig = {
-    text: { width: '100%', height: '1rem', rounded: 'sm' as const },
-    title: { width: '100%', height: '1.5rem', rounded: 'sm' as const },
-    avatar: { width: '2.5rem', height: '2.5rem', rounded: 'full' as const },
-    button: { width: '100%', height: '2.5rem', rounded: 'lg' as const },
-    card: { width: '100%', height: '12rem', rounded: 'lg' as const },
-    rect: { width: '100%', height: '8rem', rounded: 'md' as const },
+    text: { width: "100%", height: "1rem", rounded: "sm" as const },
+    title: { width: "100%", height: "1.5rem", rounded: "sm" as const },
+    avatar: { width: "2.5rem", height: "2.5rem", rounded: "full" as const },
+    button: { width: "100%", height: "2.5rem", rounded: "lg" as const },
+    card: { width: "100%", height: "12rem", rounded: "lg" as const },
+    rect: { width: "100%", height: "8rem", rounded: "md" as const },
   };
 
   const config = defaultConfig[variant];
@@ -44,12 +37,7 @@ export function Skeleton({
 
   return (
     <div
-      className={clsx(
-        'bg-gray-700',
-        animate && 'animate-pulse',
-        roundedClasses[finalRounded],
-        className
-      )}
+      className={clsx("bg-gray-700", animate && "animate-pulse", roundedClasses[finalRounded], className)}
       style={{
         width: width || config.width,
         height: height || config.height,
@@ -65,13 +53,9 @@ export function Skeleton({
 // Convenience components for common patterns
 export function SkeletonText({ lines = 3, className }: { lines?: number; className?: string }) {
   return (
-    <div className={clsx('space-y-2', className)}>
+    <div className={clsx("space-y-2", className)}>
       {Array.from({ length: lines }).map((_, i) => (
-        <Skeleton
-          key={i}
-          variant="text"
-          width={i === lines - 1 ? '80%' : '100%'}
-        />
+        <Skeleton key={i} variant="text" width={i === lines - 1 ? "80%" : "100%"} />
       ))}
     </div>
   );
@@ -79,7 +63,12 @@ export function SkeletonText({ lines = 3, className }: { lines?: number; classNa
 
 export function SkeletonCard({ className }: { className?: string }) {
   return (
-    <div className={clsx('bg-slate-800/50 backdrop-blur-lg border border-slate-700 rounded-xl shadow-lg p-6 space-y-4', className)}>
+    <div
+      className={clsx(
+        "bg-slate-800/50 backdrop-blur-lg border border-slate-700 rounded-xl shadow-lg p-6 space-y-4",
+        className
+      )}
+    >
       <div className="flex items-center gap-3">
         <Skeleton variant="avatar" />
         <div className="flex-1 space-y-2">
@@ -98,7 +87,7 @@ export function SkeletonCard({ className }: { className?: string }) {
 
 export function SkeletonTable({ rows = 5, className }: { rows?: number; className?: string }) {
   return (
-    <div className={clsx('space-y-3', className)}>
+    <div className={clsx("space-y-3", className)}>
       {/* Header */}
       <div className="grid grid-cols-4 gap-4 pb-3 border-b border-gray-700">
         {Array.from({ length: 4 }).map((_, i) => (

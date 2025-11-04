@@ -1,19 +1,19 @@
 /**
  * Axios HTTP Client Configuration
  */
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import toast from 'react-hot-toast';
-import type { ApiError } from '../../types/api';
+import axios, { AxiosError, AxiosResponse } from "axios";
+import toast from "react-hot-toast";
+import type { ApiError } from "../../types/api";
 
 // Base URL from environment or default to localhost
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 // Create axios instance with default config
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 300000, // 5 minutes for long operations like fine-tuning
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -41,8 +41,8 @@ apiClient.interceptors.response.use(
     // Handle different error types
     if (error.response) {
       // Server responded with error status
-      const message = error.response.data?.detail || 'An error occurred';
-      
+      const message = error.response.data?.detail || "An error occurred";
+
       // Show toast for specific status codes
       if (error.response.status >= 500) {
         toast.error(`Server Error: ${message}`);
@@ -53,12 +53,12 @@ apiClient.interceptors.response.use(
       }
     } else if (error.request) {
       // Request made but no response received
-      toast.error('Network Error: Cannot reach the server');
+      toast.error("Network Error: Cannot reach the server");
     } else {
       // Something else happened
-      toast.error('Request Error: ' + error.message);
+      toast.error("Request Error: " + error.message);
     }
-    
+
     return Promise.reject(error);
   }
 );

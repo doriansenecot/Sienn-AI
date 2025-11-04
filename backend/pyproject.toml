@@ -36,13 +36,6 @@ dev = [
 ]
 
 [tool.ruff]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "W", "N", "UP", "B", "A", "C4", "SIM"]
-ignore = [
-    "E501",  # Line too long (handled by black)
-    "B008",  # Do not perform function calls in argument defaults
-]
-
 # Same as Black.
 line-length = 120
 indent-width = 4
@@ -60,6 +53,16 @@ exclude = [
     "dist",
     "data",
     "model_full_training",
+]
+
+[tool.ruff.lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "N", "UP", "B", "A", "C4", "SIM"]
+ignore = [
+    "E501",  # Line too long (handled by black)
+    "B008",  # Do not perform function calls in argument defaults
+    "B904",  # Within except clause, use raise from
+    "N805",  # First argument should be self
 ]
 
 [tool.ruff.format]

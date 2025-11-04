@@ -1,11 +1,11 @@
 /**
  * Reusable Button Component with Liquid Glass Styling
  */
-import { ButtonHTMLAttributes, ReactNode } from 'react';
-import { clsx } from 'clsx';
+import { ButtonHTMLAttributes, ReactNode } from "react";
+import { clsx } from "clsx";
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
-export type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+export type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
@@ -17,22 +17,22 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: 'btn-primary',
-  secondary: 'btn-secondary',
-  ghost: 'btn-ghost',
-  danger: 'btn-danger',
+  primary: "btn-primary",
+  secondary: "btn-secondary",
+  ghost: "btn-ghost",
+  danger: "btn-danger",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: 'btn-sm',
-  md: '',
-  lg: 'btn-lg',
+  sm: "btn-sm",
+  md: "",
+  lg: "btn-lg",
 };
 
 export function Button({
   children,
-  variant = 'secondary',
-  size = 'md',
+  variant = "secondary",
+  size = "md",
   fullWidth = false,
   loading = false,
   icon,
@@ -43,11 +43,11 @@ export function Button({
   return (
     <button
       className={clsx(
-        'btn',
-        'flex items-center justify-center gap-2',
+        "btn",
+        "flex items-center justify-center gap-2",
         variantClasses[variant],
         sizeClasses[size],
-        fullWidth && 'w-full',
+        fullWidth && "w-full",
         className
       )}
       disabled={disabled || loading}

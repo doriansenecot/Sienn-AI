@@ -2,14 +2,14 @@
  * Dataset Upload Page
  * Allows users to upload training datasets with drag-and-drop
  */
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Upload as UploadIcon, CheckCircle, FileText } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Upload as UploadIcon, CheckCircle, FileText } from "lucide-react";
+import toast from "react-hot-toast";
 
-import { FileUpload, Card, CardHeader, CardTitle, CardContent, Button } from '../../components/ui';
-import { api } from '../../services/api';
-import type { DatasetUploadResponse } from '../../types/api';
+import { FileUpload, Card, CardHeader, CardTitle, CardContent, Button } from "../../components/ui";
+import { api } from "../../services/api";
+import type { DatasetUploadResponse } from "../../types/api";
 
 export function UploadPage() {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ export function UploadPage() {
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      toast.error('Please select a file first');
+      toast.error("Please select a file first");
       return;
     }
 
@@ -32,9 +32,9 @@ export function UploadPage() {
     try {
       const result = await api.dataset.uploadDataset(selectedFile);
       setUploadResult(result);
-      toast.success('Dataset uploaded successfully!');
+      toast.success("Dataset uploaded successfully!");
     } catch (error) {
-      console.error('Upload failed:', error);
+      console.error("Upload failed:", error);
       // Error already handled by axios interceptor
     } finally {
       setUploading(false);
@@ -44,7 +44,7 @@ export function UploadPage() {
   const handleStartTraining = () => {
     if (uploadResult) {
       // Navigate to training config with dataset_id
-      navigate('/training', { state: { datasetId: uploadResult.dataset_id } });
+      navigate("/training", { state: { datasetId: uploadResult.dataset_id } });
     }
   };
 
@@ -59,8 +59,8 @@ export function UploadPage() {
           Upload Training Dataset
         </h1>
         <p className="text-slate-400 max-w-2xl mx-auto">
-          Upload your training data in CSV, JSON, JSONL, or TXT format. 
-          Make sure your data follows the expected format for fine-tuning.
+          Upload your training data in CSV, JSON, JSONL, or TXT format. Make sure your data follows the expected format
+          for fine-tuning.
         </p>
       </div>
 
@@ -81,11 +81,7 @@ export function UploadPage() {
 
             {selectedFile && !uploadResult && (
               <div className="flex justify-end gap-3 mt-6">
-                <Button
-                  variant="secondary"
-                  onClick={() => setSelectedFile(null)}
-                  disabled={uploading}
-                >
+                <Button variant="secondary" onClick={() => setSelectedFile(null)} disabled={uploading}>
                   Clear
                 </Button>
                 <Button
@@ -111,9 +107,7 @@ export function UploadPage() {
               <div className="flex-1 space-y-4">
                 <div>
                   <h3 className="text-lg font-bold text-white mb-1">Upload Successful!</h3>
-                  <p className="text-sm text-slate-400">
-                    Your dataset has been uploaded and is ready for training.
-                  </p>
+                  <p className="text-sm text-slate-400">Your dataset has been uploaded and is ready for training.</p>
                 </div>
 
                 {/* Dataset Info */}
@@ -128,9 +122,7 @@ export function UploadPage() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-400">Size:</span>
-                    <span className="text-white">
-                      {(uploadResult.size_bytes / (1024 * 1024)).toFixed(2)} MB
-                    </span>
+                    <span className="text-white">{(uploadResult.size_bytes / (1024 * 1024)).toFixed(2)} MB</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-400">Status:</span>
@@ -146,9 +138,7 @@ export function UploadPage() {
                       <span className="font-medium">Data Preview (first {uploadResult.preview.length} lines)</span>
                     </div>
                     <div className="bg-slate-900/80 backdrop-blur-2xl border border-slate-700/50 p-4 rounded-xl overflow-x-auto">
-                      <pre className="text-xs text-slate-300 font-mono">
-                        {uploadResult.preview.join('\n')}
-                      </pre>
+                      <pre className="text-xs text-slate-300 font-mono">{uploadResult.preview.join("\n")}</pre>
                     </div>
                   </div>
                 )}
@@ -164,10 +154,7 @@ export function UploadPage() {
                   >
                     Upload Another
                   </Button>
-                  <Button
-                    variant="primary"
-                    onClick={handleStartTraining}
-                  >
+                  <Button variant="primary" onClick={handleStartTraining}>
                     Configure Training →
                   </Button>
                 </div>
@@ -181,9 +168,15 @@ export function UploadPage() {
           <Card variant="frosted">
             <h4 className="text-sm font-bold text-white mb-2">📋 Dataset Requirements</h4>
             <ul className="text-sm text-slate-400 space-y-1">
-              <li>• <strong>CSV:</strong> Should contain columns for input prompts and expected outputs</li>
-              <li>• <strong>JSON/JSONL:</strong> Each entry should have "prompt" and "completion" fields</li>
-              <li>• <strong>TXT:</strong> Plain text format for language modeling tasks</li>
+              <li>
+                • <strong>CSV:</strong> Should contain columns for input prompts and expected outputs
+              </li>
+              <li>
+                • <strong>JSON/JSONL:</strong> Each entry should have "prompt" and "completion" fields
+              </li>
+              <li>
+                • <strong>TXT:</strong> Plain text format for language modeling tasks
+              </li>
               <li>• Maximum file size: 100MB</li>
               <li>• Recommended: At least 50-100 training examples for best results</li>
             </ul>

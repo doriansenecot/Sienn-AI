@@ -2,7 +2,7 @@
  * API Types - Mirroring backend responses
  */
 
-export type JobStatus = 'pending' | 'running' | 'completed' | 'failed';
+export type JobStatus = "pending" | "running" | "completed" | "failed";
 
 // Dataset Types
 export interface Dataset {
@@ -10,7 +10,7 @@ export interface Dataset {
   original_filename: string;
   stored_filename: string;
   size_bytes: number;
-  status: 'uploaded' | 'processing' | 'ready' | 'error';
+  status: "uploaded" | "processing" | "ready" | "error";
   format?: string;
   num_samples?: number;
   created_at: string;
@@ -109,7 +109,7 @@ export interface ExportFormat {
 
 export interface ExportModelRequest {
   job_id: string;
-  format: 'ollama' | 'huggingface' | 'gguf';
+  format: "ollama" | "huggingface" | "gguf";
 }
 
 export interface ExportModelResponse {

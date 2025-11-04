@@ -1,20 +1,22 @@
 """Main FastAPI application entry point."""
+
+import time
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-import time
 
 from app.core.config import settings
-from app.core.logging_config import setup_logging, get_logger
+from app.core.logging_config import get_logger, setup_logging
 from app.db import init_db
-from app.routes import datasets, jobs, inference, exports, metrics
+from app.routes import datasets, exports, inference, jobs, metrics
 
 # Setup logging
 setup_logging(
     level=settings.log_level,
     log_dir=settings.log_dir,
     enable_json=settings.enable_json_logs,
-    enable_file_rotation=settings.enable_log_rotation
+    enable_file_rotation=settings.enable_log_rotation,
 )
 logger = get_logger(__name__)
 
@@ -39,18 +41,18 @@ app.add_middleware(
 async def log_requests(request: Request, call_next):
     """Log all HTTP requests with timing."""
     start_time = time.time()
-    
+
     logger.info(
         "Request started",
         extra={
             "method": request.method,
             "path": request.url.path,
-            "client": request.client.host if request.client else None
-        }
+            "client": request.client.host if request.client else None,
+        },
     )
-    
+
     response = await call_next(request)
-    
+
     process_time = time.time() - start_time
     logger.info(
         "Request completed",
@@ -58,10 +60,10 @@ async def log_requests(request: Request, call_next):
             "method": request.method,
             "path": request.url.path,
             "status_code": response.status_code,
-            "process_time": f"{process_time:.3f}s"
-        }
+            "process_time": f"{process_time:.3f}s",
+        },
     )
-    
+
     return response
 
 

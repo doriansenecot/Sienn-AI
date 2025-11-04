@@ -5,12 +5,7 @@ from .core.config import settings
 from .core.logging_config import setup_logging
 
 # Create Celery app
-celery_app = Celery(
-    "sienn_ai_worker",
-    broker=settings.redis_url,
-    backend=settings.redis_url,
-    include=["app.tasks"]
-)
+celery_app = Celery("sienn_ai_worker", broker=settings.redis_url, backend=settings.redis_url, include=["app.tasks"])
 
 
 @after_setup_logger.connect
@@ -20,7 +15,7 @@ def setup_celery_logging(logger, *args, **kwargs):
         level=settings.log_level,
         log_dir=settings.log_dir,
         enable_json=settings.enable_json_logs,
-        enable_file_rotation=settings.enable_log_rotation
+        enable_file_rotation=settings.enable_log_rotation,
     )
 
 
@@ -31,8 +26,9 @@ def setup_task_logger(logger, *args, **kwargs):
         level=settings.log_level,
         log_dir=settings.log_dir,
         enable_json=settings.enable_json_logs,
-        enable_file_rotation=settings.enable_log_rotation
+        enable_file_rotation=settings.enable_log_rotation,
     )
+
 
 # Configure Celery
 celery_app.conf.update(

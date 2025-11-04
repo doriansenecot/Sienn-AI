@@ -1,10 +1,10 @@
 /**
  * File Upload Component with Drag & Drop
  */
-import { useCallback, useState, DragEvent, ChangeEvent } from 'react';
-import { clsx } from 'clsx';
-import { Upload, File as FileIcon, X } from 'lucide-react';
-import { Button } from './Button';
+import { useCallback, useState, DragEvent, ChangeEvent } from "react";
+import { clsx } from "clsx";
+import { Upload, File as FileIcon, X } from "lucide-react";
+import { Button } from "./Button";
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -16,14 +16,14 @@ interface FileUploadProps {
 
 export function FileUpload({
   onFileSelect,
-  accept = '.csv,.json,.jsonl,.txt',
+  accept = ".csv,.json,.jsonl,.txt",
   maxSize = 100,
   disabled = false,
   className,
 }: FileUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
 
   const validateFile = useCallback(
     (file: File): boolean => {
@@ -35,15 +35,15 @@ export function FileUpload({
       }
 
       // Check file type
-      const extension = '.' + file.name.split('.').pop()?.toLowerCase();
-      const acceptedExtensions = accept.split(',').map((ext) => ext.trim());
-      
+      const extension = "." + file.name.split(".").pop()?.toLowerCase();
+      const acceptedExtensions = accept.split(",").map((ext) => ext.trim());
+
       if (!acceptedExtensions.includes(extension)) {
         setError(`File type must be one of: ${accept}`);
         return false;
       }
 
-      setError('');
+      setError("");
       return true;
     },
     [accept, maxSize]
@@ -59,13 +59,16 @@ export function FileUpload({
     [validateFile, onFileSelect]
   );
 
-  const handleDragEnter = useCallback((e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!disabled) {
-      setIsDragging(true);
-    }
-  }, [disabled]);
+  const handleDragEnter = useCallback(
+    (e: DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!disabled) {
+        setIsDragging(true);
+      }
+    },
+    [disabled]
+  );
 
   const handleDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -106,21 +109,19 @@ export function FileUpload({
 
   const clearFile = useCallback(() => {
     setSelectedFile(null);
-    setError('');
+    setError("");
   }, []);
 
   return (
-    <div className={clsx('space-y-4', className)}>
+    <div className={clsx("space-y-4", className)}>
       {/* Drop zone */}
       <div
         className={clsx(
-          'relative rounded-2xl border-2 border-dashed transition-all duration-200',
-          'backdrop-blur-sm p-8',
-          isDragging
-            ? 'border-primary-500 bg-primary-500/10'
-            : 'border-slate-700/50 bg-slate-800/30',
-          disabled && 'opacity-50 cursor-not-allowed',
-          !disabled && !isDragging && 'hover:border-slate-600 hover:bg-slate-800/40'
+          "relative rounded-2xl border-2 border-dashed transition-all duration-200",
+          "backdrop-blur-sm p-8",
+          isDragging ? "border-primary-500 bg-primary-500/10" : "border-slate-700/50 bg-slate-800/30",
+          disabled && "opacity-50 cursor-not-allowed",
+          !disabled && !isDragging && "hover:border-slate-600 hover:bg-slate-800/40"
         )}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
@@ -138,30 +139,23 @@ export function FileUpload({
 
         <label
           htmlFor="file-upload"
-          className={clsx(
-            'flex flex-col items-center justify-center space-y-4',
-            !disabled && 'cursor-pointer'
-          )}
+          className={clsx("flex flex-col items-center justify-center space-y-4", !disabled && "cursor-pointer")}
         >
           <div
             className={clsx(
-              'w-16 h-16 rounded-2xl flex items-center justify-center',
-              'bg-gradient-to-br transition-all duration-200',
-              isDragging
-                ? 'from-primary-500 to-purple-600 scale-110'
-                : 'from-primary-500/20 to-purple-600/20'
+              "w-16 h-16 rounded-2xl flex items-center justify-center",
+              "bg-gradient-to-br transition-all duration-200",
+              isDragging ? "from-primary-500 to-purple-600 scale-110" : "from-primary-500/20 to-purple-600/20"
             )}
           >
-            <Upload className={clsx('w-8 h-8', isDragging ? 'text-white' : 'text-primary-400')} />
+            <Upload className={clsx("w-8 h-8", isDragging ? "text-white" : "text-primary-400")} />
           </div>
 
           <div className="text-center space-y-2">
             <p className="text-lg font-medium text-white">
-              {isDragging ? 'Drop your file here' : 'Choose a file or drag it here'}
+              {isDragging ? "Drop your file here" : "Choose a file or drag it here"}
             </p>
-            <p className="text-sm text-slate-400">
-              Supported formats: {accept.replace(/\./g, '').toUpperCase()}
-            </p>
+            <p className="text-sm text-slate-400">Supported formats: {accept.replace(/\./g, "").toUpperCase()}</p>
             <p className="text-xs text-slate-500">Max size: {maxSize}MB</p>
           </div>
 
@@ -182,15 +176,10 @@ export function FileUpload({
             </div>
             <div>
               <p className="text-sm font-medium text-white">{selectedFile.name}</p>
-              <p className="text-xs text-slate-400">
-                {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-              </p>
+              <p className="text-xs text-slate-400">{(selectedFile.size / (1024 * 1024)).toFixed(2)} MB</p>
             </div>
           </div>
-          <button
-            onClick={clearFile}
-            className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors"
-          >
+          <button onClick={clearFile} className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
             <X className="w-4 h-4 text-slate-400" />
           </button>
         </div>

@@ -41,6 +41,8 @@ module.exports = {
     ],
     '@typescript-eslint/no-explicit-any': 'warn',
     'react/prop-types': 'off',
+    'react/no-unescaped-entities': 'off',
+    'react-hooks/rules-of-hooks': 'warn',
     'prettier/prettier': 'warn',
     'no-console': ['warn', { allow: ['warn', 'error'] }],
   },

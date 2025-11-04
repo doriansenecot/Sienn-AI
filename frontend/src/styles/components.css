@@ -94,7 +94,7 @@
 }
 
 .label-required::after {
-  content: ' *';
+  content: " *";
   @apply text-error;
 }
 

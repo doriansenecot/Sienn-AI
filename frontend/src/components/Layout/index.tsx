@@ -1,10 +1,10 @@
 /**
  * Main Layout Component with Navigation
  */
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Upload, Activity, TestTube, Home, Menu, X } from 'lucide-react';
-import { useState } from 'react';
-import { clsx } from 'clsx';
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Upload, Activity, TestTube, Home, Menu, X } from "lucide-react";
+import { useState } from "react";
+import { clsx } from "clsx";
 
 export function Layout() {
   const navigate = useNavigate();
@@ -12,15 +12,15 @@ export function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { path: '/', label: 'Home', icon: <Home className="w-5 h-5" /> },
-    { path: '/upload', label: 'Upload', icon: <Upload className="w-5 h-5" /> },
-    { path: '/dashboard', label: 'Dashboard', icon: <Activity className="w-5 h-5" /> },
-    { path: '/inference', label: 'Test', icon: <TestTube className="w-5 h-5" /> },
+    { path: "/", label: "Home", icon: <Home className="w-5 h-5" /> },
+    { path: "/upload", label: "Upload", icon: <Upload className="w-5 h-5" /> },
+    { path: "/dashboard", label: "Dashboard", icon: <Activity className="w-5 h-5" /> },
+    { path: "/inference", label: "Test", icon: <TestTube className="w-5 h-5" /> },
   ];
 
   const isActive = (path: string) => {
-    if (path === '/') {
-      return location.pathname === '/';
+    if (path === "/") {
+      return location.pathname === "/";
     }
     return location.pathname.startsWith(path);
   };
@@ -33,22 +33,12 @@ export function Layout() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate("/")}
               className="flex items-center gap-3 hover:opacity-80 transition-opacity"
             >
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-primary-400 to-purple-500 bg-clip-text text-transparent">
@@ -63,10 +53,10 @@ export function Layout() {
                   key={item.path}
                   onClick={() => navigate(item.path)}
                   className={clsx(
-                    'flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 border',
+                    "flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 border",
                     isActive(item.path)
-                      ? 'bg-primary-500/20 text-primary-400 border-primary-500/30'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'
+                      ? "bg-primary-500/20 text-primary-400 border-primary-500/30"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent"
                   )}
                 >
                   {item.icon}
@@ -80,11 +70,7 @@ export function Layout() {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 rounded-lg hover:bg-slate-800/50 transition-colors"
             >
-              {mobileMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
@@ -101,10 +87,10 @@ export function Layout() {
                     setMobileMenuOpen(false);
                   }}
                   className={clsx(
-                    'w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border',
+                    "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border",
                     isActive(item.path)
-                      ? 'bg-primary-500/20 text-primary-400 border-primary-500/30'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'
+                      ? "bg-primary-500/20 text-primary-400 border-primary-500/30"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent"
                   )}
                 >
                   {item.icon}

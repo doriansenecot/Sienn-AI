@@ -1,37 +1,31 @@
 /**
  * Card Component
  */
-import { ReactNode } from 'react';
-import { clsx } from 'clsx';
+import { ReactNode } from "react";
+import { clsx } from "clsx";
 
 interface CardProps {
   children: ReactNode;
   className?: string;
-  variant?: 'default' | 'medium' | 'frosted';
+  variant?: "default" | "medium" | "frosted";
   onClick?: () => void;
   hoverable?: boolean;
 }
 
 const variantClasses = {
-  default: 'card',
-  medium: 'card bg-slate-800/70 backdrop-blur-lg',
-  frosted: 'bg-slate-900/80 backdrop-blur-2xl border border-slate-700/50 rounded-lg',
+  default: "card",
+  medium: "card bg-slate-800/70 backdrop-blur-lg",
+  frosted: "bg-slate-900/80 backdrop-blur-2xl border border-slate-700/50 rounded-lg",
 };
 
-export function Card({
-  children,
-  className,
-  variant = 'default',
-  onClick,
-  hoverable = false,
-}: CardProps) {
+export function Card({ children, className, variant = "default", onClick, hoverable = false }: CardProps) {
   return (
     <div
       className={clsx(
-        'card-body',
+        "card-body",
         variantClasses[variant],
-        hoverable && 'card-hover cursor-pointer',
-        onClick && 'cursor-pointer',
+        hoverable && "card-hover cursor-pointer",
+        onClick && "cursor-pointer",
         className
       )}
       onClick={onClick}
@@ -47,11 +41,7 @@ interface CardHeaderProps {
 }
 
 export function CardHeader({ children, className }: CardHeaderProps) {
-  return (
-    <div className={clsx('card-header', className)}>
-      {children}
-    </div>
-  );
+  return <div className={clsx("card-header", className)}>{children}</div>;
 }
 
 interface CardTitleProps {
@@ -60,11 +50,7 @@ interface CardTitleProps {
 }
 
 export function CardTitle({ children, className }: CardTitleProps) {
-  return (
-    <h3 className={clsx('text-2xl font-bold text-white', className)}>
-      {children}
-    </h3>
-  );
+  return <h3 className={clsx("text-2xl font-bold text-white", className)}>{children}</h3>;
 }
 
 interface CardContentProps {
@@ -73,5 +59,5 @@ interface CardContentProps {
 }
 
 export function CardContent({ children, className }: CardContentProps) {
-  return <div className={clsx('space-y-4', className)}>{children}</div>;
+  return <div className={clsx("space-y-4", className)}>{children}</div>;
 }

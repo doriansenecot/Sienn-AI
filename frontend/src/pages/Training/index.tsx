@@ -2,14 +2,14 @@
  * Training Configuration Page
  * Configure hyperparameters for fine-tuning
  */
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Settings, Zap } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Settings, Zap } from "lucide-react";
+import toast from "react-hot-toast";
 
-import { Card, CardHeader, CardTitle, CardContent, Input, Button } from '../../components/ui';
-import { api } from '../../services/api';
-import type { StartFinetuningRequest } from '../../types/api';
+import { Card, CardHeader, CardTitle, CardContent, Input, Button } from "../../components/ui";
+import { api } from "../../services/api";
+import type { StartFinetuningRequest } from "../../types/api";
 
 export function TrainingPage() {
   const navigate = useNavigate();
@@ -17,8 +17,8 @@ export function TrainingPage() {
   const datasetId = location.state?.datasetId as string | undefined;
 
   const [config, setConfig] = useState<StartFinetuningRequest>({
-    dataset_id: datasetId || '',
-    model_name: 'gpt2',
+    dataset_id: datasetId || "",
+    model_name: "gpt2",
     learning_rate: 2e-4,
     num_epochs: 3,
     batch_size: 4,
@@ -29,8 +29,8 @@ export function TrainingPage() {
 
   useEffect(() => {
     if (!datasetId) {
-      toast.error('No dataset selected. Please upload a dataset first.');
-      setTimeout(() => navigate('/upload'), 2000);
+      toast.error("No dataset selected. Please upload a dataset first.");
+      setTimeout(() => navigate("/upload"), 2000);
     }
   }, [datasetId, navigate]);
 
@@ -45,24 +45,24 @@ export function TrainingPage() {
     e.preventDefault();
 
     if (!config.dataset_id) {
-      toast.error('Dataset ID is required');
+      toast.error("Dataset ID is required");
       return;
     }
 
     setSubmitting(true);
     try {
       const result = await api.job.startFinetuning(config);
-      toast.success('Training job started successfully!');
-      
+      toast.success("Training job started successfully!");
+
       // Navigate to dashboard with job_id
-      navigate('/dashboard', { 
-        state: { 
+      navigate("/dashboard", {
+        state: {
           jobId: result.job_id,
-          newJob: true 
-        } 
+          newJob: true,
+        },
       });
     } catch (error) {
-      console.error('Failed to start training:', error);
+      console.error("Failed to start training:", error);
       // Error already handled by axios interceptor
     } finally {
       setSubmitting(false);
@@ -121,7 +121,7 @@ export function TrainingPage() {
                 <Input
                   label="Base Model"
                   value={config.model_name}
-                  onChange={(e) => handleChange('model_name', e.target.value)}
+                  onChange={(e) => handleChange("model_name", e.target.value)}
                   placeholder="e.g., gpt2, gpt2-medium, distilgpt2"
                   helperText="The base model to fine-tune. Must be available on HuggingFace."
                   required
@@ -134,7 +134,7 @@ export function TrainingPage() {
                   type="number"
                   step="0.00001"
                   value={config.learning_rate}
-                  onChange={(e) => handleChange('learning_rate', parseFloat(e.target.value))}
+                  onChange={(e) => handleChange("learning_rate", parseFloat(e.target.value))}
                   helperText="Controls how quickly the model adapts. Typical: 1e-4 to 5e-4"
                   required
                   fullWidth
@@ -147,7 +147,7 @@ export function TrainingPage() {
                   min="1"
                   max="20"
                   value={config.num_epochs}
-                  onChange={(e) => handleChange('num_epochs', parseInt(e.target.value))}
+                  onChange={(e) => handleChange("num_epochs", parseInt(e.target.value))}
                   helperText="How many times to iterate over the dataset. Typical: 1-5"
                   required
                   fullWidth
@@ -160,7 +160,7 @@ export function TrainingPage() {
                   min="1"
                   max="64"
                   value={config.batch_size}
-                  onChange={(e) => handleChange('batch_size', parseInt(e.target.value))}
+                  onChange={(e) => handleChange("batch_size", parseInt(e.target.value))}
                   helperText="Number of samples processed together. Larger = faster but more memory"
                   required
                   fullWidth
@@ -174,7 +174,7 @@ export function TrainingPage() {
                   max="2048"
                   step="128"
                   value={config.max_length}
-                  onChange={(e) => handleChange('max_length', parseInt(e.target.value))}
+                  onChange={(e) => handleChange("max_length", parseInt(e.target.value))}
                   helperText="Maximum sequence length. Longer = more context but slower"
                   required
                   fullWidth
@@ -188,36 +188,30 @@ export function TrainingPage() {
             <h4 className="text-sm font-bold text-white mb-3">💡 Training Tips</h4>
             <ul className="text-sm text-slate-400 space-y-2">
               <li>
-                <strong className="text-slate-300">For small datasets (&lt;100 samples):</strong> Use 3-5 epochs, lower learning rate (1e-5)
+                <strong className="text-slate-300">For small datasets (&lt;100 samples):</strong> Use 3-5 epochs, lower
+                learning rate (1e-5)
               </li>
               <li>
-                <strong className="text-slate-300">For large datasets (&gt;1000 samples):</strong> Use 1-2 epochs, higher batch size
+                <strong className="text-slate-300">For large datasets (&gt;1000 samples):</strong> Use 1-2 epochs,
+                higher batch size
               </li>
               <li>
-                <strong className="text-slate-300">Memory constraints:</strong> Reduce batch_size or max_length if you encounter OOM errors
+                <strong className="text-slate-300">Memory constraints:</strong> Reduce batch_size or max_length if you
+                encounter OOM errors
               </li>
               <li>
-                <strong className="text-slate-300">Training time:</strong> Depends on dataset size, epochs, and hardware. Typical: 5-30 minutes
+                <strong className="text-slate-300">Training time:</strong> Depends on dataset size, epochs, and
+                hardware. Typical: 5-30 minutes
               </li>
             </ul>
           </Card>
 
           {/* Actions */}
           <div className="flex justify-between gap-4">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => navigate('/upload')}
-              disabled={submitting}
-            >
+            <Button type="button" variant="secondary" onClick={() => navigate("/upload")} disabled={submitting}>
               ← Back to Upload
             </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              loading={submitting}
-              icon={<Zap className="w-4 h-4" />}
-            >
+            <Button type="submit" variant="primary" loading={submitting} icon={<Zap className="w-4 h-4" />}>
               Start Training
             </Button>
           </div>
