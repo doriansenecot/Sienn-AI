@@ -37,8 +37,13 @@ class ModelService:
             base_model = AutoModelForCausalLM.from_pretrained(
                 "gpt2",
                 torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-                device_map="auto" if self.device == "cuda" else None,
+                device_map=None,  # Disable auto device mapping to avoid bitsandbytes issues
+                load_in_8bit=False,  # Disable quantization
+                load_in_4bit=False,  # Disable quantization
             )
+
+            if self.device == "cuda":
+                base_model = base_model.to("cuda")
 
             # Load LoRA adapter on top of base model
             logger.info(f"Loading LoRA adapters from {model_path}...")

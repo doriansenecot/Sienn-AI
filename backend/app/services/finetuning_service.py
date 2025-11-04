@@ -23,8 +23,8 @@ class FinetuningService:
     """Service for fine-tuning language models with LoRA"""
 
     def __init__(self):
-        # Force CPU when running in Celery worker (CUDA doesn't work with multiprocessing fork)
-        self.device = "cpu"
+        # Auto-detect best device (CUDA if available, else CPU)
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info(f"FinetuningService initialized on device: {self.device}")
 
     def prepare_dataset(self, dataset_path: str, tokenizer, max_length: int = 512, validation_split: float = 0.1):
@@ -339,13 +339,9 @@ class FinetuningService:
                 "final_train_loss": train_result.training_loss,
                 "final_eval_loss": eval_loss,
                 "total_steps": train_result.global_step,
-                "lora_rank": 32,
-                "lora_alpha": 64,
-                "target_modules": (
-                    ["c_attn", "c_proj", "c_fc", "c_mlp"]
-                    if "gpt2" in model_name.lower()
-                    else ["q_proj", "k_proj", "v_proj", "o_proj"]
-                ),
+                "lora_config": lora_config.to_dict(),
+                "device": self.device,
+                "training_duration_seconds": train_result.metrics.get("train_runtime", 0),
             }
 
             with open(output_path / "training_metadata.json", "w") as f:
