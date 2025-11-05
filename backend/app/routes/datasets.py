@@ -2,6 +2,7 @@
 
 from datetime import datetime
 
+import aiosqlite
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.core.logging_config import get_logger
@@ -43,3 +44,41 @@ async def upload_dataset(file: UploadFile = File(...)):
         preview=preview,
         created_at=datetime.fromisoformat(metadata["created_at"]),
     )
+
+
+@router.get("/datasets")
+async def list_datasets():
+    """Get all uploaded datasets."""
+    logger.info("Listing all datasets")
+    
+    try:
+        from app.db import get_db
+        
+        async with get_db() as conn:
+            conn.row_factory = aiosqlite.Row
+            cursor = await conn.execute(
+                """
+                SELECT id, original_filename, size_bytes, status, created_at
+                FROM datasets
+                ORDER BY created_at DESC
+                """
+            )
+            rows = await cursor.fetchall()
+            
+            datasets_list = [
+                {
+                    "id": row["id"],
+                    "filename": row["original_filename"],
+                    "size_bytes": row["size_bytes"],
+                    "status": row["status"],
+                    "created_at": row["created_at"],
+                }
+                for row in rows
+            ]
+            
+            logger.info(f"Found {len(datasets_list)} datasets")
+            return {"datasets": datasets_list}
+            
+    except Exception as e:
+        logger.error("Failed to list datasets", extra={"error": str(e)}, exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to list datasets: {str(e)}")

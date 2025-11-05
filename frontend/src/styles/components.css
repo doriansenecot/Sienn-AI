@@ -1,58 +1,86 @@
-/* Component Styles */
+/* Component Styles with Modern Design System */
 
-/* Buttons */
+/* ===== BUTTONS ===== */
 .btn {
-  @apply px-4 py-2 rounded-lg font-medium transition-all duration-base;
-  @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
-  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply relative inline-flex items-center justify-center gap-2;
+  @apply px-6 py-3 rounded-xl font-semibold text-sm;
+  @apply transition-all duration-200 ease-out;
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-950;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none;
+  @apply select-none;
 }
 
 .btn-primary {
-  @apply bg-primary-600 text-white;
-  @apply hover:bg-primary-700 active:bg-primary-800;
+  @apply bg-gradient-to-r from-primary-600 to-primary-500 text-white;
+  @apply hover:from-primary-500 hover:to-primary-400;
+  @apply active:scale-95;
+  @apply shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40;
   @apply focus:ring-primary-500;
-  @apply shadow-md hover:shadow-primary;
 }
 
 .btn-secondary {
-  @apply bg-secondary-600 text-white;
-  @apply hover:bg-secondary-700 active:bg-secondary-800;
+  @apply bg-gradient-to-r from-secondary-600 to-secondary-500 text-white;
+  @apply hover:from-secondary-500 hover:to-secondary-400;
+  @apply active:scale-95;
+  @apply shadow-lg shadow-secondary-500/30 hover:shadow-xl hover:shadow-secondary-500/40;
   @apply focus:ring-secondary-500;
-  @apply shadow-md hover:shadow-lg;
+}
+
+.btn-accent {
+  @apply bg-gradient-to-r from-accent-600 to-accent-500 text-white;
+  @apply hover:from-accent-500 hover:to-accent-400;
+  @apply active:scale-95;
+  @apply shadow-lg shadow-accent-500/30 hover:shadow-xl hover:shadow-accent-500/40;
+  @apply focus:ring-accent-500;
 }
 
 .btn-outline {
-  @apply border-2 border-primary-600 text-primary-600 bg-transparent;
-  @apply hover:bg-primary-50 active:bg-primary-100;
+  @apply bg-transparent text-primary-400 border-2 border-primary-500/50;
+  @apply hover:bg-primary-500/10 hover:border-primary-500;
+  @apply active:scale-95;
   @apply focus:ring-primary-500;
 }
 
 .btn-ghost {
-  @apply bg-transparent text-gray-700;
-  @apply hover:bg-gray-100 active:bg-gray-200;
-  @apply focus:ring-gray-400;
+  @apply bg-white/5 text-dark-200 backdrop-blur-sm;
+  @apply hover:bg-white/10 hover:text-white;
+  @apply active:scale-95;
+  @apply focus:ring-dark-500;
 }
 
 .btn-danger {
-  @apply bg-error text-white;
-  @apply hover:bg-red-600 active:bg-red-700;
-  @apply focus:ring-error;
-  @apply shadow-md hover:shadow-lg;
+  @apply bg-gradient-to-r from-red-600 to-red-500 text-white;
+  @apply hover:from-red-500 hover:to-red-400;
+  @apply active:scale-95;
+  @apply shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40;
+  @apply focus:ring-red-500;
+}
+
+.btn-success {
+  @apply bg-gradient-to-r from-green-600 to-green-500 text-white;
+  @apply hover:from-green-500 hover:to-green-400;
+  @apply active:scale-95;
+  @apply shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40;
+  @apply focus:ring-green-500;
 }
 
 .btn-sm {
-  @apply px-3 py-1.5 text-sm;
+  @apply px-4 py-2 text-xs rounded-lg;
 }
 
 .btn-lg {
-  @apply px-6 py-3 text-base;
+  @apply px-8 py-4 text-base rounded-2xl;
+}
+
+.btn-icon {
+  @apply p-3 rounded-xl;
 }
 
 /* CARDS */
 .card {
-  @apply bg-glass-medium backdrop-blur-md rounded-lg;
-  @apply border border-gray-700/50;
-  @apply shadow-lg transition-all duration-base;
+  @apply bg-slate-800/50 backdrop-blur-md rounded-lg;
+  @apply border border-slate-700/50;
+  @apply shadow-lg transition-all duration-200;
 }
 
 .card-hover {
@@ -75,18 +103,18 @@
 /* FORMS */
 .input {
   @apply w-full px-4 py-2 rounded-lg;
-  @apply bg-glass-light border border-gray-700;
+  @apply bg-slate-800/40 border border-gray-700;
   @apply text-white placeholder-gray-400;
   @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
-  @apply transition-all duration-base;
+  @apply transition-all duration-200;
 }
 
 .input-error {
-  @apply border-error focus:ring-error;
+  @apply border-red-500 focus:ring-red-500;
 }
 
 .input-success {
-  @apply border-success focus:ring-success;
+  @apply border-green-500 focus:ring-green-500;
 }
 
 .label {
@@ -95,11 +123,11 @@
 
 .label-required::after {
   content: " *";
-  @apply text-error;
+  @apply text-red-500;
 }
 
 .error-message {
-  @apply text-sm text-error mt-1;
+  @apply text-sm text-red-500 mt-1;
 }
 
 .help-text {
@@ -119,9 +147,9 @@
 .checkbox,
 .radio {
   @apply w-4 h-4 border border-gray-700 rounded;
-  @apply bg-glass-light text-primary-600;
+  @apply bg-slate-800/40 text-primary-600;
   @apply focus:ring-2 focus:ring-primary-500 focus:ring-offset-0;
-  @apply transition-all duration-fast;
+  @apply transition-all duration-150;
 }
 
 .radio {
@@ -134,19 +162,19 @@
 }
 
 .badge-success {
-  @apply bg-success/20 text-success border border-success/50;
+  @apply bg-green-500/20 text-green-500 border border-green-500/50;
 }
 
 .badge-error {
-  @apply bg-error/20 text-error border border-error/50;
+  @apply bg-red-500/20 text-red-500 border border-red-500/50;
 }
 
 .badge-warning {
-  @apply bg-warning/20 text-warning border border-warning/50;
+  @apply bg-yellow-500/20 text-yellow-500 border border-yellow-500/50;
 }
 
 .badge-info {
-  @apply bg-info/20 text-info border border-info/50;
+  @apply bg-blue-500/20 text-blue-500 border border-blue-500/50;
 }
 
 .badge-primary {
@@ -164,26 +192,26 @@
 }
 
 .alert-success {
-  @apply bg-success/10 border-success/50 text-success;
+  @apply bg-green-500/10 border-green-500/50 text-green-500;
 }
 
 .alert-error {
-  @apply bg-error/10 border-error/50 text-error;
+  @apply bg-red-500/10 border-red-500/50 text-red-500;
 }
 
 .alert-warning {
-  @apply bg-warning/10 border-warning/50 text-warning;
+  @apply bg-yellow-500/10 border-yellow-500/50 text-yellow-500;
 }
 
 .alert-info {
-  @apply bg-info/10 border-info/50 text-info;
+  @apply bg-blue-500/10 border-blue-500/50 text-blue-500;
 }
 
 /* NAVIGATION */
 .nav-link {
   @apply px-4 py-2 rounded-lg font-medium;
-  @apply text-gray-300 hover:text-white hover:bg-glass-medium;
-  @apply transition-all duration-base;
+  @apply text-gray-300 hover:text-white hover:bg-slate-800/50;
+  @apply transition-all duration-200;
   @apply focus:outline-none focus:ring-2 focus:ring-primary-500;
 }
 
@@ -195,7 +223,7 @@
 .modal-overlay {
   @apply fixed inset-0 bg-black/70 backdrop-blur-sm;
   @apply flex items-center justify-center p-4;
-  @apply z-modal;
+  @apply z-50;
   @apply animate-fade-in;
 }
 
@@ -232,7 +260,7 @@
 
 .table-header {
   @apply text-xs uppercase tracking-wider;
-  @apply bg-glass-medium text-gray-300;
+  @apply bg-slate-800/50 text-gray-300;
   @apply border-b border-gray-700;
 }
 
@@ -245,7 +273,7 @@
 }
 
 .table-row {
-  @apply hover:bg-glass-light transition-colors;
+  @apply hover:bg-slate-800/40 transition-colors;
 }
 
 .table-cell {
@@ -275,27 +303,27 @@
 
 .progress-fill {
   @apply h-full bg-gradient-to-r from-primary-600 to-primary-500;
-  @apply transition-all duration-slow;
+  @apply transition-all duration-500;
   @apply rounded-full;
 }
 
 .progress-fill-success {
-  @apply from-success to-green-400;
+  @apply from-green-500 to-green-400;
 }
 
 .progress-fill-error {
-  @apply from-error to-red-400;
+  @apply from-red-500 to-red-400;
 }
 
 /* TOOLTIPS */
 .tooltip {
-  @apply absolute z-tooltip;
+  @apply absolute z-50;
   @apply px-2 py-1 text-xs;
   @apply bg-gray-900 text-white rounded;
   @apply border border-gray-700;
   @apply shadow-lg;
   @apply opacity-0 pointer-events-none;
-  @apply transition-opacity duration-fast;
+  @apply transition-opacity duration-150;
 }
 
 .tooltip-visible {
@@ -330,14 +358,14 @@
 
 /* GLASS PANELS */
 .glass-panel {
-  @apply bg-glass-medium backdrop-blur-xl;
+  @apply bg-slate-800/50 backdrop-blur-xl;
   @apply border border-gray-700/50;
   @apply rounded-xl shadow-xl;
 }
 
 .glass-panel-hover {
-  @apply transition-all duration-base;
-  @apply hover:bg-glass-light hover:border-primary-500/30;
+  @apply transition-all duration-200;
+  @apply hover:bg-slate-800/40 hover:border-primary-500/30;
   @apply hover:shadow-2xl hover:shadow-primary-600/10;
 }
 
@@ -368,7 +396,7 @@
 /* Skip to main content link (for screen readers) */
 .skip-to-main {
   @apply absolute -top-full left-0 bg-primary-600 text-white px-4 py-2 rounded;
-  @apply focus:top-4 focus:left-4 z-tooltip;
+  @apply focus:top-4 focus:left-4 z-50;
 }
 
 /* Prefers reduced motion */

@@ -52,11 +52,11 @@ class StartFinetuningRequest(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
     dataset_id: str
-    model_name: str = "gpt2"
-    learning_rate: float = Field(default=3e-4, gt=0, le=1e-3)  # Increased for LoRA (was 2e-5)
-    num_epochs: int = Field(default=5, ge=1, le=20)  # Increased from 3 to 5 for better convergence
-    batch_size: int = Field(default=8, ge=1, le=32)  # Increased from 4 to 8 for stability
-    max_length: int = Field(default=512, ge=128, le=2048)
+    model_name: str = "gpt2"  # Model ID (gpt2, gpt2-medium, gpt2-large, distilgpt2)
+    learning_rate: Optional[float] = Field(default=None, gt=0, le=1e-3)  # None = use model default
+    num_epochs: int = Field(default=5, ge=1, le=20)
+    batch_size: Optional[int] = Field(default=None, ge=1, le=32)  # None = use model default
+    max_length: Optional[int] = Field(default=None, ge=128, le=2048)  # None = use model default
 
 
 class StartFinetuningResponse(BaseModel):

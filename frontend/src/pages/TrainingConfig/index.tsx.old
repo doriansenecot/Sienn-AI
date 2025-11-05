@@ -1,0 +1,172 @@
+/**
+ * Training Configuration Page
+ * Configure and start a fine-tuning job
+ */
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Settings, Play, AlertCircle, Upload } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  Button,
+  Input,
+} from '../../components/ui';
+import ModelSelector from '../../components/ModelSelector';
+import DatasetSelector from '../../components/DatasetSelector';
+import { api } from '../../services/api';
+import type { StartFinetuningRequest } from '../../types/api';
+
+export function TrainingConfigPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const initialDatasetId = location.state?.datasetId;
+
+  const [selectedDatasetId, setSelectedDatasetId] = useState<string | null>(initialDatasetId || null);
+  const [selectedModel, setSelectedModel] = useState('gpt2');
+  const [numEpochs, setNumEpochs] = useState(5);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleStartTraining = async () => {
+    if (!selectedDatasetId) {
+      toast.error('Please select a dataset');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const request: StartFinetuningRequest = {
+        dataset_id: selectedDatasetId,
+        model_name: selectedModel,
+        num_epochs: numEpochs,
+        // Let backend use model defaults for these:
+        learning_rate: undefined,
+        batch_size: undefined,
+        max_length: undefined,
+      };
+
+      const result = await api.job.startFinetuning(request);
+      toast.success('Training job started successfully!');
+      navigate('/dashboard', { state: { newJobId: result.job_id } });
+    } catch (error) {
+      console.error('Failed to start training:', error);
+      // Error already handled by axios interceptor
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen p-8 space-y-8 animate-fade-in-up">
+      {/* Header */}
+      <div className="text-center space-y-4">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 animate-glow">
+          <Settings className="w-8 h-8 text-white" />
+        </div>
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+          Configure Training
+        </h1>
+        <p className="text-slate-400 max-w-2xl mx-auto">
+          Select your model and configure training parameters. Model-specific defaults are automatically applied.
+        </p>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-3xl mx-auto space-y-6">
+        {/* Dataset Selection Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>1. Select Dataset</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DatasetSelector
+              selectedDatasetId={selectedDatasetId}
+              onDatasetChange={setSelectedDatasetId}
+            />
+            
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-500 mb-2">or</p>
+              <Button
+                variant="secondary"
+                onClick={() => navigate('/upload')}
+                icon={<Upload className="w-4 h-4" />}
+              >
+                Upload New Dataset
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Model Selection Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>2. Select Model</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ModelSelector
+              selectedModel={selectedModel}
+              onModelChange={setSelectedModel}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Training Parameters Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>3. Training Parameters</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Number of Epochs
+                </label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={20}
+                  value={numEpochs}
+                  onChange={(e) => setNumEpochs(parseInt(e.target.value) || 1)}
+                  placeholder="Number of training epochs"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Recommended: 3-5 epochs for most datasets
+                </p>
+              </div>
+
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-blue-800">
+                  <strong>Auto-Configuration:</strong> Learning rate, batch size, and max length are automatically set based on the selected model for optimal performance.
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="flex justify-between gap-4">
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/dashboard')}
+            disabled={isSubmitting}
+          >
+            ← Back to Dashboard
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleStartTraining}
+            loading={isSubmitting}
+            disabled={!selectedDatasetId}
+            icon={<Play className="w-4 h-4" />}
+          >
+            Start Training
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
