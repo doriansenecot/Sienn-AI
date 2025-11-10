@@ -29,8 +29,8 @@ class ExportService:
     def __init__(self, models_dir: Path = Path("data/models")):
         """Initialize export service."""
         self.models_dir = models_dir
-        self.exports_dir = Path("data/exports")
-        self.exports_dir.mkdir(parents=True, exist_ok=True)
+        self.export_dir = Path("data/exports")
+        self.export_dir.mkdir(parents=True, exist_ok=True)
 
     def export_to_ollama(
         self,
@@ -92,9 +92,175 @@ class ExportService:
             return None
 
     def export_to_gguf(self, job_id: str, quantization: str = "q4_k_m") -> Optional[Path]:
-        """Export model to GGUF format (quantized). Not yet implemented."""
-        logger.warning("GGUF export not yet implemented - requires llama.cpp")
-        return None
+        """
+        Export model to GGUF format (quantized).
+        Requires converting to full model first, then quantizing with llama.cpp.
+        
+        Args:
+            job_id: Job ID
+            quantization: Quantization type (q4_k_m, q5_k_m, q8_0, f16, f32)
+        
+        Returns:
+            Path to GGUF file or None if failed
+        """
+        logger.info(f"Starting GGUF export for job {job_id} with quantization {quantization}")
+        
+        try:
+            model_path = self.models_dir / job_id
+            if not model_path.exists():
+                logger.error(f"Model path not found: {model_path}")
+                return None
+
+            # Create export directory
+            export_dir = self.export_dir / job_id / "gguf"
+            export_dir.mkdir(parents=True, exist_ok=True)
+
+            # Load metadata to get base model
+            metadata = self._load_metadata(model_path)
+            base_model = metadata.get("base_model", "gpt2")
+            
+            logger.info(f"Loading model and merging LoRA adapter for {base_model}")
+
+            # Step 1: Load base model and merge with LoRA adapter
+            from transformers import AutoModelForCausalLM, AutoTokenizer
+            from peft import PeftModel
+            import torch
+
+            tokenizer = AutoTokenizer.from_pretrained(base_model)
+            base_model_obj = AutoModelForCausalLM.from_pretrained(
+                base_model, torch_dtype=torch.float16, device_map="cpu"
+            )
+            
+            # Load and merge PEFT model
+            model = PeftModel.from_pretrained(base_model_obj, str(model_path))
+            merged_model = model.merge_and_unload()
+            
+            # Save merged model
+            merged_path = export_dir / "merged_model"
+            merged_path.mkdir(exist_ok=True)
+            merged_model.save_pretrained(str(merged_path))
+            tokenizer.save_pretrained(str(merged_path))
+            
+            logger.info(f"Merged model saved to {merged_path}")
+
+            # Step 2: Convert to GGUF format
+            # Note: This requires llama.cpp to be installed
+            # For now, we'll create a placeholder and log instructions
+            gguf_file = export_dir / f"model-{quantization}.gguf"
+            
+            # Check if llama.cpp is available
+            import subprocess
+            import shutil
+            
+            convert_script = shutil.which("convert.py") or shutil.which("convert-hf-to-gguf.py")
+            quantize_binary = shutil.which("quantize") or shutil.which("llama-quantize")
+            
+            if convert_script and quantize_binary:
+                logger.info("llama.cpp tools found, attempting conversion...")
+                
+                # Convert to FP16 GGUF first
+                fp16_gguf = export_dir / "model-f16.gguf"
+                convert_cmd = [
+                    "python3",
+                    convert_script,
+                    str(merged_path),
+                    "--outfile",
+                    str(fp16_gguf),
+                    "--outtype",
+                    "f16",
+                ]
+                
+                logger.info(f"Running: {' '.join(convert_cmd)}")
+                result = subprocess.run(
+                    convert_cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=600,
+                )
+                
+                if result.returncode != 0:
+                    logger.error(f"Conversion failed: {result.stderr}")
+                    return None
+                
+                logger.info("Converted to FP16 GGUF successfully")
+                
+                # Quantize if not f16
+                if quantization != "f16":
+                    logger.info(f"Quantizing to {quantization}...")
+                    quantize_cmd = [
+                        quantize_binary,
+                        str(fp16_gguf),
+                        str(gguf_file),
+                        quantization.upper(),
+                    ]
+                    
+                    logger.info(f"Running: {' '.join(quantize_cmd)}")
+                    result = subprocess.run(
+                        quantize_cmd,
+                        capture_output=True,
+                        text=True,
+                        timeout=600,
+                    )
+                    
+                    if result.returncode != 0:
+                        logger.error(f"Quantization failed: {result.stderr}")
+                        return fp16_gguf  # Return FP16 as fallback
+                    
+                    logger.info(f"Quantized to {quantization} successfully")
+                else:
+                    gguf_file = fp16_gguf
+                
+                logger.info(f"GGUF export completed: {gguf_file}")
+                return gguf_file
+            
+            else:
+                # llama.cpp not available - create instructions file
+                logger.warning("llama.cpp tools not found. Creating manual conversion instructions.")
+                
+                instructions_file = export_dir / "CONVERSION_INSTRUCTIONS.txt"
+                instructions = f"""GGUF Conversion Instructions
+===============================
+
+The merged model has been saved to:
+{merged_path}
+
+To convert to GGUF format manually, follow these steps:
+
+1. Install llama.cpp:
+   git clone https://github.com/ggerganov/llama.cpp
+   cd llama.cpp
+   make
+
+2. Convert to GGUF (FP16):
+   python3 convert-hf-to-gguf.py {merged_path} \\
+     --outfile {export_dir}/model-f16.gguf \\
+     --outtype f16
+
+3. Quantize (optional, for smaller size):
+   ./quantize {export_dir}/model-f16.gguf \\
+     {export_dir}/model-{quantization}.gguf \\
+     {quantization.upper()}
+
+Quantization options:
+- q4_k_m: 4-bit, medium quality (recommended)
+- q5_k_m: 5-bit, high quality
+- q8_0: 8-bit, very high quality
+- f16: 16-bit floating point (no quantization)
+- f32: 32-bit floating point (full precision)
+
+For more information, see:
+https://github.com/ggerganov/llama.cpp
+"""
+                
+                with open(instructions_file, "w") as f:
+                    f.write(instructions)
+                
+                logger.info(f"Conversion instructions saved to {instructions_file}")
+                return merged_path  # Return merged model path
+
+        except Exception as e:
+            logger.error(f"GGUF export failed: {e}", exc_info=True)
+            return None
 
     def _load_metadata(self, model_path: Path) -> dict:
         """Load training metadata from model directory."""

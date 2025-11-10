@@ -4,13 +4,30 @@ from datetime import datetime
 from typing import Any
 
 import psutil
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
+from prometheus_client import CONTENT_TYPE_LATEST, CollectorRegistry, Counter, Gauge, Histogram, generate_latest
 
 from app.core.logging_config import get_logger
 from app.db import get_db
+from app.utils.health_check import check_all_services
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api", tags=["metrics"])
+
+# Prometheus metrics registry
+registry = CollectorRegistry()
+
+# Define Prometheus metrics
+jobs_total = Counter("sienn_jobs_total", "Total number of jobs created", ["status"], registry=registry)
+jobs_active = Gauge("sienn_jobs_active", "Number of active jobs", ["status"], registry=registry)
+training_duration_seconds = Histogram(
+    "sienn_training_duration_seconds", "Training duration in seconds", registry=registry
+)
+datasets_total = Gauge("sienn_datasets_total", "Total number of datasets", registry=registry)
+dataset_size_bytes = Gauge("sienn_dataset_size_bytes_total", "Total size of datasets in bytes", registry=registry)
+system_cpu_percent = Gauge("sienn_system_cpu_percent", "CPU usage percentage", registry=registry)
+system_memory_percent = Gauge("sienn_system_memory_percent", "Memory usage percentage", registry=registry)
+system_disk_percent = Gauge("sienn_system_disk_percent", "Disk usage percentage", registry=registry)
 
 
 @router.get("/metrics")
@@ -165,3 +182,64 @@ async def detailed_health() -> dict[str, Any]:
         health_status["components"]["memory"] = {"status": "healthy", "used_percent": memory.percent}
 
     return health_status
+
+
+@router.get("/health/services")
+async def services_health() -> dict[str, Any]:
+    """
+    Comprehensive health check for all services.
+    Checks: Database, Redis, MinIO, Celery workers.
+    """
+    logger.debug("Services health check called")
+    return await check_all_services()
+
+
+@router.get("/metrics/prometheus")
+async def prometheus_metrics() -> Response:
+    """
+    Expose metrics in Prometheus format.
+    This endpoint can be scraped by Prometheus server.
+    """
+    logger.debug("Prometheus metrics endpoint called")
+
+    try:
+        # Update system metrics
+        system_cpu_percent.set(psutil.cpu_percent(interval=0.1))
+        memory = psutil.virtual_memory()
+        system_memory_percent.set(memory.percent)
+        disk = psutil.disk_usage("/")
+        system_disk_percent.set(disk.percent)
+
+        # Update application metrics from database
+        async with get_db() as conn:
+            # Count jobs by status
+            cursor = await conn.execute(
+                """
+                SELECT status, COUNT(*) as count
+                FROM jobs
+                GROUP BY status
+            """
+            )
+            jobs_by_status = {row[0]: row[1] for row in await cursor.fetchall()}
+
+            # Update gauges for active jobs
+            for status in ["pending", "running", "completed", "failed"]:
+                jobs_active.labels(status=status).set(jobs_by_status.get(status, 0))
+
+            # Total datasets
+            cursor = await conn.execute("SELECT COUNT(*) FROM datasets")
+            total_datasets = (await cursor.fetchone())[0]
+            datasets_total.set(total_datasets)
+
+            # Total dataset size
+            cursor = await conn.execute("SELECT SUM(size_bytes) FROM datasets")
+            total_size = (await cursor.fetchone())[0] or 0
+            dataset_size_bytes.set(total_size)
+
+        # Generate Prometheus format
+        metrics_output = generate_latest(registry)
+        return Response(content=metrics_output, media_type=CONTENT_TYPE_LATEST)
+
+    except Exception as e:
+        logger.error("Error generating Prometheus metrics", extra={"error": str(e)})
+        return Response(content=f"# Error: {str(e)}\n", media_type="text/plain", status_code=500)

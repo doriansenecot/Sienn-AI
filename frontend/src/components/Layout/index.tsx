@@ -2,7 +2,7 @@
  * Modern Layout Component with Enhanced Navigation
  */
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { Upload, Activity, TestTube, Home, Menu, X, Database, Sparkles, Github, ExternalLink } from "lucide-react";
+import { Upload, Activity, TestTube, Home, Menu, X, Database, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { clsx } from "clsx";
 

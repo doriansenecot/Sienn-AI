@@ -1,4 +1,5 @@
 from celery import Celery
+from celery.schedules import crontab
 from celery.signals import after_setup_logger, after_setup_task_logger
 
 from .core.config import settings
@@ -42,4 +43,12 @@ celery_app.conf.update(
     result_expires=3600 * 24,  # Results expire after 24 hours
     broker_connection_retry_on_startup=True,  # Celery 6.0+ compatibility
     worker_pool="solo",  # Use solo pool for CUDA compatibility (single process)
+    # Scheduled tasks configuration
+    beat_schedule={
+        "cleanup-old-jobs-daily": {
+            "task": "app.tasks.cleanup_old_jobs",
+            "schedule": crontab(hour=2, minute=0),  # Run at 2:00 AM every day
+            "args": (7,),  # Delete jobs older than 7 days
+        },
+    },
 )

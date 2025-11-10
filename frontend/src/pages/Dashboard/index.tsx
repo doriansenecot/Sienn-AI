@@ -26,7 +26,7 @@ import {
 import toast from "react-hot-toast";
 
 import { api } from "../../services/api";
-import type { TrainingStatusResponse, JobStatus } from "../../types/api";
+import type { TrainingStatusResponse } from "../../types/api";
 
 // ==========================
 // Types & Constants

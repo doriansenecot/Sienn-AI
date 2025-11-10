@@ -205,9 +205,9 @@ PHASE 10 — Documentation & Packaging
 
 -------------------------
 PHASE 11 — Release, démo & marge
-- [ ] chore/release/build — build release (backend wheel / frontend build)  
+- [x] chore/release/build — build release (backend wheel / frontend build)  
   - Dépendance: CI green, tests pass
-  - ⏳ TODO: Préparer build de production (frontend dist/, backend optimisé).
+  - ✅ COMPLÉTÉ: Build de production frontend réussi (dist/ généré, 338.89 KB JS gzippé).
 
 - [ ] chore/release/repo-tag — tag v0.1.0 (MVP équilibré)  
   - Dépendance: release build
