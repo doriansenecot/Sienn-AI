@@ -2,6 +2,7 @@
 
 import json
 import logging
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
 
@@ -17,6 +18,209 @@ from transformers import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ModelConfig:
+    """Configuration for a specific model"""
+    name: str
+    display_name: str
+    batch_size: int
+    max_length: int
+    lora_rank: int
+    lora_alpha: int
+    gradient_accumulation_steps: int
+    learning_rate: float
+    target_modules: list[str]
+    vram_required_gb: float
+    quality_rating: int  # 1-5 stars
+    speed_rating: int  # 1-5 stars (5 = fastest)
+    description: str
+
+
+# Pre-configured models optimized for different hardware
+MODEL_CONFIGS = {
+    "gpt2": ModelConfig(
+        name="gpt2",
+        display_name="GPT-2 (124M)",
+        batch_size=8,
+        max_length=512,
+        lora_rank=32,
+        lora_alpha=64,
+        gradient_accumulation_steps=2,
+        learning_rate=3e-4,
+        target_modules=["c_attn", "c_proj", "c_fc"],
+        vram_required_gb=2.0,
+        quality_rating=2,
+        speed_rating=5,
+        description="Fast, lightweight model. Good for testing and low-end hardware."
+    ),
+    "gpt2-medium": ModelConfig(
+        name="gpt2-medium",
+        display_name="GPT-2 Medium (355M)",
+        batch_size=4,
+        max_length=512,
+        lora_rank=32,
+        lora_alpha=64,
+        gradient_accumulation_steps=4,
+        learning_rate=2e-4,
+        target_modules=["c_attn", "c_proj", "c_fc"],
+        vram_required_gb=3.5,
+        quality_rating=3,
+        speed_rating=4,
+        description="Better quality than GPT-2 base with reasonable speed."
+    ),
+    "gpt2-large": ModelConfig(
+        name="gpt2-large",
+        display_name="GPT-2 Large (774M)",
+        batch_size=2,
+        max_length=512,
+        lora_rank=16,
+        lora_alpha=32,
+        gradient_accumulation_steps=8,
+        learning_rate=1e-4,
+        target_modules=["c_attn", "c_proj", "c_fc"],
+        vram_required_gb=5.0,
+        quality_rating=4,
+        speed_rating=3,
+        description="High quality results. Requires 6GB+ VRAM."
+    ),
+    "gpt2-xl": ModelConfig(
+        name="gpt2-xl",
+        display_name="GPT-2 XL (1.5B)",
+        batch_size=1,
+        max_length=512,
+        lora_rank=16,
+        lora_alpha=32,
+        gradient_accumulation_steps=16,
+        learning_rate=5e-5,
+        target_modules=["c_attn", "c_proj", "c_fc"],
+        vram_required_gb=8.0,
+        quality_rating=5,
+        speed_rating=2,
+        description="Best GPT-2 variant. Excellent quality. Requires 8GB+ VRAM."
+    ),
+    "distilgpt2": ModelConfig(
+        name="distilgpt2",
+        display_name="DistilGPT-2 (82M)",
+        batch_size=16,
+        max_length=512,
+        lora_rank=32,
+        lora_alpha=64,
+        gradient_accumulation_steps=1,
+        learning_rate=5e-4,
+        target_modules=["c_attn", "c_proj", "c_fc"],
+        vram_required_gb=1.5,
+        quality_rating=2,
+        speed_rating=5,
+        description="Fastest option, minimal VRAM usage. Good for quick experiments."
+    ),
+    "EleutherAI/pythia-410m": ModelConfig(
+        name="EleutherAI/pythia-410m",
+        display_name="Pythia 410M",
+        batch_size=4,
+        max_length=512,
+        lora_rank=32,
+        lora_alpha=64,
+        gradient_accumulation_steps=4,
+        learning_rate=2e-4,
+        target_modules=["query_key_value", "dense", "dense_h_to_4h", "dense_4h_to_h"],
+        vram_required_gb=3.0,
+        quality_rating=3,
+        speed_rating=4,
+        description="Open-source model trained on diverse data. Good for general purposes."
+    ),
+    "EleutherAI/pythia-1b": ModelConfig(
+        name="EleutherAI/pythia-1b",
+        display_name="Pythia 1B",
+        batch_size=2,
+        max_length=512,
+        lora_rank=16,
+        lora_alpha=32,
+        gradient_accumulation_steps=8,
+        learning_rate=1e-4,
+        target_modules=["query_key_value", "dense", "dense_h_to_4h", "dense_4h_to_h"],
+        vram_required_gb=5.5,
+        quality_rating=4,
+        speed_rating=3,
+        description="Larger Pythia model. Great balance of quality and efficiency."
+    ),
+    "facebook/opt-350m": ModelConfig(
+        name="facebook/opt-350m",
+        display_name="OPT 350M (Meta)",
+        batch_size=4,
+        max_length=512,
+        lora_rank=32,
+        lora_alpha=64,
+        gradient_accumulation_steps=4,
+        learning_rate=2e-4,
+        target_modules=["q_proj", "k_proj", "v_proj", "out_proj", "fc1", "fc2"],
+        vram_required_gb=3.5,
+        quality_rating=3,
+        speed_rating=4,
+        description="Meta's OPT model. Well-trained on high-quality data."
+    ),
+    "facebook/opt-1.3b": ModelConfig(
+        name="facebook/opt-1.3b",
+        display_name="OPT 1.3B (Meta)",
+        batch_size=2,
+        max_length=512,
+        lora_rank=16,
+        lora_alpha=32,
+        gradient_accumulation_steps=8,
+        learning_rate=1e-4,
+        target_modules=["q_proj", "k_proj", "v_proj", "out_proj", "fc1", "fc2"],
+        vram_required_gb=6.5,
+        quality_rating=4,
+        speed_rating=2,
+        description="Larger OPT model. High quality for 6GB+ hardware."
+    ),
+    "cerebras/Cerebras-GPT-590M": ModelConfig(
+        name="cerebras/Cerebras-GPT-590M",
+        display_name="Cerebras-GPT 590M",
+        batch_size=3,
+        max_length=512,
+        lora_rank=32,
+        lora_alpha=64,
+        gradient_accumulation_steps=6,
+        learning_rate=1.5e-4,
+        target_modules=["c_attn", "c_proj", "c_fc"],
+        vram_required_gb=4.0,
+        quality_rating=3,
+        speed_rating=3,
+        description="Cerebras GPT architecture. Good quality/speed tradeoff."
+    ),
+    "bigscience/bloom-560m": ModelConfig(
+        name="bigscience/bloom-560m",
+        display_name="BLOOM 560M",
+        batch_size=3,
+        max_length=512,
+        lora_rank=32,
+        lora_alpha=64,
+        gradient_accumulation_steps=6,
+        learning_rate=1.5e-4,
+        target_modules=["query_key_value", "dense", "dense_h_to_4h", "dense_4h_to_h"],
+        vram_required_gb=4.0,
+        quality_rating=3,
+        speed_rating=3,
+        description="Multilingual model trained on 46 languages. Great for international use."
+    ),
+    "bigscience/bloom-1b1": ModelConfig(
+        name="bigscience/bloom-1b1",
+        display_name="BLOOM 1.1B",
+        batch_size=2,
+        max_length=512,
+        lora_rank=16,
+        lora_alpha=32,
+        gradient_accumulation_steps=8,
+        learning_rate=1e-4,
+        target_modules=["query_key_value", "dense", "dense_h_to_4h", "dense_4h_to_h"],
+        vram_required_gb=5.5,
+        quality_rating=4,
+        speed_rating=3,
+        description="Larger multilingual BLOOM. Excellent for diverse languages."
+    ),
+}
 
 
 class FinetuningService:
@@ -172,34 +376,80 @@ class FinetuningService:
             use_rslora=False,  # Can be enabled for better scaling
         )
 
+    def get_model_config(self, model_name: str) -> ModelConfig:
+        """Get the configuration for a model, using defaults if not pre-configured"""
+        if model_name in MODEL_CONFIGS:
+            return MODEL_CONFIGS[model_name]
+        
+        # Default configuration for unknown models
+        logger.warning(f"Model {model_name} not in pre-configured list, using default config")
+        return ModelConfig(
+            name=model_name,
+            display_name=model_name,
+            batch_size=4,
+            max_length=512,
+            lora_rank=16,
+            lora_alpha=32,
+            gradient_accumulation_steps=2,
+            learning_rate=2e-4,
+            target_modules=["q_proj", "v_proj", "o_proj"],
+            vram_required_gb=4.0,
+            quality_rating=3,
+            speed_rating=3,
+            description="Custom model with default configuration"
+        )
+
     def finetune(
         self,
         model_name: str,
         dataset_path: str,
         output_dir: str,
-        learning_rate: float = 2e-5,
+        learning_rate: float = None,
         num_epochs: int = 3,
-        batch_size: int = 4,
-        max_length: int = 512,
+        batch_size: int = None,
+        max_length: int = None,
         progress_callback: Optional[callable] = None,
     ) -> dict[str, Any]:
         """
-        Fine-tune a model using LoRA.
+        Fine-tune a model using LoRA with auto-configured parameters.
 
         Args:
-            model_name: Base model to fine-tune (e.g., 'gpt2')
+            model_name: Base model to fine-tune (e.g., 'gpt2', 'gpt2-medium')
             dataset_path: Path to training dataset
             output_dir: Directory to save fine-tuned model
-            learning_rate: Learning rate
+            learning_rate: Learning rate (uses model default if None)
             num_epochs: Number of training epochs
-            batch_size: Training batch size
-            max_length: Maximum sequence length
+            batch_size: Training batch size (uses model default if None)
+            max_length: Maximum sequence length (uses model default if None)
             progress_callback: Optional callback for progress updates
 
         Returns:
             Dictionary with training metrics
         """
         try:
+            # Get model configuration
+            model_config = self.get_model_config(model_name)
+            
+            # Use model defaults if not specified
+            if learning_rate is None:
+                learning_rate = model_config.learning_rate
+            if batch_size is None:
+                batch_size = model_config.batch_size
+            if max_length is None:
+                max_length = model_config.max_length
+            
+            logger.info(f"Fine-tuning {model_config.display_name} with config: "
+                       f"batch_size={batch_size}, max_length={max_length}, "
+                       f"lr={learning_rate}, gradient_accumulation={model_config.gradient_accumulation_steps}")
+            
+            # Verify VRAM requirement
+            if self.device == "cuda":
+                gpu_mem_gb = torch.cuda.get_device_properties(0).total_memory / 1024**3
+                logger.info(f"GPU VRAM: {gpu_mem_gb:.2f}GB, Model requires: {model_config.vram_required_gb}GB")
+                if gpu_mem_gb < model_config.vram_required_gb:
+                    logger.warning(f"GPU VRAM ({gpu_mem_gb:.2f}GB) may be insufficient for {model_config.display_name} "
+                                 f"(recommended: {model_config.vram_required_gb}GB)")
+            
             # Load tokenizer and model
             logger.info(f"Loading model {model_name}...")
             tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -224,9 +474,19 @@ class FinetuningService:
             if progress_callback:
                 progress_callback(10, "Model loaded, preparing LoRA...")
 
-            # Apply LoRA
+            # Apply LoRA with model-specific configuration
             logger.info("Applying LoRA configuration...")
-            lora_config = self.create_lora_config(model_name)
+            lora_config = LoraConfig(
+                task_type=TaskType.CAUSAL_LM,
+                inference_mode=False,
+                r=model_config.lora_rank,
+                lora_alpha=model_config.lora_alpha,
+                lora_dropout=0.1,
+                target_modules=model_config.target_modules,
+                bias="none",
+                modules_to_save=None,
+                use_rslora=False,
+            )
             model = get_peft_model(model, lora_config)
             model.print_trainable_parameters()
 
@@ -249,7 +509,7 @@ class FinetuningService:
             output_path.mkdir(parents=True, exist_ok=True)
 
             # Calculate optimal steps for evaluation and saving
-            steps_per_epoch = max(1, train_size // (batch_size * 2))  # account for gradient accumulation
+            steps_per_epoch = max(1, train_size // (batch_size * model_config.gradient_accumulation_steps))
             eval_steps = max(5, steps_per_epoch // 2)  # Evaluate twice per epoch
 
             training_args = TrainingArguments(
@@ -257,7 +517,8 @@ class FinetuningService:
                 num_train_epochs=num_epochs,
                 per_device_train_batch_size=batch_size,
                 per_device_eval_batch_size=batch_size,
-                gradient_accumulation_steps=2,  # Effective batch size = batch_size * 2
+                # Use model-specific gradient accumulation
+                gradient_accumulation_steps=model_config.gradient_accumulation_steps,
                 learning_rate=learning_rate,
                 weight_decay=0.01,  # L2 regularization
                 lr_scheduler_type="cosine",  # Cosine learning rate schedule with decay
@@ -273,9 +534,6 @@ class FinetuningService:
                 load_best_model_at_end=bool(eval_dataset),
                 metric_for_best_model="loss" if eval_dataset else None,
                 greater_is_better=False,  # Lower loss is better
-                # Early stopping to prevent overfitting
-                early_stopping_patience=3 if eval_dataset else None,  # Stop if no improvement after 3 evals
-                early_stopping_threshold=0.001,  # Minimum improvement required
                 fp16=self.device == "cuda",
                 optim="adamw_torch",  # AdamW optimizer
                 max_grad_norm=1.0,  # Gradient clipping

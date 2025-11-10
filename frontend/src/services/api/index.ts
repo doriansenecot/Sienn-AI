@@ -34,6 +34,20 @@ export const datasetAPI = {
 
     return response.data;
   },
+
+  /**
+   * Get all uploaded datasets
+   */
+  listDatasets: async (): Promise<{ datasets: Array<{
+    id: string;
+    filename: string;
+    size_bytes: number;
+    status: string;
+    created_at: string;
+  }> }> => {
+    const response = await apiClient.get("/api/datasets");
+    return response.data;
+  },
 };
 
 /**
@@ -112,12 +126,62 @@ export const exportAPI = {
 };
 
 /**
+ * Model API
+ */
+export const modelAPI = {
+  /**
+   * Get available pre-configured models
+   */
+  getAvailableModels: async (): Promise<{ models: Array<{
+    id: string;
+    name: string;
+    vram_required_gb: number;
+    quality_rating: number;
+    speed_rating: number;
+    batch_size: number;
+    max_length: number;
+    learning_rate: number;
+    description: string;
+    is_cached: boolean;
+    cache_size_bytes: number | null;
+  }> }> => {
+    const response = await apiClient.get("/api/models/available");
+    return response.data;
+  },
+};
+
+/**
  * Health check
  */
 export const healthAPI = {
   check: async (): Promise<{ status: string; env: string }> => {
     const response = await apiClient.get("/health");
     return response.data;
+  },
+  
+  /**
+   * Get system metrics
+   */
+  getMetrics: async (): Promise<{
+    total_jobs: number;
+    active_jobs: number;
+    completed_jobs: number;
+    failed_jobs: number;
+    total_datasets: number;
+    total_models: number;
+  }> => {
+    const response = await apiClient.get("/api/metrics");
+    const data = response.data;
+    
+    // Map backend structure to frontend expectations
+    return {
+      total_jobs: data.application?.jobs?.total || 0,
+      active_jobs: (data.application?.jobs?.running || 0) + (data.application?.jobs?.pending || 0),
+      completed_jobs: data.application?.jobs?.completed || 0,
+      failed_jobs: data.application?.jobs?.failed || 0,
+      total_datasets: data.application?.datasets?.total || 0,
+      total_models: data.application?.jobs?.completed || 0, // Use completed jobs as model count
+    };
   },
 };
 
@@ -127,6 +191,7 @@ export const api = {
   job: jobAPI,
   inference: inferenceAPI,
   export: exportAPI,
+  model: modelAPI,
   health: healthAPI,
 };
 

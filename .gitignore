@@ -19,13 +19,6 @@ env/
 data/
 backend/data/
 backend/model_full_training/
-backend/test_results_quick/
-
-# Test data (keep only sample dataset)
-test_data/*.csv
-test_data/*.json
-test_data/*.jsonl
-!test_data/conversations_quality.csv
 
 # Logs
 *.log
@@ -92,12 +85,6 @@ htmlcov/
 coverage.xml
 *.cover
 .nyc_output/
-
-# Testing
-.pytest_cache/
-.tox/
-test.db
-test-results/
 
 # Mypy
 .mypy_cache/

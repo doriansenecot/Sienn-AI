@@ -101,6 +101,29 @@ services:
               count: all
               capabilities: [gpu]
 
+  # Celery Beat - Scheduler for periodic tasks
+  beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sienn-beat
+    environment:
+      - DATABASE_PATH=/app/data/data.db
+      - REDIS_URL=redis://redis:6379/0
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
+      - MINIO_SECURE=false
+    volumes:
+      - ./data:/app/data
+      - ./backend:/app
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - sienn-network
+    command: celery -A app.celery_app:celery_app beat --loglevel=info
+
   # Frontend - React
   frontend:
     build:
