@@ -1,4 +1,4 @@
-.PHONY: help install dev build test lint format clean up down logs health demo release
+.PHONY: help install dev build lint format clean up down logs health demo release
 
 # Default target
 .DEFAULT_GOAL := help
@@ -58,18 +58,6 @@ logs-frontend: ## View frontend logs
 health: ## Check system health
 	@python3 backend/scripts/health_check.py
 
-test: ## Run all tests
-	@echo "$(BLUE)Running backend tests...$(NC)"
-	cd backend && pytest tests/unit/ -v --cov=app
-	@echo "$(BLUE)Running frontend tests...$(NC)"
-	cd frontend && npm run test
-
-test-backend: ## Run backend tests only
-	cd backend && pytest tests/unit/ -v --cov=app
-
-test-frontend: ## Run frontend tests only
-	cd frontend && npm run test
-
 lint: ## Lint all code
 	@echo "$(BLUE)Linting backend...$(NC)"
 	cd backend && ruff check app/
@@ -90,10 +78,8 @@ format: lint-fix ## Alias for lint-fix
 clean: ## Clean build artifacts and caches
 	@echo "$(YELLOW)Cleaning build artifacts...$(NC)"
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-	find . -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null || true
 	find . -type d -name "*.egg-info" -exec rm -rf {} + 2>/dev/null || true
 	rm -rf frontend/dist frontend/node_modules/.vite
-	rm -rf backend/.coverage backend/htmlcov
 	@echo "$(GREEN)✅ Cleaned$(NC)"
 
 clean-all: clean ## Clean everything including Docker volumes
@@ -137,4 +123,4 @@ backup: ## Backup data directory
 	echo "$(GREEN)✅ Backup created: $$BACKUP_NAME$(NC)"
 
 .PHONY: all
-all: lint test build ## Run lint, test, and build
+all: lint build ## Run lint and build

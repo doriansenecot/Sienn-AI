@@ -298,6 +298,9 @@ export function DashboardPage() {
     total_datasets: 0,
   });
 
+  // Track which jobs have already shown a notification toast (completed or failed)
+  const notifiedJobsRef = useRef<Set<string>>(new Set());
+
   // Fetch job status
   const fetchStatus = useCallback(async (id: string) => {
     if (!id) return;
@@ -347,10 +350,16 @@ export function DashboardPage() {
       // Stop polling if job is completed or failed
       if (status.status === "completed" || status.status === "failed") {
         setPolling(false);
-        if (status.status === "completed") {
-          toast.success("Training completed successfully!");
-        } else {
-          toast.error("Training failed: " + status.message);
+        
+        // Only show toast if this job hasn't been notified before
+        if (!notifiedJobsRef.current.has(status.job_id)) {
+          notifiedJobsRef.current.add(status.job_id);
+          
+          if (status.status === "completed") {
+            toast.success("Training completed successfully!");
+          } else if (status.status === "failed") {
+            toast.error("Training failed: " + status.message);
+          }
         }
       }
     } catch (error) {
@@ -394,8 +403,9 @@ export function DashboardPage() {
 
   // Initial fetch and auto-polling
   useEffect(() => {
-    // Load recent jobs on mount
+    // Load recent jobs and global stats on mount
     loadRecentJobs();
+    loadGlobalStats();
     
     if (jobId) {
       setLoading(true);
@@ -406,7 +416,17 @@ export function DashboardPage() {
         setPolling(true);
       }
     }
-  }, [jobId, fetchStatus, location.state?.newJob, loadRecentJobs]);
+  }, [jobId, fetchStatus, location.state?.newJob, loadRecentJobs, loadGlobalStats]);
+
+  // Refresh global stats every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadGlobalStats();
+      loadRecentJobs();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [loadGlobalStats, loadRecentJobs]);
 
   // Polling interval
   useEffect(() => {
@@ -729,40 +749,6 @@ export function DashboardPage() {
                   </button>
                 </div>
               </div>
-            </div>
-
-            {/* Metrics Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in-up" style={{ animationDelay: "400ms" }}>
-              <MetricCard
-                title="Current Epoch"
-                value={jobStatus.meta?.current_epoch || 0}
-                icon={<Target className="w-7 h-7 text-white" />}
-                color="blue"
-              />
-              <MetricCard
-                title="Training Loss"
-                value={jobStatus.meta?.train_loss?.toFixed(4) || "N/A"}
-                icon={<TrendingDown className="w-7 h-7 text-white" />}
-                color="green"
-                trend="down"
-                change={-12}
-              />
-              <MetricCard
-                title="Eval Loss"
-                value={jobStatus.meta?.eval_loss?.toFixed(4) || "N/A"}
-                icon={<Activity className="w-7 h-7 text-white" />}
-                color="purple"
-              />
-              <MetricCard
-                title="Elapsed Time"
-                value={
-                  jobStatus.created_at
-                    ? `${Math.floor((Date.now() - new Date(jobStatus.created_at).getTime()) / 60000)}m`
-                    : "N/A"
-                }
-                icon={<Timer className="w-7 h-7 text-white" />}
-                color="orange"
-              />
             </div>
 
             {/* Main Content Grid */}
