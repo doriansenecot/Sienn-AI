@@ -1,10 +1,12 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field, ConfigDict
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class DatasetUploadResponse(BaseModel):
     """Response model for dataset upload"""
+
     dataset_id: str
     filename: str
     size_bytes: int
@@ -15,6 +17,7 @@ class DatasetUploadResponse(BaseModel):
 
 class DatasetMetadata(BaseModel):
     """Dataset metadata stored in database"""
+
     id: str
     filename: str
     original_filename: str
@@ -31,6 +34,7 @@ class DatasetMetadata(BaseModel):
 
 class JobStatus(BaseModel):
     """Training job status"""
+
     job_id: str
     status: str  # pending, running, completed, failed
     progress: float = 0.0
@@ -44,18 +48,20 @@ class JobStatus(BaseModel):
 
 class StartFinetuningRequest(BaseModel):
     """Request to start fine-tuning"""
+
     model_config = ConfigDict(protected_namespaces=())
-    
+
     dataset_id: str
-    model_name: str = "gpt2"
-    learning_rate: float = Field(default=2e-5, gt=0, le=1e-3)
-    num_epochs: int = Field(default=3, ge=1, le=20)
-    batch_size: int = Field(default=4, ge=1, le=32)
-    max_length: int = Field(default=512, ge=128, le=2048)
+    model_name: str = "gpt2"  # Model ID (gpt2, gpt2-medium, gpt2-large, distilgpt2)
+    learning_rate: Optional[float] = Field(default=None, gt=0, le=1e-3)  # None = use model default
+    num_epochs: int = Field(default=5, ge=1, le=20)
+    batch_size: Optional[int] = Field(default=None, ge=1, le=32)  # None = use model default
+    max_length: Optional[int] = Field(default=None, ge=128, le=2048)  # None = use model default
 
 
 class StartFinetuningResponse(BaseModel):
     """Response after starting fine-tuning"""
+
     job_id: str
     status: str = "pending"
     dataset_id: str
@@ -65,6 +71,7 @@ class StartFinetuningResponse(BaseModel):
 
 class TrainingStatusResponse(BaseModel):
     """Response for training status query"""
+
     job_id: str
     dataset_id: Optional[str]
     status: str
@@ -77,16 +84,21 @@ class TrainingStatusResponse(BaseModel):
 
 class TestModelRequest(BaseModel):
     """Request to test a fine-tuned model"""
+
     job_id: str
     prompt: str = Field(..., min_length=1, max_length=2000)
     max_new_tokens: int = Field(default=100, ge=10, le=500)
     temperature: float = Field(default=0.7, ge=0.1, le=2.0)
+    top_p: float = Field(default=0.95, ge=0.1, le=1.0)
+    repetition_penalty: float = Field(default=1.2, ge=1.0, le=2.0)
+    do_sample: bool = Field(default=True)
 
 
 class TestModelResponse(BaseModel):
     """Response from model testing"""
+
     model_config = ConfigDict(protected_namespaces=())
-    
+
     job_id: str
     prompt: str
     generated_text: str
@@ -97,8 +109,9 @@ class TestModelResponse(BaseModel):
 
 class ExportModelRequest(BaseModel):
     """Request to export a model"""
+
     model_config = ConfigDict(protected_namespaces=())
-    
+
     format: str = Field(..., pattern="^(ollama|huggingface|gguf)$")
     model_name: Optional[str] = Field(default=None, min_length=1, max_length=100)
     temperature: float = Field(default=0.7, ge=0.1, le=2.0)
@@ -109,6 +122,7 @@ class ExportModelRequest(BaseModel):
 
 class ExportModelResponse(BaseModel):
     """Response from model export"""
+
     job_id: str
     format: str
     status: str

@@ -11,12 +11,17 @@ aiosqlite==0.20.0
 python-multipart==0.0.12
 celery==5.4.0
 aiofiles==24.1.0
+python-json-logger==2.0.7
+prometheus-client==0.21.0
+python-magic==0.4.27
 
 # Machine Learning / Fine-tuning dependencies
 transformers==4.46.0
 peft==0.13.0
 accelerate==1.1.1
+# bitsandbytes==0.44.1  # Disabled due to triton.ops dependency issues
 datasets==3.1.0
 sentencepiece==0.2.0
 protobuf==5.28.3
 torch>=2.0.0
+psutil==6.1.0

@@ -1,0 +1,52 @@
+/**
+ * Models Browser Page
+ * View all available models with cache status
+ */
+import { Database } from 'lucide-react';
+import ModelGrid from '../../components/ModelGrid';
+
+export function ModelsBrowserPage() {
+  return (
+    <div className="min-h-screen p-8 space-y-8 animate-fade-in-up">
+      {/* Header */}
+      <div className="text-center space-y-4">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 animate-glow">
+          <Database className="w-8 h-8 text-white" />
+        </div>
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+          Model Browser
+        </h1>
+        <p className="text-slate-400 max-w-2xl mx-auto">
+          View all available models and their download status. Downloaded models are ready to use immediately,
+          while others will be downloaded on first use.
+        </p>
+      </div>
+
+      {/* Models Grid */}
+      <div className="max-w-7xl mx-auto">
+        <ModelGrid />
+      </div>
+
+      {/* Info Section */}
+      <div className="max-w-4xl mx-auto mt-12">
+        <div className="p-6 bg-slate-800/50 backdrop-blur-lg border border-slate-700 rounded-xl space-y-4">
+          <h3 className="text-lg font-bold text-white">About Model Caching</h3>
+          <div className="space-y-2 text-sm text-slate-300">
+            <p>
+              <strong className="text-green-400">✓ Downloaded Models:</strong> These models are already in your
+              HuggingFace cache (~/.cache/huggingface) and will start training immediately.
+            </p>
+            <p>
+              <strong className="text-red-400">⬇ Not Downloaded:</strong> These models will be downloaded
+              automatically when you start training for the first time. Download time depends on model size and
+              your internet connection.
+            </p>
+            <p className="text-slate-400 text-xs mt-4">
+              💡 Tip: Downloaded models are shared across all training jobs, so you only need to download them once.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
