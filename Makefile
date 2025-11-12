@@ -1,4 +1,4 @@
-.PHONY: help install dev build lint format clean up down logs health demo release
+.PHONY: help install dev build lint format clean up down logs health
 
 # Default target
 .DEFAULT_GOAL := help
@@ -86,17 +86,6 @@ clean-all: clean ## Clean everything including Docker volumes
 	@echo "$(YELLOW)Cleaning Docker volumes...$(NC)"
 	docker-compose down -v
 	@echo "$(GREEN)✅ All cleaned$(NC)"
-
-demo: ## Run automated demo
-	@echo "$(BLUE)Starting automated demo...$(NC)"
-	./scripts/demo_automated.sh
-
-release: ## Create a new release (usage: make release VERSION=0.1.0)
-	@if [ -z "$(VERSION)" ]; then \
-		echo "$(RED)Error: VERSION not specified. Usage: make release VERSION=0.1.0$(NC)"; \
-		exit 1; \
-	fi
-	./scripts/release.sh $(VERSION)
 
 shell-api: ## Open shell in API container
 	docker-compose exec api /bin/bash

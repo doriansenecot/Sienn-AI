@@ -1,230 +1,164 @@
-# Sienn-AI 🤖
+# Sienn-AI
 
 <div align="center">
 
-**A Modern AI Fine-tuning Platform with LoRA/PEFT**
+**Production-ready platform for fine-tuning large language models with LoRA**
 
-[![CI/CD](https://github.com/doriansenecot/Sienn-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/doriansenecot/Sienn-AI/actions)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](https://www.docker.com/)
 
-[Features](#features) • [Quick Start](#quick-start) • [Documentation](#documentation) • [Architecture](#architecture) • [Contributing](#contributing)
+[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Contributing](#-contributing)
 
 </div>
 
 ---
 
-## 🎯 Overview
+## Overview
 
-Sienn-AI is a complete, production-ready platform for fine-tuning large language models using **LoRA (Low-Rank Adaptation)** technique. Built with modern technologies, it provides an intuitive web interface and powerful API for training, testing, and deploying AI models efficiently.
+Sienn-AI is a complete platform for fine-tuning large language models using **LoRA (Low-Rank Adaptation)**. It provides an intuitive web interface and REST API for training, testing, and exporting AI models efficiently.
 
-### Why Sienn-AI?
-
-- 🚀 **Fast & Efficient**: LoRA trains only 3-5% of parameters, saving time and resources
-- 💻 **User-Friendly**: Beautiful React UI with real-time progress tracking
-- 🔧 **Flexible**: Support for GPT-2, Phi-2, and other popular models
-- 📦 **Production-Ready**: Docker-based deployment, async job processing, multiple export formats
-- 🎨 **Modern Stack**: FastAPI, React, Celery, Redis, MinIO, SQLite
+**Key Benefits:**
+- **Efficient** - Train only 0.1% of parameters with LoRA, 10x faster than full fine-tuning
+- **User-Friendly** - Web interface with real-time monitoring and progress tracking
+- **Flexible** - Support for Qwen, GPT-2, Phi, and custom HuggingFace models
+- **Production-Ready** - Docker deployment, async processing, multiple export formats
 
 ---
 
-## ✨ Features
+## 🎯 Features
 
-### Core Functionality
-- ✅ **Dataset Management**: Upload and validate CSV, JSON, JSONL datasets
-- ✅ **Fine-tuning**: Train models with configurable LoRA parameters
-- ✅ **Async Processing**: Background training with Celery workers
-- ✅ **Real-time Monitoring**: Track progress, metrics, and logs
-- ✅ **Model Testing**: Interactive inference with custom prompts
-- ✅ **Export Formats**: PyTorch, Ollama, GGUF (quantized)
+**Training & Inference**
+- Upload datasets (CSV, JSON, JSONL) with automatic validation
+- Fine-tune models with configurable LoRA parameters
+- Real-time training progress and metrics monitoring
+- Interactive model testing with custom prompts
+- Export to multiple formats (PyTorch, Ollama, HuggingFace)
 
-### Technical Features
-- 🔄 **Job Queue**: Redis-backed Celery for reliable task processing
-- 📊 **Metrics**: System health, training stats, resource monitoring
-- 🗄️ **Storage**: MinIO for scalable model storage
-- 🐳 **Containerized**: Complete Docker Compose setup
-- 🧪 **Tested**: Unit tests with pytest, CI/CD with GitHub Actions
-- 📝 **Documented**: Comprehensive API docs and user guide
+**Technical Stack**
+- **Backend**: FastAPI, Celery, Redis, SQLite, MinIO
+- **Frontend**: React 18, TypeScript, TailwindCSS, Vite
+- **ML**: Transformers, PEFT (LoRA), PyTorch
+- **DevOps**: Docker Compose, automated builds
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Docker & Docker Compose
-- 8GB+ RAM (16GB recommended)
-- GPU optional (CUDA-enabled for faster training)
+
+- Docker & Docker Compose installed
+- 8GB RAM minimum (16GB recommended)
+- Optional: NVIDIA GPU for faster training
 
 ### Installation
 
 ```bash
-# Clone the repository
+# Clone repository
 git clone https://github.com/doriansenecot/Sienn-AI.git
 cd Sienn-AI
 
-# Configure environment
-cp .env.example .env
+# Start services
+docker compose up -d
 
-# Start all services
-docker-compose up -d
-
-# Access the application
-# Frontend: http://localhost:3000
-# API: http://localhost:8000
+# Access application
+# Web UI:   http://localhost:3000
+# API:      http://localhost:8000
 # API Docs: http://localhost:8000/docs
 ```
 
-### First Training
+### Usage Example
 
-1. **Upload a Dataset** (CSV, JSON, or JSONL)
-   ```bash
-   curl -X POST http://localhost:8000/api/upload-dataset \
-     -F "file=@your_dataset.csv"
-   ```
+```bash
+# 1. Upload dataset
+curl -X POST http://localhost:8000/api/upload-dataset \
+  -F "file=@dataset.csv"
 
-2. **Start Training**
-   ```bash
-   curl -X POST http://localhost:8000/api/start-finetuning \
-     -H "Content-Type: application/json" \
-     -d '{
-       "dataset_id": "your_dataset_id",
-       "model_name": "gpt2",
-       "config": {
-         "num_epochs": 3,
-         "batch_size": 4
-       }
-     }'
-   ```
+# 2. Start training
+curl -X POST http://localhost:8000/api/start-finetuning \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dataset_id": "your-dataset-id",
+    "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
+    "num_epochs": 3
+  }'
 
-3. **Monitor Progress**
-   - Visit the Dashboard at http://localhost:3000/dashboard
-   - Or check API: `curl http://localhost:8000/api/training-status/{job_id}`
+# 3. Monitor progress
+curl http://localhost:8000/api/training-status/{job-id}
 
-4. **Test Your Model**
-   - Use the Inference page or API to test with custom prompts
+# 4. Test model
+curl -X POST http://localhost:8000/api/test-model \
+  -H "Content-Type: application/json" \
+  -d '{
+    "job_id": "your-job-id",
+    "prompt": "What is Python?"
+  }'
+```
+
+**Or use the web interface** at http://localhost:3000 for a guided experience.
 
 ---
 
 ## 📚 Documentation
 
-- **[User Guide](docs/USER_GUIDE.md)**: Complete walkthrough from dataset to deployment
-- **[API Documentation](docs/API_DOCUMENTATION.md)**: Full API reference with examples
-- **[Architecture](docs/contexte/ARCHITECTURE.md)**: System design and components
-- **[Roadmap](docs/contexte/ROADMAP.md)**: Future features and plans
+| Document | Description |
+|----------|-------------|
+| **[User Guide](docs/USER_GUIDE.md)** | Complete walkthrough from dataset to deployment |
+| **[API Documentation](docs/API_DOCUMENTATION.md)** | Full API reference with examples |
+| **[Installation Guide](docs/INSTALLATION.md)** | Detailed setup instructions |
+| **[Quick Start](docs/QUICKSTART.md)** | 5-minute getting started guide |
+| **[FAQ](docs/FAQ.md)** | Frequently asked questions |
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   Frontend      │────▶│   Backend API    │────▶│  Celery Worker  │
-│   (React)       │     │   (FastAPI)      │     │  (Training)     │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-                               │                          │
-                               ▼                          ▼
-                        ┌──────────────┐          ┌──────────────┐
-                        │    Redis     │          │    MinIO     │
-                        │   (Queue)    │          │  (Storage)   │
-                        └──────────────┘          └──────────────┘
-                               │
-                               ▼
-                        ┌──────────────┐
-                        │   SQLite     │
-                        │  (Metadata)  │
-                        └──────────────┘
+┌──────────┐      ┌──────────┐      ┌──────────┐
+│ Frontend │─────▶│   API    │─────▶│  Worker  │
+│  React   │      │ FastAPI  │      │  Celery  │
+└──────────┘      └──────────┘      └──────────┘
+                       │  │              │
+                       │  │              │
+                   ┌───┘  └────┐         │
+                   ▼           ▼         ▼
+              ┌────────┐  ┌────────┐  ┌────────┐
+              │ Redis  │  │ SQLite │  │ MinIO  │
+              │ Queue  │  │  Jobs  │  │ Models │
+              └────────┘  └────────┘  └────────┘
 ```
 
-### Tech Stack
-
-**Backend**
-- FastAPI (REST API)
-- Celery (Async tasks)
-- Redis (Message broker)
-- SQLite (Database)
-- MinIO (Object storage)
-- Transformers + PEFT (ML)
-
-**Frontend**
-- React 18 + TypeScript
-- Vite (Build tool)
-- TailwindCSS (Styling)
-- React Query (Data fetching)
-- Zustand (State management)
-
-**DevOps**
-- Docker & Docker Compose
-- GitHub Actions (CI/CD)
-- Pytest (Testing)
-- Ruff + Black (Linting)
+**Stack**
+- **API**: FastAPI, Python 3.9+
+- **Worker**: Celery, Transformers, PEFT
+- **Frontend**: React 18, TypeScript, TailwindCSS
+- **Storage**: SQLite (metadata), MinIO (models), Redis (queue)
+- **Deployment**: Docker Compose
 
 ---
 
-## 🎓 Supported Models
+## 🤖 Supported Models
 
-| Model | Size | Best For | Speed |
-|-------|------|----------|-------|
-| GPT-2 | 124M | Experiments, text | ⚡⚡⚡ |
-| GPT-2 Medium | 355M | General tasks | ⚡⚡ |
-| GPT-2 Large | 774M | Quality text | ⚡ |
-| Microsoft Phi-2 | 2.7B | Code, reasoning | ⚡ |
+| Model | Size | VRAM | Use Case |
+|-------|------|------|----------|
+| **Qwen 2.5 0.5B** | 500M | 2GB | Fast experimentation |
+| **Qwen 2.5 1.5B** | 1.5B | 4GB | General purpose |
+| **Qwen 2.5 3B** | 3B | 8GB | High quality |
+| **Qwen 2.5 7B** | 7B | 16GB | Production |
 
-More models coming soon: Llama 2, Mistral, CodeLlama...
-
----
-
-## 💡 Usage Examples
-
-### Python API Client
-
-```python
-import requests
-
-# Upload dataset
-files = {'file': open('dataset.csv', 'rb')}
-resp = requests.post('http://localhost:8000/api/upload-dataset', files=files)
-dataset_id = resp.json()['dataset_id']
-
-# Start training
-config = {
-    'dataset_id': dataset_id,
-    'model_name': 'gpt2',
-    'config': {
-        'num_epochs': 3,
-        'batch_size': 4,
-        'learning_rate': 2e-5
-    }
-}
-resp = requests.post('http://localhost:8000/api/start-finetuning', json=config)
-job_id = resp.json()['job_id']
-
-# Test model
-prompt = {'job_id': job_id, 'prompt': 'Write a Python function'}
-resp = requests.post('http://localhost:8000/api/test-model', json=prompt)
-print(resp.json()['generated_text'])
-```
-
-### Web Interface
-
-1. Navigate to http://localhost:3000
-2. Upload your dataset via UI
-3. Configure training parameters
-4. Monitor real-time progress
-5. Test with interactive prompts
-6. Export in your preferred format
+All HuggingFace models compatible with PEFT are supported. See [User Guide](docs/USER_GUIDE.md) for details.
 
 ---
 
-## 🛠️ Development
+## � Development
 
-### Setup Local Environment
+### Local Setup
 
 ```bash
 # Backend
 cd backend
 python -m venv .venv
-source .venv/bin/activate  # or `.venv\Scripts\activate` on Windows
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
 # Frontend
@@ -233,77 +167,64 @@ npm install
 npm run dev
 ```
 
-### Run Tests
+### Useful Commands
 
 ```bash
-# Backend tests
-cd backend
-pytest tests/unit/ -v --cov=app
-
-# Linting
-./scripts/lint.sh
-
-# Frontend tests
-cd frontend
-npm run lint
-npm run type-check
+make help          # Show all available commands
+make dev           # Start development environment
+make logs          # View all logs
+make lint          # Check code quality
+make lint-fix      # Fix linting issues
+make clean         # Clean build artifacts
 ```
 
-### Code Quality
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 
-```bash
-# Python
-ruff check app/
-black app/
 
-# TypeScript
-npm run lint:fix
-npm run format
-```
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please:
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
+**Quick steps:**
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+2. Create feature branch (`git checkout -b feature/name`)
+3. Commit changes (`git commit -m 'Add feature'`)
+4. Push to branch (`git push origin feature/name`)
+5. Open Pull Request
 
 ---
 
-## 📝 License
+## � License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
 ## 🙏 Acknowledgments
 
-- [Hugging Face Transformers](https://github.com/huggingface/transformers)
-- [PEFT Library](https://github.com/huggingface/peft)
-- [FastAPI](https://fastapi.tiangolo.com/)
-- [React](https://react.dev/)
+Built with:
+- [Hugging Face Transformers](https://github.com/huggingface/transformers) - Model training
+- [PEFT](https://github.com/huggingface/peft) - Parameter-efficient fine-tuning
+- [FastAPI](https://fastapi.tiangolo.com/) - Backend framework
+- [React](https://react.dev/) - Frontend framework
 
 ---
 
-## 📧 Contact
+## � Support
 
-- **Author**: Dorian Senecot
-- **GitHub**: [@doriansenecot](https://github.com/doriansenecot)
+- **Documentation**: [docs/](docs/)
 - **Issues**: [GitHub Issues](https://github.com/doriansenecot/Sienn-AI/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/doriansenecot/Sienn-AI/discussions)
 
 ---
 
 <div align="center">
 
-**Made with ❤️ for the AI community**
+**⭐ Star this repository if you find it useful!**
 
-⭐ Star us on GitHub if you find this useful!
+Made by [@doriansenecot](https://github.com/doriansenecot)
 
 </div>

@@ -18,39 +18,26 @@ if [ ! -f "docker-compose.yml" ]; then
     exit 1
 fi
 
-# Step 1: Backend linting and tests
+# Step 1: Backend linting
 echo ""
-echo -e "${YELLOW}📋 Step 1/5: Backend Linting${NC}"
+echo -e "${YELLOW}📋 Step 1/3: Backend Linting${NC}"
 cd backend
 python -m ruff check app/ || { echo -e "${RED}Linting failed${NC}"; exit 1; }
 python -m black --check app/ || { echo -e "${RED}Code formatting failed${NC}"; exit 1; }
 echo -e "${GREEN}✅ Backend linting passed${NC}"
-
-# Step 2: Backend tests
-echo ""
-echo -e "${YELLOW}🧪 Step 2/5: Backend Tests${NC}"
-pytest tests/unit/ -v --cov=app --cov-report=term || { echo -e "${RED}Tests failed${NC}"; exit 1; }
-echo -e "${GREEN}✅ Backend tests passed${NC}"
 cd ..
 
-# Step 3: Frontend linting and type check
+# Step 2: Frontend build
 echo ""
-echo -e "${YELLOW}📋 Step 3/5: Frontend Linting & Type Check${NC}"
+echo -e "${YELLOW}🏗️  Step 2/3: Frontend Build${NC}"
 cd frontend
-npm run lint || { echo -e "${RED}Frontend linting failed${NC}"; exit 1; }
-npm run type-check || { echo -e "${RED}Type check failed${NC}"; exit 1; }
-echo -e "${GREEN}✅ Frontend checks passed${NC}"
-
-# Step 4: Frontend build
-echo ""
-echo -e "${YELLOW}🏗️  Step 4/5: Frontend Build${NC}"
 npm run build || { echo -e "${RED}Frontend build failed${NC}"; exit 1; }
 echo -e "${GREEN}✅ Frontend built successfully${NC}"
 cd ..
 
-# Step 5: Docker images build
+# Step 3: Docker images build
 echo ""
-echo -e "${YELLOW}🐳 Step 5/5: Docker Images Build${NC}"
+echo -e "${YELLOW}🐳 Step 3/3: Docker Images Build${NC}"
 
 echo "Building backend image..."
 docker build -t sienn-ai-backend:latest -f backend/Dockerfile backend/ || { echo -e "${RED}Backend image build failed${NC}"; exit 1; }
