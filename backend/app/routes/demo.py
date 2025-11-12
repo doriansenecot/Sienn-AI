@@ -4,15 +4,16 @@ Script pour tester directement le modèle TinyLlama via API REST personnalisée
 Pour la démo - contourne le système LoRA
 """
 import sys
+import time
+from datetime import datetime
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
+import torch
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from datetime import datetime
-import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
-import time
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 router = APIRouter(prefix="/api/demo", tags=["demo"])
 
