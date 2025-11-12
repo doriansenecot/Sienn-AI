@@ -150,7 +150,7 @@ All HuggingFace models compatible with PEFT are supported. See [User Guide](docs
 
 ---
 
-## � Development
+## Development
 
 ### Local Setup
 
@@ -197,7 +197,7 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for gu
 
 ---
 
-## � License
+## License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
@@ -213,7 +213,7 @@ Built with:
 
 ---
 
-## � Support
+## Support
 
 - **Documentation**: [docs/](docs/)
 - **Issues**: [GitHub Issues](https://github.com/doriansenecot/Sienn-AI/issues)
