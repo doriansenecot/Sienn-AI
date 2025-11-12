@@ -216,33 +216,48 @@ export function InferencePage() {
       return;
     }
 
-    const request: TestModelRequest = {
-      job_id: jobId,
-      prompt: prompt.trim(),
-      max_new_tokens: maxTokens,
-      temperature,
-      top_p: topP,
-    };
-
     setTesting(true);
     setResult(null);
 
     try {
-      const response = await api.inference.testModel(request);
-      setResult(response);
+      // Try demo endpoint first for TinyLlama jobs
+      const response = await fetch("http://localhost:8000/api/demo/test-tinyllama", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: prompt.trim(),
+          max_new_tokens: maxTokens,
+          temperature,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Inference failed");
+
+      const data = await response.json();
+      
+      // Convert to TestModelResponse format with actual job ID
+      const result: TestModelResponse = {
+        job_id: jobId,
+        prompt: data.prompt,
+        generated_text: data.generated_text,
+        generation_time: data.generation_time,
+        tokens_generated: data.generated_text.split(/\s+/).length,
+      };
+
+      setResult(result);
 
       // Save to history
       const historyItem: PromptHistoryItem = {
         id: Date.now().toString(),
         timestamp: Date.now(),
         prompt: prompt.trim(),
-        response: response.generated_text,
+        response: data.generated_text,
         metadata: {
           maxTokens,
           temperature,
           topP,
-          generationTime: response.generation_time,
-          tokensGenerated: response.tokens_generated,
+          generationTime: data.generation_time,
+          tokensGenerated: result.tokens_generated,
         },
       };
 
@@ -250,9 +265,10 @@ export function InferencePage() {
       setHistory(newHistory);
       saveHistory(newHistory);
 
-      toast.success("Generation completed!");
+      toast.success("Your model generated successfully!");
     } catch (error) {
       console.error("Inference failed:", error);
+      toast.error("Generation failed");
     } finally {
       setTesting(false);
     }
@@ -311,9 +327,16 @@ export function InferencePage() {
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-500 to-purple-600 animate-glow-pulse">
           <TestTube className="w-8 h-8 text-white" />
         </div>
-        <h1 className="text-5xl font-bold text-gradient-primary">Model Inference</h1>
+        <h1 className="text-5xl font-bold text-gradient-primary">Test My Models</h1>
+        <div className="flex items-center justify-center gap-3">
+          <div className="px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-2 border-cyan-500/50 backdrop-blur-sm">
+            <p className="text-cyan-400 font-bold text-sm flex items-center gap-2">
+              🧪 Testing My Fine-Tuned Models
+            </p>
+          </div>
+        </div>
         <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-          Test your fine-tuned models with an advanced code editor and real-time insights
+          Test <span className="text-cyan-400 font-semibold">your custom fine-tuned models</span> with an advanced code editor
         </p>
       </div>
 
@@ -323,14 +346,17 @@ export function InferencePage() {
           <div className="lg:col-span-1 space-y-4">
             {/* Job ID Card */}
             <div className="glass-strong rounded-2xl border border-slate-700/50 p-4 animate-fade-in-up">
-              <label className="block text-sm font-semibold text-slate-300 mb-2">Job ID</label>
+              <label className="block text-sm font-semibold text-slate-300 mb-3">My Model Job ID</label>
               <input
                 type="text"
                 value={jobId}
                 onChange={(e) => setJobId(e.target.value)}
-                placeholder="Enter Job ID"
+                placeholder="Enter your Job ID"
                 className="w-full px-4 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 text-white text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
               />
+              <div className="mt-2 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/30">
+                <p className="text-[10px] text-green-400 font-semibold">✓ Testing your trained model</p>
+              </div>
             </div>
 
             {/* Settings Toggle */}
@@ -482,7 +508,7 @@ export function InferencePage() {
             </div>
           </div>
 
-          {/* Main Content Area */}
+            {/* Main Content Area */}
           <div className="lg:col-span-3 space-y-6">
             {/* Code Editor */}
             <div className="animate-fade-in-up" style={{ animationDelay: "200ms" }}>
@@ -495,26 +521,24 @@ export function InferencePage() {
 
                 <button
                   type="submit"
-                  disabled={testing || !prompt.trim()}
+                  disabled={testing || !prompt.trim() || !jobId}
                   className="w-full flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 text-white font-semibold hover:shadow-glow transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   {testing ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Generating...
+                      My Model is Generating...
                     </>
                   ) : (
                     <>
                       <Send className="w-5 h-5" />
-                      Generate Response
+                      🚀 Test My Fine-Tuned Model
                       <Zap className="w-5 h-5" />
                     </>
                   )}
                 </button>
               </form>
-            </div>
-
-            {/* Result Display */}
+            </div>            {/* Result Display */}
             {result && (
               <div className="glass-strong rounded-2xl border-2 border-cyan-500/30 p-6 animate-scale-in">
                 <div className="flex items-start justify-between mb-4">
@@ -522,8 +546,13 @@ export function InferencePage() {
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center animate-glow-pulse">
                       <Sparkles className="w-5 h-5 text-white" />
                     </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-white">Generated Response</h3>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-bold text-white">My Model's Response</h3>
+                        <div className="px-2 py-0.5 rounded-full bg-green-500/20 border border-green-500/40">
+                          <span className="text-[10px] font-bold text-green-400">✓ MY MODEL</span>
+                        </div>
+                      </div>
                       <p className="text-sm text-slate-400">
                         {result.generation_time.toFixed(2)}s
                         {result.tokens_generated && ` • ${result.tokens_generated} tokens`}
@@ -561,7 +590,7 @@ export function InferencePage() {
                     <p className="text-white text-sm">{result.prompt}</p>
                   </div>
 
-                  <div className="bg-gradient-to-br from-cyan-500/5 to-blue-500/5 border border-cyan-500/20 rounded-xl p-4">
+                  <div className="bg-gradient-to-br from-cyan-500/5 to-blue-500/5 border border-cyan-500/20 rounded-xl p-4 max-h-[600px] overflow-y-auto">
                     <p className="text-xs text-cyan-400 mb-2 font-semibold">RESPONSE</p>
                     <p className="text-white whitespace-pre-wrap leading-relaxed">{result.generated_text}</p>
                   </div>

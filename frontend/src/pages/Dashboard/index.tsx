@@ -505,9 +505,17 @@ export function DashboardPage() {
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 via-purple-500 to-pink-500 animate-glow-pulse">
           <Activity className="w-8 h-8 text-white" />
         </div>
-        <h1 className="text-5xl font-bold text-gradient-primary animate-fade-in-up">Training Dashboard</h1>
+        <h1 className="text-5xl font-bold text-gradient-primary animate-fade-in-up">My Training Dashboard</h1>
+        <div className="flex items-center justify-center gap-3">
+          <div className="px-4 py-2 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-2 border-green-500/50 backdrop-blur-sm">
+            <p className="text-green-400 font-bold text-sm flex items-center gap-2">
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+              🎯 My Fine-Tuned Models
+            </p>
+          </div>
+        </div>
         <p className="text-slate-400 text-lg max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: "100ms" }}>
-          Monitor your fine-tuning jobs with real-time metrics and insights
+          Monitor <span className="text-primary-400 font-semibold">your</span> fine-tuning jobs with real-time metrics and insights
         </p>
       </div>
 
@@ -518,25 +526,25 @@ export function DashboardPage() {
           style={{ animationDelay: "150ms" }}
         >
           <MetricCard
-            title="Total Jobs"
+            title="My Total Training Jobs"
             value={globalStats.total_jobs}
             icon={<Activity className="w-7 h-7 text-white" />}
             color="blue"
           />
           <MetricCard
-            title="Active Jobs"
+            title="Currently Training"
             value={globalStats.active_jobs}
             icon={<Zap className="w-7 h-7 text-white" />}
             color="orange"
           />
           <MetricCard
-            title="Completed Jobs"
+            title="Successfully Trained"
             value={globalStats.completed_jobs}
             icon={<CheckCircle className="w-7 h-7 text-white" />}
             color="green"
           />
           <MetricCard
-            title="Total Datasets"
+            title="My Datasets"
             value={globalStats.total_datasets}
             icon={<Target className="w-7 h-7 text-white" />}
             color="purple"
@@ -580,7 +588,7 @@ export function DashboardPage() {
               <div className="mt-6">
                 <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
                   <Clock className="w-4 h-4 text-primary-400" />
-                  Recent Jobs
+                  My Recent Training Jobs
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {recentJobs.map((job) => (
@@ -795,15 +803,23 @@ export function DashboardPage() {
                     className="glass-strong rounded-2xl border border-slate-700/50 p-6 animate-fade-in-up"
                     style={{ animationDelay: "600ms" }}
                   >
-                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <Zap className="w-5 h-5 text-primary-400" />
-                      Training Parameters
-                    </h3>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                        <Zap className="w-5 h-5 text-primary-400" />
+                        My Training Configuration
+                      </h3>
+                      <div className="px-3 py-1 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/50">
+                        <span className="text-xs font-bold text-purple-400">👨‍💻 Trained by Me</span>
+                      </div>
+                    </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {jobStatus.meta.model_name && (
                         <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/30 rounded-xl p-4">
-                          <p className="text-xs text-slate-400 mb-2">Model</p>
+                          <p className="text-xs text-slate-400 mb-2">My Model</p>
                           <p className="text-white font-semibold">{jobStatus.meta.model_name}</p>
+                          <div className="mt-2 inline-flex px-2 py-0.5 rounded-full bg-green-500/20 border border-green-500/40">
+                            <span className="text-[10px] font-bold text-green-400">✓ TRAINED</span>
+                          </div>
                         </div>
                       )}
                       {jobStatus.meta.learning_rate !== undefined && (
@@ -874,31 +890,45 @@ export function DashboardPage() {
 
             {/* Action Buttons for Completed Jobs */}
             {jobStatus.status === "completed" && (
-              <div className="flex gap-4 animate-fade-in-up" style={{ animationDelay: "900ms" }}>
-                <button
-                  onClick={handleTestModel}
-                  className="flex-1 flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-primary-500 to-purple-600 text-white font-semibold hover:shadow-glow transition-all duration-300 hover:scale-105 active:scale-95"
-                >
-                  <TestTube className="w-5 h-5" />
-                  Test Model in Inference
-                </button>
-                <button
-                  onClick={handleDownload}
-                  disabled={downloading}
-                  className="flex-1 flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-slate-700 to-slate-600 text-white font-semibold hover:shadow-glow-accent transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {downloading ? (
-                    <>
-                      <RefreshCw className="w-5 h-5 animate-spin" />
-                      Downloading...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-5 h-5" />
-                      Download Model
-                    </>
-                  )}
-                </button>
+              <div className="space-y-4 animate-fade-in-up" style={{ animationDelay: "900ms" }}>
+                <div className="glass-strong rounded-xl border-2 border-green-500/50 p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-6 h-6 text-green-400 animate-pulse" />
+                    <div className="flex-1">
+                      <p className="text-white font-bold">🎉 Training Completed Successfully!</p>
+                      <p className="text-sm text-slate-300">Your custom model is ready to use</p>
+                    </div>
+                    <div className="px-4 py-2 rounded-full bg-green-500/20 border border-green-500/40">
+                      <span className="text-xs font-bold text-green-400">✓ MY MODEL</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <button
+                    onClick={handleTestModel}
+                    className="flex-1 flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-primary-500 to-purple-600 text-white font-semibold hover:shadow-glow transition-all duration-300 hover:scale-105 active:scale-95"
+                  >
+                    <TestTube className="w-5 h-5" />
+                    Test My Model
+                  </button>
+                  <button
+                    onClick={handleDownload}
+                    disabled={downloading}
+                    className="flex-1 flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-slate-700 to-slate-600 text-white font-semibold hover:shadow-glow-accent transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {downloading ? (
+                      <>
+                        <RefreshCw className="w-5 h-5 animate-spin" />
+                        Downloading...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-5 h-5" />
+                        Download My Model
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             )}
           </>

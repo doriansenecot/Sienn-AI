@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.core.logging_config import get_logger, setup_logging
 from app.db import init_db
-from app.routes import datasets, exports, inference, jobs, metrics, models
+from app.routes import datasets, demo, exports, inference, job_metrics, jobs, metrics, models
 
 # Setup logging
 setup_logging(
@@ -90,7 +90,9 @@ async def root():
 
 app.include_router(datasets.router)
 app.include_router(jobs.router)
+app.include_router(job_metrics.router)
 app.include_router(inference.router)
 app.include_router(exports.router)
 app.include_router(metrics.router)
 app.include_router(models.router)
+app.include_router(demo.router)  # Route de démo pour TinyLlama
