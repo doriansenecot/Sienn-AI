@@ -1,6 +1,7 @@
 """
 API endpoint pour récupérer les métriques détaillées d'un job pour affichage graphique
 """
+
 import json
 
 from fastapi import APIRouter, HTTPException
@@ -14,10 +15,7 @@ router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 async def get_job_metrics(job_id: str):
     """Récupère toutes les métriques détaillées d'un job pour affichage"""
     async with get_db() as conn:
-        cursor = await conn.execute(
-            "SELECT status, meta, created_at, updated_at FROM jobs WHERE id = ?",
-            (job_id,)
-        )
+        cursor = await conn.execute("SELECT status, meta, created_at, updated_at FROM jobs WHERE id = ?", (job_id,))
         row = await cursor.fetchone()
 
         if not row:

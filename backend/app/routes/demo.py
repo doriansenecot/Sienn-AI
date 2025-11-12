@@ -25,6 +25,7 @@ _model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 
 class DemoTestRequest(BaseModel):
     """Request pour tester le modèle de démo"""
+
     prompt: str = Field(..., min_length=1, max_length=2000)
     max_new_tokens: int = Field(default=100, ge=10, le=500)
     temperature: float = Field(default=0.7, ge=0.1, le=2.0)
@@ -32,6 +33,7 @@ class DemoTestRequest(BaseModel):
 
 class DemoTestResponse(BaseModel):
     """Response du test de démo"""
+
     prompt: str
     generated_text: str
     model_name: str
@@ -49,7 +51,7 @@ def load_model():
         _cached_model = AutoModelForCausalLM.from_pretrained(
             _model_name,
             torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-            device_map="auto" if torch.cuda.is_available() else None
+            device_map="auto" if torch.cuda.is_available() else None,
         )
         _cached_model.eval()
         print("✅ Model loaded successfully!")
@@ -80,7 +82,7 @@ async def test_tinyllama(request: DemoTestRequest):
                 temperature=request.temperature,
                 do_sample=True,
                 top_p=0.9,
-                pad_token_id=tokenizer.eos_token_id
+                pad_token_id=tokenizer.eos_token_id,
             )
         generation_time = time.time() - start_time
 
@@ -98,7 +100,7 @@ async def test_tinyllama(request: DemoTestRequest):
             generated_text=generated,
             model_name=_model_name,
             generation_time=generation_time,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
 
     except Exception as e:
@@ -110,11 +112,7 @@ if __name__ == "__main__":
     import asyncio
 
     async def test():
-        request = DemoTestRequest(
-            prompt="What is artificial intelligence?",
-            max_new_tokens=150,
-            temperature=0.7
-        )
+        request = DemoTestRequest(prompt="What is artificial intelligence?", max_new_tokens=150, temperature=0.7)
         result = await test_tinyllama(request)
         print(f"\n{'='*60}")
         print(f"Prompt: {result.prompt}")
