@@ -331,12 +331,13 @@ export function InferencePage() {
         <div className="flex items-center justify-center gap-3">
           <div className="px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-2 border-cyan-500/50 backdrop-blur-sm">
             <p className="text-cyan-400 font-bold text-sm flex items-center gap-2">
-              🧪 Testing My Fine-Tuned Models
+              🧪 My Custom Model Testing
             </p>
           </div>
         </div>
         <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-          Test <span className="text-cyan-400 font-semibold">your custom fine-tuned models</span> with an advanced code editor
+          Test <span className="text-cyan-400 font-semibold">your custom fine-tuned models</span> with an advanced code
+          editor
         </p>
       </div>
 
