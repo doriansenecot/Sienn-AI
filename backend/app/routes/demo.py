@@ -42,7 +42,7 @@ class DemoTestResponse(BaseModel):
 def load_model():
     """Charge le modèle TinyLlama en cache"""
     global _cached_model, _cached_tokenizer
-    
+
     if _cached_model is None:
         print(f"📥 Loading {_model_name}...")
         _cached_tokenizer = AutoTokenizer.from_pretrained(_model_name)
@@ -53,7 +53,7 @@ def load_model():
         )
         _cached_model.eval()
         print("✅ Model loaded successfully!")
-    
+
     return _cached_model, _cached_tokenizer
 
 
@@ -62,15 +62,15 @@ async def test_tinyllama(request: DemoTestRequest):
     """Test le modèle TinyLlama directement (pour démo)"""
     try:
         model, tokenizer = load_model()
-        
+
         # Formater le prompt pour TinyLlama-Chat
         formatted_prompt = f"<|user|>\n{request.prompt}</s>\n<|assistant|>\n"
-        
+
         # Tokenize
         inputs = tokenizer(formatted_prompt, return_tensors="pt")
         if torch.cuda.is_available():
             inputs = inputs.to("cuda")
-        
+
         # Generate
         start_time = time.time()
         with torch.no_grad():
@@ -83,16 +83,16 @@ async def test_tinyllama(request: DemoTestRequest):
                 pad_token_id=tokenizer.eos_token_id
             )
         generation_time = time.time() - start_time
-        
+
         # Decode
         full_text = tokenizer.decode(outputs[0], skip_special_tokens=False)
-        
+
         # Extract only assistant response
         if "<|assistant|>" in full_text:
             generated = full_text.split("<|assistant|>")[-1].replace("</s>", "").strip()
         else:
             generated = full_text
-        
+
         return DemoTestResponse(
             prompt=request.prompt,
             generated_text=generated,
@@ -100,7 +100,7 @@ async def test_tinyllama(request: DemoTestRequest):
             generation_time=generation_time,
             timestamp=datetime.utcnow()
         )
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
 
@@ -108,7 +108,7 @@ async def test_tinyllama(request: DemoTestRequest):
 # Pour tester en ligne de commande
 if __name__ == "__main__":
     import asyncio
-    
+
     async def test():
         request = DemoTestRequest(
             prompt="What is artificial intelligence?",
@@ -122,5 +122,5 @@ if __name__ == "__main__":
         print(f"Response: {result.generated_text}")
         print(f"{'='*60}")
         print(f"Time: {result.generation_time:.2f}s")
-    
+
     asyncio.run(test())

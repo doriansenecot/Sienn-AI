@@ -1,9 +1,9 @@
 """
 API endpoint pour récupérer les métriques détaillées d'un job pour affichage graphique
 """
-from fastapi import APIRouter, HTTPException
-from typing import Optional
 import json
+
+from fastapi import APIRouter, HTTPException
 
 from app.db import get_db
 
@@ -19,13 +19,13 @@ async def get_job_metrics(job_id: str):
             (job_id,)
         )
         row = await cursor.fetchone()
-        
+
         if not row:
             raise HTTPException(status_code=404, detail="Job not found")
-        
+
         status, meta_str, created_at, updated_at = row
         meta = json.loads(meta_str) if meta_str else {}
-        
+
         # Extraire les métriques enrichies
         return {
             "job_id": job_id,
