@@ -14,6 +14,15 @@
 
 ---
 
+## 📸 Interface Preview
+
+<div align="center">
+  <img src="docs/png/Capture d'écran du 2025-11-12 10-58-29.png" alt="Sienn-AI Interface" width="800">
+  <p><i>Sienn-AI Web Interface - Model Training Dashboard</i></p>
+</div>
+
+---
+
 ## Overview
 
 Sienn-AI is a complete platform for fine-tuning large language models using **LoRA (Low-Rank Adaptation)**. It provides an intuitive web interface and REST API for training, testing, and exporting AI models efficiently.
