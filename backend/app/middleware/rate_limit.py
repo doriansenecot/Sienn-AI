@@ -1,6 +1,7 @@
 """
 Rate limiting middleware using Redis.
 """
+
 import time
 from typing import Callable
 
@@ -36,9 +37,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 self.redis = redis_client
             else:
                 self.redis = redis.from_url(settings.redis_url, decode_responses=True)
-            logger.info(
-                f"Rate limiting enabled: {self.max_requests} requests per {self.window_seconds}s"
-            )
+            logger.info(f"Rate limiting enabled: {self.max_requests} requests per {self.window_seconds}s")
         else:
             self.redis = None
             logger.info("Rate limiting disabled")

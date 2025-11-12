@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ModelConfig:
     """Configuration for a specific model"""
+
     name: str
     display_name: str
     batch_size: int
@@ -53,7 +54,7 @@ MODEL_CONFIGS = {
         vram_required_gb=2.0,
         quality_rating=2,
         speed_rating=5,
-        description="Fast, lightweight model. Good for testing and low-end hardware."
+        description="Fast, lightweight model. Good for testing and low-end hardware.",
     ),
     "gpt2-medium": ModelConfig(
         name="gpt2-medium",
@@ -68,7 +69,7 @@ MODEL_CONFIGS = {
         vram_required_gb=3.5,
         quality_rating=3,
         speed_rating=4,
-        description="Better quality than GPT-2 base with reasonable speed."
+        description="Better quality than GPT-2 base with reasonable speed.",
     ),
     "gpt2-large": ModelConfig(
         name="gpt2-large",
@@ -83,7 +84,7 @@ MODEL_CONFIGS = {
         vram_required_gb=5.0,
         quality_rating=4,
         speed_rating=3,
-        description="High quality results. Requires 6GB+ VRAM."
+        description="High quality results. Requires 6GB+ VRAM.",
     ),
     "gpt2-xl": ModelConfig(
         name="gpt2-xl",
@@ -98,7 +99,7 @@ MODEL_CONFIGS = {
         vram_required_gb=8.0,
         quality_rating=5,
         speed_rating=2,
-        description="Best GPT-2 variant. Excellent quality. Requires 8GB+ VRAM."
+        description="Best GPT-2 variant. Excellent quality. Requires 8GB+ VRAM.",
     ),
     "distilgpt2": ModelConfig(
         name="distilgpt2",
@@ -113,7 +114,7 @@ MODEL_CONFIGS = {
         vram_required_gb=1.5,
         quality_rating=2,
         speed_rating=5,
-        description="Fastest option, minimal VRAM usage. Good for quick experiments."
+        description="Fastest option, minimal VRAM usage. Good for quick experiments.",
     ),
     "EleutherAI/pythia-410m": ModelConfig(
         name="EleutherAI/pythia-410m",
@@ -128,7 +129,7 @@ MODEL_CONFIGS = {
         vram_required_gb=3.0,
         quality_rating=3,
         speed_rating=4,
-        description="Open-source model trained on diverse data. Good for general purposes."
+        description="Open-source model trained on diverse data. Good for general purposes.",
     ),
     "EleutherAI/pythia-1b": ModelConfig(
         name="EleutherAI/pythia-1b",
@@ -143,7 +144,7 @@ MODEL_CONFIGS = {
         vram_required_gb=5.5,
         quality_rating=4,
         speed_rating=3,
-        description="Larger Pythia model. Great balance of quality and efficiency."
+        description="Larger Pythia model. Great balance of quality and efficiency.",
     ),
     "facebook/opt-350m": ModelConfig(
         name="facebook/opt-350m",
@@ -158,7 +159,7 @@ MODEL_CONFIGS = {
         vram_required_gb=3.5,
         quality_rating=3,
         speed_rating=4,
-        description="Meta's OPT model. Well-trained on high-quality data."
+        description="Meta's OPT model. Well-trained on high-quality data.",
     ),
     "facebook/opt-1.3b": ModelConfig(
         name="facebook/opt-1.3b",
@@ -173,7 +174,7 @@ MODEL_CONFIGS = {
         vram_required_gb=6.5,
         quality_rating=4,
         speed_rating=2,
-        description="Larger OPT model. High quality for 6GB+ hardware."
+        description="Larger OPT model. High quality for 6GB+ hardware.",
     ),
     "cerebras/Cerebras-GPT-590M": ModelConfig(
         name="cerebras/Cerebras-GPT-590M",
@@ -188,7 +189,7 @@ MODEL_CONFIGS = {
         vram_required_gb=4.0,
         quality_rating=3,
         speed_rating=3,
-        description="Cerebras GPT architecture. Good quality/speed tradeoff."
+        description="Cerebras GPT architecture. Good quality/speed tradeoff.",
     ),
     "bigscience/bloom-560m": ModelConfig(
         name="bigscience/bloom-560m",
@@ -203,7 +204,7 @@ MODEL_CONFIGS = {
         vram_required_gb=4.0,
         quality_rating=3,
         speed_rating=3,
-        description="Multilingual model trained on 46 languages. Great for international use."
+        description="Multilingual model trained on 46 languages. Great for international use.",
     ),
     "bigscience/bloom-1b1": ModelConfig(
         name="bigscience/bloom-1b1",
@@ -218,7 +219,7 @@ MODEL_CONFIGS = {
         vram_required_gb=5.5,
         quality_rating=4,
         speed_rating=3,
-        description="Larger multilingual BLOOM. Excellent for diverse languages."
+        description="Larger multilingual BLOOM. Excellent for diverse languages.",
     ),
 }
 
@@ -396,7 +397,7 @@ class FinetuningService:
             vram_required_gb=4.0,
             quality_rating=3,
             speed_rating=3,
-            description="Custom model with default configuration"
+            description="Custom model with default configuration",
         )
 
     def finetune(
@@ -438,17 +439,21 @@ class FinetuningService:
             if max_length is None:
                 max_length = model_config.max_length
 
-            logger.info(f"Fine-tuning {model_config.display_name} with config: "
-                       f"batch_size={batch_size}, max_length={max_length}, "
-                       f"lr={learning_rate}, gradient_accumulation={model_config.gradient_accumulation_steps}")
+            logger.info(
+                f"Fine-tuning {model_config.display_name} with config: "
+                f"batch_size={batch_size}, max_length={max_length}, "
+                f"lr={learning_rate}, gradient_accumulation={model_config.gradient_accumulation_steps}"
+            )
 
             # Verify VRAM requirement
             if self.device == "cuda":
                 gpu_mem_gb = torch.cuda.get_device_properties(0).total_memory / 1024**3
                 logger.info(f"GPU VRAM: {gpu_mem_gb:.2f}GB, Model requires: {model_config.vram_required_gb}GB")
                 if gpu_mem_gb < model_config.vram_required_gb:
-                    logger.warning(f"GPU VRAM ({gpu_mem_gb:.2f}GB) may be insufficient for {model_config.display_name} "
-                                 f"(recommended: {model_config.vram_required_gb}GB)")
+                    logger.warning(
+                        f"GPU VRAM ({gpu_mem_gb:.2f}GB) may be insufficient for {model_config.display_name} "
+                        f"(recommended: {model_config.vram_required_gb}GB)"
+                    )
 
             # Load tokenizer and model
             logger.info(f"Loading model {model_name}...")
@@ -460,7 +465,7 @@ class FinetuningService:
 
             # Load model without quantization to avoid bitsandbytes/triton issues
             # For production with large models, consider using bitsandbytes in a properly configured environment
-            logger.info(f"Loading model without quantization for compatibility...")
+            logger.info("Loading model without quantization for compatibility...")
 
             model = AutoModelForCausalLM.from_pretrained(
                 model_name,

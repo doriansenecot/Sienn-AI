@@ -154,10 +154,7 @@ def scan_all_cached_models() -> dict[str, dict]:
 
             # Extract model name from directory
             parts = model_dir.name.replace("models--", "").split("--")
-            if len(parts) == 1:
-                model_name = parts[0]
-            else:
-                model_name = "/".join(parts)
+            model_name = parts[0] if len(parts) == 1 else "/".join(parts)
 
             # Get size
             total_size = 0

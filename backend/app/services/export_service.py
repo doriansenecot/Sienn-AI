@@ -122,9 +122,9 @@ class ExportService:
             logger.info(f"Loading model and merging LoRA adapter for {base_model}")
 
             # Step 1: Load base model and merge with LoRA adapter
-            from transformers import AutoModelForCausalLM, AutoTokenizer
-            from peft import PeftModel
             import torch
+            from peft import PeftModel
+            from transformers import AutoModelForCausalLM, AutoTokenizer
 
             tokenizer = AutoTokenizer.from_pretrained(base_model)
             base_model_obj = AutoModelForCausalLM.from_pretrained(
@@ -149,8 +149,8 @@ class ExportService:
             gguf_file = export_dir / f"model-{quantization}.gguf"
 
             # Check if llama.cpp is available
-            import subprocess
             import shutil
+            import subprocess
 
             convert_script = shutil.which("convert.py") or shutil.which("convert-hf-to-gguf.py")
             quantize_binary = shutil.which("quantize") or shutil.which("llama-quantize")

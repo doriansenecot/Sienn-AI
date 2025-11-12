@@ -1,9 +1,9 @@
 """
 Health check utilities for monitoring service dependencies.
 """
-import asyncio
+
 import logging
-from typing import Dict, Any
+from typing import Any
 
 import redis
 from minio import Minio
@@ -14,7 +14,7 @@ from app.db import get_db
 logger = logging.getLogger(__name__)
 
 
-async def check_database() -> Dict[str, Any]:
+async def check_database() -> dict[str, Any]:
     """Check database connectivity and basic operations."""
     try:
         async with get_db() as conn:
@@ -41,7 +41,7 @@ async def check_database() -> Dict[str, Any]:
         }
 
 
-def check_redis() -> Dict[str, Any]:
+def check_redis() -> dict[str, Any]:
     """Check Redis connectivity and basic operations."""
     try:
         r = redis.from_url(settings.redis_url, socket_connect_timeout=5)
@@ -63,7 +63,7 @@ def check_redis() -> Dict[str, Any]:
         }
 
 
-def check_minio() -> Dict[str, Any]:
+def check_minio() -> dict[str, Any]:
     """Check MinIO connectivity and access."""
     try:
         client = Minio(
@@ -92,7 +92,7 @@ def check_minio() -> Dict[str, Any]:
         }
 
 
-def check_celery_worker() -> Dict[str, Any]:
+def check_celery_worker() -> dict[str, Any]:
     """Check if Celery workers are running."""
     try:
         from app.celery_app import celery_app
@@ -127,7 +127,7 @@ def check_celery_worker() -> Dict[str, Any]:
         }
 
 
-async def check_all_services() -> Dict[str, Any]:
+async def check_all_services() -> dict[str, Any]:
     """Check health of all critical services."""
     checks = {
         "database": await check_database(),

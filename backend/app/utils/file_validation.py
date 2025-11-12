@@ -1,10 +1,12 @@
 """
 File validation utilities for security and integrity checks.
 """
+
 import hashlib
-import magic
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional
+
+import magic
 
 from app.core.logging_config import get_logger
 
@@ -38,7 +40,7 @@ def validate_file_extension(filename: str) -> bool:
     return ext in ALLOWED_EXTENSIONS
 
 
-def validate_file_size(file_size: int) -> Tuple[bool, Optional[str]]:
+def validate_file_size(file_size: int) -> tuple[bool, Optional[str]]:
     """
     Validate file size.
 
@@ -63,7 +65,7 @@ def validate_file_size(file_size: int) -> Tuple[bool, Optional[str]]:
     return True, None
 
 
-def validate_mime_type(file_path: Path) -> Tuple[bool, Optional[str], Optional[str]]:
+def validate_mime_type(file_path: Path) -> tuple[bool, Optional[str], Optional[str]]:
     """
     Validate MIME type using python-magic.
 
@@ -81,10 +83,7 @@ def validate_mime_type(file_path: Path) -> Tuple[bool, Optional[str], Optional[s
         mime_normalized = mime_type.lower()
 
         # Check if MIME type is allowed
-        is_allowed = any(
-            allowed in mime_normalized
-            for allowed in ["text/", "application/json", "application/csv"]
-        )
+        is_allowed = any(allowed in mime_normalized for allowed in ["text/", "application/json", "application/csv"])
 
         if not is_allowed:
             return False, mime_type, f"Invalid file type: {mime_type}"
@@ -140,14 +139,14 @@ def sanitize_filename(filename: str, max_length: int = 255) -> str:
 
     # Truncate if too long
     if len(filename) > max_length:
-        name_part = Path(filename).stem[:max_length - 10]
+        name_part = Path(filename).stem[: max_length - 10]
         ext = Path(filename).suffix
         filename = name_part + ext
 
     return filename
 
 
-def validate_dataset_file(file_path: Path, filename: str) -> Tuple[bool, Optional[str]]:
+def validate_dataset_file(file_path: Path, filename: str) -> tuple[bool, Optional[str]]:
     """
     Comprehensive validation of dataset file.
 
