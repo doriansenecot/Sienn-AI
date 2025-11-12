@@ -187,22 +187,6 @@ make lint-fix      # Fix linting issues
 make clean         # Clean build artifacts
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
-
-
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-**Quick steps:**
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/name`)
-3. Commit changes (`git commit -m 'Add feature'`)
-4. Push to branch (`git push origin feature/name`)
-5. Open Pull Request
 
 ---
 
@@ -212,21 +196,9 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-## 🙏 Acknowledgments
-
-Built with:
-- [Hugging Face Transformers](https://github.com/huggingface/transformers) - Model training
-- [PEFT](https://github.com/huggingface/peft) - Parameter-efficient fine-tuning
-- [FastAPI](https://fastapi.tiangolo.com/) - Backend framework
-- [React](https://react.dev/) - Frontend framework
-
----
-
 ## Support
 
 - **Documentation**: [docs/](docs/)
-- **Issues**: [GitHub Issues](https://github.com/doriansenecot/Sienn-AI/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/doriansenecot/Sienn-AI/discussions)
 
 ---
 
