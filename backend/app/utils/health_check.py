@@ -20,13 +20,13 @@ async def check_database() -> Dict[str, Any]:
         async with get_db() as conn:
             cursor = await conn.execute("SELECT 1")
             await cursor.fetchone()
-            
+
             # Check if tables exist
             cursor = await conn.execute(
                 "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('jobs', 'datasets')"
             )
             tables = [row[0] for row in await cursor.fetchall()]
-            
+
             return {
                 "status": "healthy",
                 "tables": tables,
@@ -47,7 +47,7 @@ def check_redis() -> Dict[str, Any]:
         r = redis.from_url(settings.redis_url, socket_connect_timeout=5)
         r.ping()
         info = r.info("memory")
-        
+
         return {
             "status": "healthy",
             "responsive": True,
@@ -72,11 +72,11 @@ def check_minio() -> Dict[str, Any]:
             secret_key=settings.minio_secret_key,
             secure=settings.minio_secure,
         )
-        
+
         # Check if bucket exists or create it
         bucket_name = settings.minio_bucket_name
         bucket_exists = client.bucket_exists(bucket_name)
-        
+
         return {
             "status": "healthy",
             "responsive": True,
@@ -96,15 +96,15 @@ def check_celery_worker() -> Dict[str, Any]:
     """Check if Celery workers are running."""
     try:
         from app.celery_app import celery_app
-        
+
         # Get active workers
         stats = celery_app.control.inspect().stats()
         active = celery_app.control.inspect().active()
-        
+
         if stats:
             worker_count = len(stats)
             active_tasks = sum(len(tasks) for tasks in (active or {}).values())
-            
+
             return {
                 "status": "healthy",
                 "responsive": True,
@@ -135,7 +135,7 @@ async def check_all_services() -> Dict[str, Any]:
         "minio": check_minio(),
         "celery_worker": check_celery_worker(),
     }
-    
+
     # Determine overall status
     statuses = [check["status"] for check in checks.values()]
     if all(s == "healthy" for s in statuses):
@@ -144,7 +144,7 @@ async def check_all_services() -> Dict[str, Any]:
         overall_status = "unhealthy"
     else:
         overall_status = "degraded"
-    
+
     return {
         "status": overall_status,
         "services": checks,

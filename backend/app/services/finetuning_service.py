@@ -380,7 +380,7 @@ class FinetuningService:
         """Get the configuration for a model, using defaults if not pre-configured"""
         if model_name in MODEL_CONFIGS:
             return MODEL_CONFIGS[model_name]
-        
+
         # Default configuration for unknown models
         logger.warning(f"Model {model_name} not in pre-configured list, using default config")
         return ModelConfig(
@@ -429,7 +429,7 @@ class FinetuningService:
         try:
             # Get model configuration
             model_config = self.get_model_config(model_name)
-            
+
             # Use model defaults if not specified
             if learning_rate is None:
                 learning_rate = model_config.learning_rate
@@ -437,11 +437,11 @@ class FinetuningService:
                 batch_size = model_config.batch_size
             if max_length is None:
                 max_length = model_config.max_length
-            
+
             logger.info(f"Fine-tuning {model_config.display_name} with config: "
                        f"batch_size={batch_size}, max_length={max_length}, "
                        f"lr={learning_rate}, gradient_accumulation={model_config.gradient_accumulation_steps}")
-            
+
             # Verify VRAM requirement
             if self.device == "cuda":
                 gpu_mem_gb = torch.cuda.get_device_properties(0).total_memory / 1024**3
@@ -449,7 +449,7 @@ class FinetuningService:
                 if gpu_mem_gb < model_config.vram_required_gb:
                     logger.warning(f"GPU VRAM ({gpu_mem_gb:.2f}GB) may be insufficient for {model_config.display_name} "
                                  f"(recommended: {model_config.vram_required_gb}GB)")
-            
+
             # Load tokenizer and model
             logger.info(f"Loading model {model_name}...")
             tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -461,12 +461,12 @@ class FinetuningService:
             # Load model without quantization to avoid bitsandbytes/triton issues
             # For production with large models, consider using bitsandbytes in a properly configured environment
             logger.info(f"Loading model without quantization for compatibility...")
-            
+
             model = AutoModelForCausalLM.from_pretrained(
                 model_name,
                 torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
             )
-            
+
             # Move to device explicitly (safer than device_map="auto")
             if self.device == "cuda":
                 model = model.to(self.device)
@@ -581,7 +581,7 @@ class FinetuningService:
             for key, value in lora_config_dict.items():
                 if isinstance(value, set):
                     lora_config_dict[key] = list(value)
-            
+
             metadata = {
                 "model_name": model_name,
                 "dataset_path": dataset_path,

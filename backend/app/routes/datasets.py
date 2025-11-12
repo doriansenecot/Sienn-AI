@@ -50,10 +50,10 @@ async def upload_dataset(file: UploadFile = File(...)):
 async def list_datasets():
     """Get all uploaded datasets."""
     logger.info("Listing all datasets")
-    
+
     try:
         from app.db import get_db
-        
+
         async with get_db() as conn:
             conn.row_factory = aiosqlite.Row
             cursor = await conn.execute(
@@ -64,7 +64,7 @@ async def list_datasets():
                 """
             )
             rows = await cursor.fetchall()
-            
+
             datasets_list = [
                 {
                     "id": row["id"],
@@ -75,10 +75,10 @@ async def list_datasets():
                 }
                 for row in rows
             ]
-            
+
             logger.info(f"Found {len(datasets_list)} datasets")
             return {"datasets": datasets_list}
-            
+
     except Exception as e:
         logger.error("Failed to list datasets", extra={"error": str(e)}, exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to list datasets: {str(e)}")

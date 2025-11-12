@@ -15,7 +15,7 @@ async def get_available_models():
     """
     Get list of available pre-configured models with their specifications.
     Includes cache status (whether model is already downloaded).
-    
+
     Returns:
         List of models with their configurations (VRAM requirements, quality, speed, cache status, etc.)
     """
@@ -24,7 +24,7 @@ async def get_available_models():
         # Check if model is cached
         is_cached = is_model_cached(config.name)
         cache_size = get_model_cache_size(config.name) if is_cached else None
-        
+
         models.append({
             "id": config.name,
             "name": config.display_name,
@@ -38,9 +38,9 @@ async def get_available_models():
             "is_cached": is_cached,
             "cache_size_bytes": cache_size,
         })
-    
+
     # Sort by VRAM requirement (smallest first)
     models.sort(key=lambda x: x["vram_required_gb"])
-    
+
     logger.info(f"Returning {len(models)} models, {sum(1 for m in models if m['is_cached'])} cached")
     return {"models": models}
