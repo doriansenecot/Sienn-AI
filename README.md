@@ -17,7 +17,7 @@
 ## 📸 Interface Preview
 
 <div align="center">
-  <img src="docs/png/Capture d'écran du 2025-11-12 10-58-29.png" alt="Sienn-AI Interface" width="800">
+  <img src="docs/png/home.png" alt="Sienn-AI Interface" width="800">
   <p><i>Sienn-AI Web Interface - Model Training Dashboard</i></p>
 </div>
 
