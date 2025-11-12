@@ -2,13 +2,13 @@
  * Modern Training Configuration Page
  * Wizard-style interface with visual parameter tuning
  */
-import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { 
-  Settings, 
-  Play, 
-  AlertCircle, 
-  Upload, 
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  Settings,
+  Play,
+  AlertCircle,
+  Upload,
   Sparkles,
   Brain,
   Zap,
@@ -17,14 +17,14 @@ import {
   ChevronLeft,
   CheckCircle2,
   Database,
-  TrendingUp
-} from 'lucide-react';
-import toast from 'react-hot-toast';
+  TrendingUp,
+} from "lucide-react";
+import toast from "react-hot-toast";
 
-import ModelSelector from '../../components/ModelSelector';
-import DatasetSelector from '../../components/DatasetSelector';
-import { api } from '../../services/api';
-import type { StartFinetuningRequest } from '../../types/api';
+import ModelSelector from "../../components/ModelSelector";
+import DatasetSelector from "../../components/DatasetSelector";
+import { api } from "../../services/api";
+import type { StartFinetuningRequest } from "../../types/api";
 
 type Step = 1 | 2 | 3;
 
@@ -35,25 +35,25 @@ export function TrainingConfigPage() {
 
   const [currentStep, setCurrentStep] = useState<Step>(initialDatasetId ? 2 : 1);
   const [selectedDatasetId, setSelectedDatasetId] = useState<string | null>(initialDatasetId || null);
-  const [selectedModel, setSelectedModel] = useState('gpt2');
+  const [selectedModel, setSelectedModel] = useState("gpt2");
   const [numEpochs, setNumEpochs] = useState(3);
   const [learningRate, setLearningRate] = useState(0.00002);
   const [batchSize, setBatchSize] = useState(4);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Calculate estimated time based on parameters
-  const estimatedMinutes = Math.ceil((numEpochs * 5) + (batchSize * 2));
-  const estimatedCost = 'Free'; // For display purposes
+  const estimatedMinutes = Math.ceil(numEpochs * 5 + batchSize * 2);
+  const estimatedCost = "Free"; // For display purposes
 
   const steps = [
-    { number: 1, title: 'Select Dataset', icon: Database },
-    { number: 2, title: 'Choose Model', icon: Brain },
-    { number: 3, title: 'Configure', icon: Settings },
+    { number: 1, title: "Select Dataset", icon: Database },
+    { number: 2, title: "Choose Model", icon: Brain },
+    { number: 3, title: "Configure", icon: Settings },
   ];
 
   const handleStartTraining = async () => {
     if (!selectedDatasetId) {
-      toast.error('Please select a dataset');
+      toast.error("Please select a dataset");
       return;
     }
 
@@ -69,10 +69,10 @@ export function TrainingConfigPage() {
       };
 
       const result = await api.job.startFinetuning(request);
-      toast.success('Training job started successfully!');
-      navigate('/dashboard', { state: { jobId: result.job_id, newJob: true } });
+      toast.success("Training job started successfully!");
+      navigate("/dashboard", { state: { jobId: result.job_id, newJob: true } });
     } catch (error) {
-      console.error('Failed to start training:', error);
+      console.error("Failed to start training:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -121,7 +121,7 @@ export function TrainingConfigPage() {
             const Icon = step.icon;
             const isCompleted = currentStep > step.number;
             const isCurrent = currentStep === step.number;
-            
+
             return (
               <div key={step.number} className="flex-1 flex items-center">
                 <div className="flex flex-col items-center flex-1">
@@ -136,40 +136,42 @@ export function TrainingConfigPage() {
                     className={`
                       relative w-14 h-14 rounded-xl flex items-center justify-center
                       transition-all duration-300 transform
-                      ${isCompleted 
-                        ? 'bg-gradient-to-br from-success-600 to-success-500 shadow-lg shadow-success-500/50 scale-100' 
-                        : isCurrent
-                        ? 'bg-gradient-to-br from-primary-600 to-primary-500 shadow-xl shadow-primary-500/50 scale-110 animate-glow-pulse'
-                        : 'bg-dark-800/50 border-2 border-white/10 scale-95'
+                      ${
+                        isCompleted
+                          ? "bg-gradient-to-br from-success-600 to-success-500 shadow-lg shadow-success-500/50 scale-100"
+                          : isCurrent
+                            ? "bg-gradient-to-br from-primary-600 to-primary-500 shadow-xl shadow-primary-500/50 scale-110 animate-glow-pulse"
+                            : "bg-dark-800/50 border-2 border-white/10 scale-95"
                       }
-                      ${step.number <= currentStep ? 'cursor-pointer hover:scale-105' : 'cursor-not-allowed opacity-50'}
+                      ${step.number <= currentStep ? "cursor-pointer hover:scale-105" : "cursor-not-allowed opacity-50"}
                     `}
                   >
                     {isCompleted ? (
                       <CheckCircle2 className="w-6 h-6 text-white" />
                     ) : (
-                      <Icon className={`w-6 h-6 ${isCurrent ? 'text-white' : 'text-dark-400'}`} />
+                      <Icon className={`w-6 h-6 ${isCurrent ? "text-white" : "text-dark-400"}`} />
                     )}
                   </button>
-                  
+
                   {/* Step label */}
-                  <span className={`
+                  <span
+                    className={`
                     mt-3 text-sm font-medium transition-colors hidden sm:block
-                    ${isCurrent ? 'text-white' : 'text-dark-400'}
-                  `}>
+                    ${isCurrent ? "text-white" : "text-dark-400"}
+                  `}
+                  >
                     {step.title}
                   </span>
                 </div>
-                
+
                 {/* Connector line */}
                 {index < steps.length - 1 && (
-                  <div className={`
+                  <div
+                    className={`
                     h-1 flex-1 mx-2 rounded-full transition-all duration-500
-                    ${isCompleted 
-                      ? 'bg-gradient-to-r from-success-500 to-success-400' 
-                      : 'bg-dark-800/50'
-                    }
-                  `} />
+                    ${isCompleted ? "bg-gradient-to-r from-success-500 to-success-400" : "bg-dark-800/50"}
+                  `}
+                  />
                 )}
               </div>
             );
@@ -188,15 +190,12 @@ export function TrainingConfigPage() {
                 <p className="text-dark-400">Choose the dataset you want to use for training</p>
               </div>
 
-              <DatasetSelector
-                selectedDatasetId={selectedDatasetId}
-                onDatasetChange={setSelectedDatasetId}
-              />
+              <DatasetSelector selectedDatasetId={selectedDatasetId} onDatasetChange={setSelectedDatasetId} />
 
               <div className="pt-4 text-center">
                 <p className="text-sm text-dark-400 mb-4">or</p>
                 <button
-                  onClick={() => navigate('/upload')}
+                  onClick={() => navigate("/upload")}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 text-dark-200 hover:bg-white/10 hover:text-white font-medium transition-all duration-200 border border-white/10 hover:border-white/20"
                 >
                   <Upload className="w-4 h-4" />
@@ -214,16 +213,13 @@ export function TrainingConfigPage() {
                 <p className="text-dark-400">Select a base model to fine-tune</p>
               </div>
 
-              <ModelSelector
-                selectedModel={selectedModel}
-                onModelChange={setSelectedModel}
-              />
+              <ModelSelector selectedModel={selectedModel} onModelChange={setSelectedModel} />
 
               <div className="glass rounded-xl p-4 flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-primary-400 flex-shrink-0 mt-0.5" />
                 <div className="text-sm text-dark-300">
-                  <strong className="text-white">Auto-Configuration:</strong> Model-specific parameters 
-                  (learning rate, batch size) will be automatically optimized. You can customize them in the next step.
+                  <strong className="text-white">Auto-Configuration:</strong> Model-specific parameters (learning rate,
+                  batch size) will be automatically optimized. You can customize them in the next step.
                 </div>
               </div>
             </div>
@@ -256,7 +252,7 @@ export function TrainingConfigPage() {
                   onChange={(e) => setNumEpochs(parseInt(e.target.value))}
                   className="w-full h-3 bg-dark-800 rounded-full appearance-none cursor-pointer slider-primary"
                   style={{
-                    background: `linear-gradient(to right, rgb(99, 102, 241) 0%, rgb(99, 102, 241) ${(numEpochs / 20) * 100}%, rgb(30, 41, 59) ${(numEpochs / 20) * 100}%, rgb(30, 41, 59) 100%)`
+                    background: `linear-gradient(to right, rgb(99, 102, 241) 0%, rgb(99, 102, 241) ${(numEpochs / 20) * 100}%, rgb(30, 41, 59) ${(numEpochs / 20) * 100}%, rgb(30, 41, 59) 100%)`,
                   }}
                 />
                 <p className="text-xs text-dark-400">
@@ -284,7 +280,7 @@ export function TrainingConfigPage() {
                   onChange={(e) => setLearningRate(parseFloat(e.target.value))}
                   className="w-full h-3 bg-dark-800 rounded-full appearance-none cursor-pointer"
                   style={{
-                    background: `linear-gradient(to right, rgb(217, 70, 239) 0%, rgb(217, 70, 239) ${((learningRate - 0.00001) / (0.0001 - 0.00001)) * 100}%, rgb(30, 41, 59) ${((learningRate - 0.00001) / (0.0001 - 0.00001)) * 100}%, rgb(30, 41, 59) 100%)`
+                    background: `linear-gradient(to right, rgb(217, 70, 239) 0%, rgb(217, 70, 239) ${((learningRate - 0.00001) / (0.0001 - 0.00001)) * 100}%, rgb(30, 41, 59) ${((learningRate - 0.00001) / (0.0001 - 0.00001)) * 100}%, rgb(30, 41, 59) 100%)`,
                   }}
                 />
                 <p className="text-xs text-dark-400">
@@ -311,7 +307,7 @@ export function TrainingConfigPage() {
                   onChange={(e) => setBatchSize(parseInt(e.target.value))}
                   className="w-full h-3 bg-dark-800 rounded-full appearance-none cursor-pointer"
                   style={{
-                    background: `linear-gradient(to right, rgb(6, 182, 212) 0%, rgb(6, 182, 212) ${(batchSize / 16) * 100}%, rgb(30, 41, 59) ${(batchSize / 16) * 100}%, rgb(30, 41, 59) 100%)`
+                    background: `linear-gradient(to right, rgb(6, 182, 212) 0%, rgb(6, 182, 212) ${(batchSize / 16) * 100}%, rgb(30, 41, 59) ${(batchSize / 16) * 100}%, rgb(30, 41, 59) 100%)`,
                   }}
                 />
                 <p className="text-xs text-dark-400">
@@ -358,9 +354,10 @@ export function TrainingConfigPage() {
             disabled={currentStep === 1}
             className={`
               inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-200
-              ${currentStep === 1
-                ? 'bg-dark-800/50 text-dark-500 cursor-not-allowed'
-                : 'bg-white/5 text-dark-200 hover:bg-white/10 hover:text-white border border-white/10 hover:border-white/20'
+              ${
+                currentStep === 1
+                  ? "bg-dark-800/50 text-dark-500 cursor-not-allowed"
+                  : "bg-white/5 text-dark-200 hover:bg-white/10 hover:text-white border border-white/10 hover:border-white/20"
               }
             `}
           >
@@ -368,9 +365,7 @@ export function TrainingConfigPage() {
             <span className="hidden sm:inline">Previous</span>
           </button>
 
-          <div className="text-center text-sm text-dark-400">
-            Step {currentStep} of 3
-          </div>
+          <div className="text-center text-sm text-dark-400">Step {currentStep} of 3</div>
 
           {currentStep < 3 ? (
             <button
@@ -378,9 +373,10 @@ export function TrainingConfigPage() {
               disabled={!canProceed(currentStep)}
               className={`
                 inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200
-                ${canProceed(currentStep)
-                  ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 hover:from-primary-500 hover:to-primary-400 active:scale-95'
-                  : 'bg-dark-800/50 text-dark-500 cursor-not-allowed'
+                ${
+                  canProceed(currentStep)
+                    ? "bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 hover:from-primary-500 hover:to-primary-400 active:scale-95"
+                    : "bg-dark-800/50 text-dark-500 cursor-not-allowed"
                 }
               `}
             >

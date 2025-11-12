@@ -4,16 +4,16 @@
  */
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Upload as UploadIcon, 
-  CheckCircle, 
-  FileText, 
+import {
+  Upload as UploadIcon,
+  CheckCircle,
+  FileText,
   AlertCircle,
   FileUp,
   Sparkles,
   ArrowRight,
   X,
-  Database
+  Database,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -31,19 +31,19 @@ export function UploadPage() {
 
   // File validation
   const validateFile = (file: File): { valid: boolean; error?: string } => {
-    const validTypes = ['.csv', '.json', '.jsonl', '.txt'];
+    const validTypes = [".csv", ".json", ".jsonl", ".txt"];
     const maxSize = 100 * 1024 * 1024; // 100MB
-    
-    const extension = '.' + file.name.split('.').pop()?.toLowerCase();
-    
+
+    const extension = "." + file.name.split(".").pop()?.toLowerCase();
+
     if (!validTypes.includes(extension)) {
-      return { valid: false, error: `Invalid file type. Accepted: ${validTypes.join(', ')}` };
+      return { valid: false, error: `Invalid file type. Accepted: ${validTypes.join(", ")}` };
     }
-    
+
     if (file.size > maxSize) {
-      return { valid: false, error: 'File size exceeds 100MB limit' };
+      return { valid: false, error: "File size exceeds 100MB limit" };
     }
-    
+
     return { valid: true };
   };
 
@@ -52,7 +52,7 @@ export function UploadPage() {
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
-      const lines = text.split('\n').slice(0, 10); // First 10 lines
+      const lines = text.split("\n").slice(0, 10); // First 10 lines
       setFilePreview(lines);
     };
     reader.readAsText(file.slice(0, 50000)); // First 50KB
@@ -60,12 +60,12 @@ export function UploadPage() {
 
   const handleFileSelect = useCallback((file: File) => {
     const validation = validateFile(file);
-    
+
     if (!validation.valid) {
-      toast.error(validation.error || 'Invalid file');
+      toast.error(validation.error || "Invalid file");
       return;
     }
-    
+
     setSelectedFile(file);
     setUploadResult(null);
     previewFile(file);
@@ -94,7 +94,7 @@ export function UploadPage() {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    
+
     const files = e.dataTransfer.files;
     if (files && files[0]) {
       handleFileSelect(files[0]);
@@ -116,11 +116,11 @@ export function UploadPage() {
 
     setUploading(true);
     setUploadProgress(0);
-    
+
     try {
       // Simulate upload progress
       const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
+        setUploadProgress((prev) => {
           if (prev >= 90) {
             clearInterval(progressInterval);
             return 90;
@@ -130,7 +130,7 @@ export function UploadPage() {
       }, 200);
 
       const result = await api.dataset.uploadDataset(selectedFile);
-      
+
       clearInterval(progressInterval);
       setUploadProgress(100);
       setUploadResult(result);
@@ -156,11 +156,11 @@ export function UploadPage() {
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
   return (
@@ -177,8 +177,8 @@ export function UploadPage() {
           Upload Training Dataset
         </h1>
         <p className="text-dark-300 max-w-2xl mx-auto text-lg">
-          Upload your training data with our advanced drag-and-drop interface. 
-          Real-time validation and instant preview included.
+          Upload your training data with our advanced drag-and-drop interface. Real-time validation and instant preview
+          included.
         </p>
       </div>
 
@@ -189,9 +189,10 @@ export function UploadPage() {
           <div
             className={`
               relative glass-strong rounded-3xl p-8 border-2 transition-all duration-300
-              ${isDragging 
-                ? 'border-primary-500 bg-primary-500/10 scale-[1.02]' 
-                : 'border-white/10 hover:border-white/20'
+              ${
+                isDragging
+                  ? "border-primary-500 bg-primary-500/10 scale-[1.02]"
+                  : "border-white/10 hover:border-white/20"
               }
             `}
             onDragEnter={handleDragEnter}
@@ -202,27 +203,27 @@ export function UploadPage() {
             <div className="text-center space-y-6">
               {/* Icon */}
               <div className="relative">
-                <div className={`
+                <div
+                  className={`
                   inline-flex items-center justify-center w-24 h-24 rounded-2xl 
                   bg-gradient-to-br from-primary-500/20 to-secondary-500/20 
                   border-2 border-dashed transition-all duration-300
-                  ${isDragging ? 'border-primary-500 scale-110' : 'border-white/30'}
-                `}>
-                  <FileUp className={`w-12 h-12 text-primary-400 transition-transform duration-300 ${isDragging ? 'scale-110' : ''}`} />
+                  ${isDragging ? "border-primary-500 scale-110" : "border-white/30"}
+                `}
+                >
+                  <FileUp
+                    className={`w-12 h-12 text-primary-400 transition-transform duration-300 ${isDragging ? "scale-110" : ""}`}
+                  />
                 </div>
-                {isDragging && (
-                  <div className="absolute inset-0 rounded-2xl bg-primary-500/20 animate-ping" />
-                )}
+                {isDragging && <div className="absolute inset-0 rounded-2xl bg-primary-500/20 animate-ping" />}
               </div>
 
               {/* Instructions */}
               <div className="space-y-2">
                 <h3 className="text-xl font-bold text-white">
-                  {isDragging ? 'Drop your file here' : 'Drag & drop your dataset'}
+                  {isDragging ? "Drop your file here" : "Drag & drop your dataset"}
                 </h3>
-                <p className="text-dark-400 text-sm">
-                  or click to browse from your computer
-                </p>
+                <p className="text-dark-400 text-sm">or click to browse from your computer</p>
               </div>
 
               {/* File input */}
@@ -245,7 +246,7 @@ export function UploadPage() {
 
               {/* Accepted formats */}
               <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
-                {['CSV', 'JSON', 'JSONL', 'TXT'].map((format) => (
+                {["CSV", "JSON", "JSONL", "TXT"].map((format) => (
                   <span
                     key={format}
                     className="px-3 py-1 rounded-full text-xs font-medium bg-white/5 text-dark-300 border border-white/10"
@@ -269,9 +270,7 @@ export function UploadPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="text-lg font-bold text-white">{selectedFile.name}</h3>
-                    <p className="text-sm text-dark-400 mt-1">
-                      {formatFileSize(selectedFile.size)} • Ready to upload
-                    </p>
+                    <p className="text-sm text-dark-400 mt-1">{formatFileSize(selectedFile.size)} • Ready to upload</p>
                   </div>
                   <button
                     onClick={handleClearFile}
@@ -286,7 +285,7 @@ export function UploadPage() {
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-dark-300">File Preview:</p>
                     <div className="bg-dark-900/80 backdrop-blur-xl border border-white/10 rounded-xl p-4 overflow-x-auto max-h-48 overflow-y-auto">
-                      <pre className="text-xs text-dark-300 font-mono">{filePreview.join('\n')}</pre>
+                      <pre className="text-xs text-dark-300 font-mono">{filePreview.join("\n")}</pre>
                     </div>
                   </div>
                 )}
@@ -324,7 +323,7 @@ export function UploadPage() {
                 <h3 className="text-xl font-bold text-white mb-2">Uploading Dataset...</h3>
                 <p className="text-dark-400">Please wait while we process your file</p>
               </div>
-              
+
               {/* Progress bar */}
               <div className="max-w-md mx-auto space-y-2">
                 <div className="w-full h-2 bg-dark-800/50 rounded-full overflow-hidden">
@@ -349,7 +348,9 @@ export function UploadPage() {
               <div className="flex-1 space-y-6">
                 <div>
                   <h3 className="text-2xl font-bold text-white mb-2">Upload Successful!</h3>
-                  <p className="text-dark-300">Your dataset has been uploaded and validated. Ready to start training.</p>
+                  <p className="text-dark-300">
+                    Your dataset has been uploaded and validated. Ready to start training.
+                  </p>
                 </div>
 
                 {/* Dataset Stats */}
@@ -377,10 +378,14 @@ export function UploadPage() {
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <FileText className="w-5 h-5 text-primary-400" />
-                      <span className="text-sm font-semibold text-white">Data Preview (first {uploadResult.preview.length} lines)</span>
+                      <span className="text-sm font-semibold text-white">
+                        Data Preview (first {uploadResult.preview.length} lines)
+                      </span>
                     </div>
                     <div className="bg-dark-900/80 backdrop-blur-xl border border-white/10 rounded-xl p-4 overflow-x-auto max-h-64 overflow-y-auto">
-                      <pre className="text-xs text-dark-300 font-mono leading-relaxed">{uploadResult.preview.join("\n")}</pre>
+                      <pre className="text-xs text-dark-300 font-mono leading-relaxed">
+                        {uploadResult.preview.join("\n")}
+                      </pre>
                     </div>
                   </div>
                 )}
@@ -423,23 +428,33 @@ export function UploadPage() {
                 <ul className="space-y-2 text-sm text-dark-300">
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-success-400 flex-shrink-0 mt-0.5" />
-                    <span><strong className="text-white">CSV:</strong> Columns for input prompts and expected outputs</span>
+                    <span>
+                      <strong className="text-white">CSV:</strong> Columns for input prompts and expected outputs
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-success-400 flex-shrink-0 mt-0.5" />
-                    <span><strong className="text-white">JSON/JSONL:</strong> Objects with "prompt" and "completion" fields</span>
+                    <span>
+                      <strong className="text-white">JSON/JSONL:</strong> Objects with "prompt" and "completion" fields
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-success-400 flex-shrink-0 mt-0.5" />
-                    <span><strong className="text-white">TXT:</strong> Plain text for language modeling</span>
+                    <span>
+                      <strong className="text-white">TXT:</strong> Plain text for language modeling
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-success-400 flex-shrink-0 mt-0.5" />
-                    <span>Maximum file size: <strong className="text-white">100MB</strong></span>
+                    <span>
+                      Maximum file size: <strong className="text-white">100MB</strong>
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-success-400 flex-shrink-0 mt-0.5" />
-                    <span>Recommended: <strong className="text-white">50-100+ training examples</strong></span>
+                    <span>
+                      Recommended: <strong className="text-white">50-100+ training examples</strong>
+                    </span>
                   </li>
                 </ul>
               </div>

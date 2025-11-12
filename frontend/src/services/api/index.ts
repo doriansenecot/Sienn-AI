@@ -38,13 +38,15 @@ export const datasetAPI = {
   /**
    * Get all uploaded datasets
    */
-  listDatasets: async (): Promise<{ datasets: Array<{
-    id: string;
-    filename: string;
-    size_bytes: number;
-    status: string;
-    created_at: string;
-  }> }> => {
+  listDatasets: async (): Promise<{
+    datasets: Array<{
+      id: string;
+      filename: string;
+      size_bytes: number;
+      status: string;
+      created_at: string;
+    }>;
+  }> => {
     const response = await apiClient.get("/api/datasets");
     return response.data;
   },
@@ -132,19 +134,21 @@ export const modelAPI = {
   /**
    * Get available pre-configured models
    */
-  getAvailableModels: async (): Promise<{ models: Array<{
-    id: string;
-    name: string;
-    vram_required_gb: number;
-    quality_rating: number;
-    speed_rating: number;
-    batch_size: number;
-    max_length: number;
-    learning_rate: number;
-    description: string;
-    is_cached: boolean;
-    cache_size_bytes: number | null;
-  }> }> => {
+  getAvailableModels: async (): Promise<{
+    models: Array<{
+      id: string;
+      name: string;
+      vram_required_gb: number;
+      quality_rating: number;
+      speed_rating: number;
+      batch_size: number;
+      max_length: number;
+      learning_rate: number;
+      description: string;
+      is_cached: boolean;
+      cache_size_bytes: number | null;
+    }>;
+  }> => {
     const response = await apiClient.get("/api/models/available");
     return response.data;
   },
@@ -158,7 +162,7 @@ export const healthAPI = {
     const response = await apiClient.get("/health");
     return response.data;
   },
-  
+
   /**
    * Get system metrics
    */
@@ -172,7 +176,7 @@ export const healthAPI = {
   }> => {
     const response = await apiClient.get("/api/metrics");
     const data = response.data;
-    
+
     // Map backend structure to frontend expectations
     return {
       total_jobs: data.application?.jobs?.total || 0,

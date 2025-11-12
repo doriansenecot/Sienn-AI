@@ -28,7 +28,7 @@ interface TableProps<T> {
   responsive?: boolean;
 }
 
-export function Table<T extends Record<string, any>>({
+export function Table<T extends Record<string, unknown>>({
   data,
   columns,
   onRowClick,

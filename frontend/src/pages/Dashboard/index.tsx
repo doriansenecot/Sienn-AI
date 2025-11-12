@@ -20,7 +20,6 @@ import {
   Pause,
   AlertCircle,
   Calendar,
-  Timer,
   Target,
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -244,7 +243,11 @@ function Timeline({ events }: { events: TimelineEvent[] }) {
         const Icon = config.icon;
 
         return (
-          <div key={index} className="flex gap-4 group animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
+          <div
+            key={index}
+            className="flex gap-4 group animate-fade-in-up"
+            style={{ animationDelay: `${index * 50}ms` }}
+          >
             {/* Timeline Line */}
             <div className="flex flex-col items-center">
               <div
@@ -252,9 +255,7 @@ function Timeline({ events }: { events: TimelineEvent[] }) {
               >
                 <Icon className={`w-5 h-5 text-${config.color}`} />
               </div>
-              {index < events.length - 1 && (
-                <div className={`w-0.5 h-full ${config.bg} flex-1 mt-2`} />
-              )}
+              {index < events.length - 1 && <div className={`w-0.5 h-full ${config.bg} flex-1 mt-2`} />}
             </div>
 
             {/* Content */}
@@ -302,72 +303,75 @@ export function DashboardPage() {
   const notifiedJobsRef = useRef<Set<string>>(new Set());
 
   // Fetch job status
-  const fetchStatus = useCallback(async (id: string) => {
-    if (!id) return;
+  const fetchStatus = useCallback(
+    async (id: string) => {
+      if (!id) return;
 
-    try {
-      const status = await api.job.getTrainingStatus(id);
-      setJobStatus(status);
+      try {
+        const status = await api.job.getTrainingStatus(id);
+        setJobStatus(status);
 
-      // Update loss history
-      if (status.meta?.train_loss !== undefined) {
-        setLossHistory((prev) => [...prev.slice(-19), status.meta!.train_loss!]);
-      }
+        // Update loss history
+        if (status.meta?.train_loss !== undefined) {
+          setLossHistory((prev) => [...prev.slice(-19), status.meta!.train_loss!]);
+        }
 
-      // Add timeline event
-      const timestamp = new Date().toLocaleTimeString();
-      if (status.status === "completed" && !timelineEvents.some((e) => e.type === "success")) {
-        setTimelineEvents((prev) => [
-          ...prev,
-          {
-            time: timestamp,
-            title: "Training Completed",
-            description: status.message,
-            type: "success",
-          },
-        ]);
-      } else if (status.status === "failed" && !timelineEvents.some((e) => e.type === "error")) {
-        setTimelineEvents((prev) => [
-          ...prev,
-          {
-            time: timestamp,
-            title: "Training Failed",
-            description: status.message,
-            type: "error",
-          },
-        ]);
-      } else if (status.status === "running" && timelineEvents.length === 0) {
-        setTimelineEvents([
-          {
-            time: timestamp,
-            title: "Training Started",
-            description: "Model training has begun",
-            type: "info",
-          },
-        ]);
-      }
+        // Add timeline event
+        const timestamp = new Date().toLocaleTimeString();
+        if (status.status === "completed" && !timelineEvents.some((e) => e.type === "success")) {
+          setTimelineEvents((prev) => [
+            ...prev,
+            {
+              time: timestamp,
+              title: "Training Completed",
+              description: status.message,
+              type: "success",
+            },
+          ]);
+        } else if (status.status === "failed" && !timelineEvents.some((e) => e.type === "error")) {
+          setTimelineEvents((prev) => [
+            ...prev,
+            {
+              time: timestamp,
+              title: "Training Failed",
+              description: status.message,
+              type: "error",
+            },
+          ]);
+        } else if (status.status === "running" && timelineEvents.length === 0) {
+          setTimelineEvents([
+            {
+              time: timestamp,
+              title: "Training Started",
+              description: "Model training has begun",
+              type: "info",
+            },
+          ]);
+        }
 
-      // Stop polling if job is completed or failed
-      if (status.status === "completed" || status.status === "failed") {
-        setPolling(false);
-        
-        // Only show toast if this job hasn't been notified before
-        if (!notifiedJobsRef.current.has(status.job_id)) {
-          notifiedJobsRef.current.add(status.job_id);
-          
-          if (status.status === "completed") {
-            toast.success("Training completed successfully!");
-          } else if (status.status === "failed") {
-            toast.error("Training failed: " + status.message);
+        // Stop polling if job is completed or failed
+        if (status.status === "completed" || status.status === "failed") {
+          setPolling(false);
+
+          // Only show toast if this job hasn't been notified before
+          if (!notifiedJobsRef.current.has(status.job_id)) {
+            notifiedJobsRef.current.add(status.job_id);
+
+            if (status.status === "completed") {
+              toast.success("Training completed successfully!");
+            } else if (status.status === "failed") {
+              toast.error("Training failed: " + status.message);
+            }
           }
         }
+      } catch (error) {
+        console.error("Failed to fetch status:", error);
+        setPolling(false);
+        toast.error("Failed to fetch job status");
       }
-    } catch (error) {
-      console.error("Failed to fetch status:", error);
-      setPolling(false);
-      toast.error("Failed to fetch job status");
-    }
-  }, [timelineEvents]);
+    },
+    [timelineEvents]
+  );
 
   // Load global statistics
   const loadGlobalStats = useCallback(async () => {
@@ -390,9 +394,9 @@ export function DashboardPage() {
     try {
       const response = await api.job.getAllJobs();
       // Sort by created_at descending and take last 10
-      const sorted = response.jobs.sort((a, b) => 
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      ).slice(0, 10);
+      const sorted = response.jobs
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, 10);
       setRecentJobs(sorted);
     } catch (error) {
       console.error("Failed to load recent jobs:", error);
@@ -406,7 +410,7 @@ export function DashboardPage() {
     // Load recent jobs and global stats on mount
     loadRecentJobs();
     loadGlobalStats();
-    
+
     if (jobId) {
       setLoading(true);
       fetchStatus(jobId).finally(() => setLoading(false));
@@ -509,7 +513,10 @@ export function DashboardPage() {
 
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Global Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in-up" style={{ animationDelay: "150ms" }}>
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in-up"
+          style={{ animationDelay: "150ms" }}
+        >
           <MetricCard
             title="Total Jobs"
             value={globalStats.total_jobs}
@@ -594,10 +601,10 @@ export function DashboardPage() {
                             job.status === "completed"
                               ? "bg-green-500/20 text-green-400"
                               : job.status === "failed"
-                              ? "bg-red-500/20 text-red-400"
-                              : job.status === "running"
-                              ? "bg-blue-500/20 text-blue-400"
-                              : "bg-yellow-500/20 text-yellow-400"
+                                ? "bg-red-500/20 text-red-400"
+                                : job.status === "running"
+                                  ? "bg-blue-500/20 text-blue-400"
+                                  : "bg-yellow-500/20 text-yellow-400"
                           }`}
                         >
                           {job.status === "completed" ? (
@@ -615,10 +622,10 @@ export function DashboardPage() {
                             job.status === "completed"
                               ? "bg-green-500/20 text-green-400"
                               : job.status === "failed"
-                              ? "bg-red-500/20 text-red-400"
-                              : job.status === "running"
-                              ? "bg-blue-500/20 text-blue-400"
-                              : "bg-yellow-500/20 text-yellow-400"
+                                ? "bg-red-500/20 text-red-400"
+                                : job.status === "running"
+                                  ? "bg-blue-500/20 text-blue-400"
+                                  : "bg-yellow-500/20 text-yellow-400"
                           }`}
                         >
                           {job.status}
@@ -627,9 +634,7 @@ export function DashboardPage() {
                       <p className="text-white font-mono text-xs mb-1 truncate group-hover:text-primary-400 transition-colors">
                         {job.job_id}
                       </p>
-                      <p className="text-xs text-slate-500">
-                        {new Date(job.created_at).toLocaleString()}
-                      </p>
+                      <p className="text-xs text-slate-500">{new Date(job.created_at).toLocaleString()}</p>
                       {job.progress > 0 && (
                         <div className="mt-2">
                           <div className="h-1 bg-slate-700 rounded-full overflow-hidden">
@@ -638,8 +643,8 @@ export function DashboardPage() {
                                 job.status === "completed"
                                   ? "bg-gradient-to-r from-green-500 to-emerald-500"
                                   : job.status === "running"
-                                  ? "bg-gradient-to-r from-blue-500 to-cyan-500"
-                                  : "bg-gradient-to-r from-red-500 to-rose-500"
+                                    ? "bg-gradient-to-r from-blue-500 to-cyan-500"
+                                    : "bg-gradient-to-r from-red-500 to-rose-500"
                               }`}
                               style={{ width: `${job.progress}%` }}
                             />

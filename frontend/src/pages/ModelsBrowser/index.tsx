@@ -16,7 +16,6 @@ import {
   Filter,
   X,
   TrendingUp,
-  Clock,
   ChevronDown,
   Sparkles,
   Package,
@@ -61,12 +60,7 @@ function renderStars(rating: number) {
   return (
     <div className="flex gap-0.5">
       {Array.from({ length: 5 }, (_, i) => (
-        <Star
-          key={i}
-          className={`w-3 h-3 ${
-            i < rating ? "fill-yellow-400 text-yellow-400" : "text-slate-600"
-          }`}
-        />
+        <Star key={i} className={`w-3 h-3 ${i < rating ? "fill-yellow-400 text-yellow-400" : "text-slate-600"}`} />
       ))}
     </div>
   );
@@ -95,18 +89,12 @@ function ModelCard({ model, viewMode }: ModelCardProps) {
           {/* Icon */}
           <div
             className={`w-16 h-16 rounded-xl bg-gradient-to-br ${
-              model.is_cached
-                ? "from-green-500 to-emerald-600"
-                : "from-orange-500 to-red-600"
+              model.is_cached ? "from-green-500 to-emerald-600" : "from-orange-500 to-red-600"
             } flex items-center justify-center flex-shrink-0 transition-transform duration-300 ${
               isHovered ? "scale-110 rotate-3" : ""
             }`}
           >
-            {model.is_cached ? (
-              <Check className="w-8 h-8 text-white" />
-            ) : (
-              <Download className="w-8 h-8 text-white" />
-            )}
+            {model.is_cached ? <Check className="w-8 h-8 text-white" /> : <Download className="w-8 h-8 text-white" />}
           </div>
 
           {/* Content */}
@@ -220,15 +208,9 @@ function ModelCard({ model, viewMode }: ModelCardProps) {
           model.is_cached
             ? "from-green-500 to-emerald-600 shadow-glow-green"
             : "from-orange-500 to-red-600 shadow-glow-red"
-        } flex items-center justify-center mb-4 transition-all duration-300 ${
-          isHovered ? "scale-110 rotate-6" : ""
-        }`}
+        } flex items-center justify-center mb-4 transition-all duration-300 ${isHovered ? "scale-110 rotate-6" : ""}`}
       >
-        {model.is_cached ? (
-          <Check className="w-8 h-8 text-white" />
-        ) : (
-          <Download className="w-8 h-8 text-white" />
-        )}
+        {model.is_cached ? <Check className="w-8 h-8 text-white" /> : <Download className="w-8 h-8 text-white" />}
       </div>
 
       {/* Content */}
@@ -412,7 +394,10 @@ export function ModelsBrowserPage() {
         </div>
 
         {/* Controls Bar */}
-        <div className="glass-strong rounded-2xl border border-slate-700/50 p-4 animate-fade-in-up" style={{ animationDelay: "100ms" }}>
+        <div
+          className="glass-strong rounded-2xl border border-slate-700/50 p-4 animate-fade-in-up"
+          style={{ animationDelay: "100ms" }}
+        >
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search Bar */}
             <div className="flex-1 relative">
@@ -600,11 +585,7 @@ export function ModelsBrowserPage() {
                 style={{ animationDelay: "200ms" }}
               >
                 {filteredModels.map((model, index) => (
-                  <div
-                    key={model.id}
-                    className="animate-fade-in-up"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
+                  <div key={model.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
                     <ModelCard model={model} viewMode={viewMode} />
                   </div>
                 ))}
@@ -614,7 +595,10 @@ export function ModelsBrowserPage() {
         )}
 
         {/* Info Section */}
-        <div className="glass-strong rounded-2xl border border-slate-700/50 p-6 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
+        <div
+          className="glass-strong rounded-2xl border border-slate-700/50 p-6 animate-fade-in-up"
+          style={{ animationDelay: "300ms" }}
+        >
           <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary-400" />
             About Model Caching

@@ -9,7 +9,6 @@ import {
   Send,
   Sparkles,
   History,
-  Trash2,
   Copy,
   Check,
   ArrowLeft,
@@ -447,9 +446,7 @@ export function InferencePage() {
                         onClick={() => handleLoadFromHistory(item)}
                         className="w-full text-left p-3 rounded-lg bg-slate-800/30 border border-slate-700/30 hover:bg-slate-700/30 hover:border-slate-600/50 transition-all group"
                       >
-                        <p className="text-xs text-slate-400 mb-1">
-                          {new Date(item.timestamp).toLocaleTimeString()}
-                        </p>
+                        <p className="text-xs text-slate-400 mb-1">{new Date(item.timestamp).toLocaleTimeString()}</p>
                         <p className="text-sm text-white line-clamp-2">{item.prompt}</p>
                         <div className="flex items-center gap-2 mt-2 text-xs text-slate-500">
                           <Clock className="w-3 h-3" />
@@ -463,7 +460,10 @@ export function InferencePage() {
             )}
 
             {/* Example Prompts */}
-            <div className="glass-strong rounded-2xl border border-slate-700/50 p-4 animate-fade-in-up" style={{ animationDelay: "100ms" }}>
+            <div
+              className="glass-strong rounded-2xl border border-slate-700/50 p-4 animate-fade-in-up"
+              style={{ animationDelay: "100ms" }}
+            >
               <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-yellow-400" />
                 Quick Examples
@@ -539,7 +539,11 @@ export function InferencePage() {
                       className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-all hover-lift"
                       title="Copy"
                     >
-                      {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-slate-400" />}
+                      {copied ? (
+                        <Check className="w-4 h-4 text-green-400" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-slate-400" />
+                      )}
                     </button>
                     <button
                       onClick={handleAddToComparison}
@@ -610,10 +614,11 @@ export function InferencePage() {
             )}
 
             {/* Tips Card */}
-            <div className="glass rounded-xl border border-slate-700/50 p-6 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
-              <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                💡 Generation Tips
-              </h4>
+            <div
+              className="glass rounded-xl border border-slate-700/50 p-6 animate-fade-in-up"
+              style={{ animationDelay: "300ms" }}
+            >
+              <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">💡 Generation Tips</h4>
               <ul className="text-sm text-slate-400 space-y-2">
                 <li className="flex items-start gap-2">
                   <span className="text-cyan-400">•</span>

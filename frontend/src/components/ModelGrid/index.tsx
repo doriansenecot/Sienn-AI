@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Download, Check, Zap, Star, HardDrive } from 'lucide-react';
-import { api } from '../../services/api';
+import { useState, useEffect } from "react";
+import { Download, Check, Zap, Star, HardDrive } from "lucide-react";
+import { api } from "../../services/api";
 
 interface ModelOption {
   id: string;
@@ -37,18 +37,18 @@ const ModelGrid = ({ onModelSelect, selectedModelId }: ModelGridProps) => {
       setModels(response.models);
       setError(null);
     } catch (err) {
-      setError('Failed to load models');
-      console.error('Error loading models:', err);
+      setError("Failed to load models");
+      console.error("Error loading models:", err);
     } finally {
       setLoading(false);
     }
   };
 
   const formatBytes = (bytes: number | null): string => {
-    if (!bytes) return 'N/A';
-    const gb = bytes / (1024 ** 3);
+    if (!bytes) return "N/A";
+    const gb = bytes / 1024 ** 3;
     if (gb >= 1) return `${gb.toFixed(2)} GB`;
-    const mb = bytes / (1024 ** 2);
+    const mb = bytes / 1024 ** 2;
     return `${mb.toFixed(0)} MB`;
   };
 
@@ -56,12 +56,7 @@ const ModelGrid = ({ onModelSelect, selectedModelId }: ModelGridProps) => {
     return (
       <div className="flex gap-0.5">
         {Array.from({ length: 5 }, (_, i) => (
-          <Star
-            key={i}
-            className={`w-3 h-3 ${
-              i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-            }`}
-          />
+          <Star key={i} className={`w-3 h-3 ${i < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`} />
         ))}
       </div>
     );
@@ -80,11 +75,7 @@ const ModelGrid = ({ onModelSelect, selectedModelId }: ModelGridProps) => {
   }
 
   if (error) {
-    return (
-      <div className="text-red-600 text-sm p-4 bg-red-50 rounded-lg text-center">
-        {error}
-      </div>
-    );
+    return <div className="text-red-600 text-sm p-4 bg-red-50 rounded-lg text-center">{error}</div>;
   }
 
   const cachedModels = models.filter((m) => m.is_cached);
@@ -176,17 +167,17 @@ const ModelCard = ({ model, isSelected, onSelect, renderStars, formatBytes }: Mo
       disabled={!onSelect}
       className={`
         relative text-left p-4 rounded-lg border-2 transition-all
-        ${onSelect ? 'cursor-pointer hover:shadow-lg' : 'cursor-default'}
-        ${isSelected ? 'border-blue-500 bg-blue-50 shadow-md' : 'border-gray-200 bg-white'}
-        ${model.is_cached ? 'ring-2 ring-green-200' : 'ring-2 ring-red-200'}
+        ${onSelect ? "cursor-pointer hover:shadow-lg" : "cursor-default"}
+        ${isSelected ? "border-blue-500 bg-blue-50 shadow-md" : "border-gray-200 bg-white"}
+        ${model.is_cached ? "ring-2 ring-green-200" : "ring-2 ring-red-200"}
       `}
     >
       {/* Cache Status Badge */}
-      <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-semibold ${
-        model.is_cached
-          ? 'bg-green-100 text-green-700'
-          : 'bg-red-100 text-red-700'
-      }`}>
+      <div
+        className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-semibold ${
+          model.is_cached ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+        }`}
+      >
         {model.is_cached ? (
           <span className="flex items-center gap-1">
             <Check className="w-3 h-3" />

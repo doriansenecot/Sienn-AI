@@ -2,8 +2,8 @@
  * Modern Landing Page / Home
  * Hero Section + Features + Stats + CTA
  */
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Sparkles,
   Zap,
@@ -20,8 +20,8 @@ import {
   Code2,
   Database,
   Layers,
-} from 'lucide-react';
-import { api } from '../../services/api';
+} from "lucide-react";
+import { api } from "../../services/api";
 
 interface Stat {
   value: string;
@@ -32,56 +32,59 @@ interface Stat {
 export function HomePage() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<Stat[]>([
-    { value: '0', label: 'Total Jobs', icon: <Activity className="w-5 h-5" /> },
-    { value: '0', label: 'Active Jobs', icon: <Zap className="w-5 h-5" /> },
-    { value: '0', label: 'Datasets', icon: <Database className="w-5 h-5" /> },
-    { value: '0', label: 'Models', icon: <Layers className="w-5 h-5" /> },
+    { value: "0", label: "Total Jobs", icon: <Activity className="w-5 h-5" /> },
+    { value: "0", label: "Active Jobs", icon: <Zap className="w-5 h-5" /> },
+    { value: "0", label: "Datasets", icon: <Database className="w-5 h-5" /> },
+    { value: "0", label: "Models", icon: <Layers className="w-5 h-5" /> },
   ]);
 
   useEffect(() => {
     // Fetch real-time metrics
-    api.health.getMetrics().then((metrics) => {
-      setStats([
-        { value: metrics.total_jobs.toString(), label: 'Total Jobs', icon: <Activity className="w-5 h-5" /> },
-        { value: metrics.active_jobs.toString(), label: 'Active Jobs', icon: <Zap className="w-5 h-5" /> },
-        { value: metrics.total_datasets.toString(), label: 'Datasets', icon: <Database className="w-5 h-5" /> },
-        { value: metrics.total_models.toString(), label: 'Models', icon: <Layers className="w-5 h-5" /> },
-      ]);
-    }).catch(console.error);
+    api.health
+      .getMetrics()
+      .then((metrics) => {
+        setStats([
+          { value: metrics.total_jobs.toString(), label: "Total Jobs", icon: <Activity className="w-5 h-5" /> },
+          { value: metrics.active_jobs.toString(), label: "Active Jobs", icon: <Zap className="w-5 h-5" /> },
+          { value: metrics.total_datasets.toString(), label: "Datasets", icon: <Database className="w-5 h-5" /> },
+          { value: metrics.total_models.toString(), label: "Models", icon: <Layers className="w-5 h-5" /> },
+        ]);
+      })
+      .catch(console.error);
   }, []);
 
   const features = [
     {
       icon: <Zap className="w-6 h-6" />,
-      title: 'Lightning Fast',
-      description: 'LoRA trains only 3-5% of parameters for incredible speed and efficiency',
-      gradient: 'from-yellow-500 to-orange-500',
+      title: "Lightning Fast",
+      description: "LoRA trains only 3-5% of parameters for incredible speed and efficiency",
+      gradient: "from-yellow-500 to-orange-500",
     },
     {
       icon: <Brain className="w-6 h-6" />,
-      title: 'Smart Training',
-      description: 'Automated model selection and hyperparameter tuning for optimal results',
-      gradient: 'from-purple-500 to-pink-500',
+      title: "Smart Training",
+      description: "Automated model selection and hyperparameter tuning for optimal results",
+      gradient: "from-purple-500 to-pink-500",
     },
     {
       icon: <Rocket className="w-6 h-6" />,
-      title: 'Production Ready',
-      description: 'Export to multiple formats: PyTorch, Ollama, GGUF with quantization',
-      gradient: 'from-blue-500 to-cyan-500',
+      title: "Production Ready",
+      description: "Export to multiple formats: PyTorch, Ollama, GGUF with quantization",
+      gradient: "from-blue-500 to-cyan-500",
     },
     {
       icon: <Shield className="w-6 h-6" />,
-      title: 'Reliable & Stable',
-      description: 'Built with battle-tested technologies: FastAPI, React, Celery',
-      gradient: 'from-green-500 to-emerald-500',
+      title: "Reliable & Stable",
+      description: "Built with battle-tested technologies: FastAPI, React, Celery",
+      gradient: "from-green-500 to-emerald-500",
     },
   ];
 
   const supportedModels = [
-    { name: 'GPT-2', size: '124M', badge: 'Fast' },
-    { name: 'GPT-2 Medium', size: '355M', badge: 'Balanced' },
-    { name: 'Microsoft Phi-2', size: '2.7B', badge: 'Advanced' },
-    { name: 'More Coming', size: '...', badge: 'Soon' },
+    { name: "GPT-2", size: "124M", badge: "Fast" },
+    { name: "GPT-2 Medium", size: "355M", badge: "Balanced" },
+    { name: "Microsoft Phi-2", size: "2.7B", badge: "Advanced" },
+    { name: "More Coming", size: "...", badge: "Soon" },
   ];
 
   return (
@@ -109,24 +112,18 @@ export function HomePage() {
 
             {/* Subheadline */}
             <p className="max-w-3xl mx-auto text-xl text-dark-300 leading-relaxed">
-              Train custom language models with <span className="text-primary-400 font-semibold">LoRA/PEFT</span> technology.
-              Beautiful UI, powerful API, production-ready exports. All in one platform.
+              Train custom language models with <span className="text-primary-400 font-semibold">LoRA/PEFT</span>{" "}
+              technology. Beautiful UI, powerful API, production-ready exports. All in one platform.
             </p>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-              <button
-                onClick={() => navigate('/upload')}
-                className="btn btn-primary btn-lg group"
-              >
+              <button onClick={() => navigate("/upload")} className="btn btn-primary btn-lg group">
                 <Upload className="w-5 h-5" />
                 <span>Start Training</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
-              <button
-                onClick={() => navigate('/models')}
-                className="btn btn-ghost btn-lg"
-              >
+              <button onClick={() => navigate("/models")} className="btn btn-ghost btn-lg">
                 <Database className="w-5 h-5" />
                 <span>Browse Models</span>
               </button>
@@ -161,9 +158,7 @@ export function HomePage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-white mb-2">1. Upload Dataset</h3>
-                    <p className="text-sm text-dark-300">
-                      Drop your CSV, JSON, or JSONL file with training examples
-                    </p>
+                    <p className="text-sm text-dark-300">Drop your CSV, JSON, or JSONL file with training examples</p>
                   </div>
                 </div>
 
@@ -199,7 +194,10 @@ export function HomePage() {
 
         {/* Animated Background Elements */}
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary-500/20 rounded-full blur-3xl animate-pulse-slow" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary-500/20 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }} />
+        <div
+          className="absolute bottom-20 right-10 w-96 h-96 bg-secondary-500/20 rounded-full blur-3xl animate-pulse-slow"
+          style={{ animationDelay: "1s" }}
+        />
       </section>
 
       {/* Stats Section */}
@@ -242,7 +240,9 @@ export function HomePage() {
                 className="glass-strong rounded-2xl p-8 space-y-4 hover-lift card-glow animate-fade-in-up"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} shadow-lg`}>
+                <div
+                  className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} shadow-lg`}
+                >
                   {feature.icon}
                 </div>
                 <h3 className="text-2xl font-bold text-white">{feature.title}</h3>
@@ -260,9 +260,7 @@ export function HomePage() {
             <h2 className="text-4xl md:text-5xl font-bold text-white">
               Supported <span className="text-gradient-secondary">Models</span>
             </h2>
-            <p className="text-xl text-dark-300">
-              Fine-tune popular open-source language models
-            </p>
+            <p className="text-xl text-dark-300">Fine-tune popular open-source language models</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -295,21 +293,16 @@ export function HomePage() {
             <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center shadow-2xl shadow-primary-500/50 animate-glow-pulse">
               <Rocket className="w-10 h-10 text-white" />
             </div>
-            
+
             <div className="space-y-4">
-              <h2 className="text-4xl md:text-5xl font-bold text-white">
-                Ready to Build Amazing AI?
-              </h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-white">Ready to Build Amazing AI?</h2>
               <p className="text-xl text-dark-300">
                 Start fine-tuning your first model in minutes. No credit card required.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => navigate('/upload')}
-                className="btn btn-primary btn-lg group"
-              >
+              <button onClick={() => navigate("/upload")} className="btn btn-primary btn-lg group">
                 <Sparkles className="w-5 h-5" />
                 <span>Get Started Free</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

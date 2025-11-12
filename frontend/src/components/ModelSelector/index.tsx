@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { api } from '../../services/api';
+import { useState, useEffect } from "react";
+import { api } from "../../services/api";
 
 interface ModelOption {
   id: string;
@@ -36,8 +36,8 @@ const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorProps) => 
       setModels(response.models);
       setError(null);
     } catch (err) {
-      setError('Failed to load available models');
-      console.error('Error loading models:', err);
+      setError("Failed to load available models");
+      console.error("Error loading models:", err);
     } finally {
       setLoading(false);
     }
@@ -47,10 +47,7 @@ const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorProps) => 
     return (
       <div className="flex gap-0.5">
         {Array.from({ length: maxRating }, (_, i) => (
-          <span
-            key={i}
-            className={i < rating ? 'text-yellow-400' : 'text-gray-300'}
-          >
+          <span key={i} className={i < rating ? "text-yellow-400" : "text-gray-300"}>
             ★
           </span>
         ))}
@@ -59,10 +56,10 @@ const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorProps) => 
   };
 
   const formatBytes = (bytes: number | null): string => {
-    if (!bytes) return 'N/A';
-    const gb = bytes / (1024 ** 3);
+    if (!bytes) return "N/A";
+    const gb = bytes / 1024 ** 3;
     if (gb >= 1) return `${gb.toFixed(2)} GB`;
-    const mb = bytes / (1024 ** 2);
+    const mb = bytes / 1024 ** 2;
     return `${mb.toFixed(0)} MB`;
   };
 
@@ -75,20 +72,14 @@ const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorProps) => 
   }
 
   if (error) {
-    return (
-      <div className="text-red-400 text-sm p-3 bg-red-500/10 border border-red-500/30 rounded-xl">
-        {error}
-      </div>
-    );
+    return <div className="text-red-400 text-sm p-3 bg-red-500/10 border border-red-500/30 rounded-xl">{error}</div>;
   }
 
   const selectedModelData = models.find((m) => m.id === selectedModel);
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-white">
-        Model Selection
-      </label>
+      <label className="block text-sm font-medium text-white">Model Selection</label>
 
       <select
         value={selectedModel}
@@ -97,24 +88,29 @@ const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorProps) => 
       >
         {models.map((model) => (
           <option key={model.id} value={model.id} className="bg-slate-800 text-white">
-            {model.is_cached ? '✓ ' : '⬇ '}{model.name} - {model.vram_required_gb}GB VRAM
+            {model.is_cached ? "✓ " : "⬇ "}
+            {model.name} - {model.vram_required_gb}GB VRAM
           </option>
         ))}
       </select>
 
       {selectedModelData && (
-        <div className={`p-4 rounded-xl space-y-3 border-2 backdrop-blur-sm ${
-          selectedModelData.is_cached 
-            ? 'bg-green-500/10 border-green-500/30' 
-            : 'bg-orange-500/10 border-orange-500/30'
-        }`}>
+        <div
+          className={`p-4 rounded-xl space-y-3 border-2 backdrop-blur-sm ${
+            selectedModelData.is_cached
+              ? "bg-green-500/10 border-green-500/30"
+              : "bg-orange-500/10 border-orange-500/30"
+          }`}
+        >
           {/* Cache Status Badge */}
           <div className="flex items-center justify-between mb-2">
-            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${
-              selectedModelData.is_cached
-                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                : 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
-            }`}>
+            <div
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${
+                selectedModelData.is_cached
+                  ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                  : "bg-orange-500/20 text-orange-400 border border-orange-500/30"
+              }`}
+            >
               {selectedModelData.is_cached ? (
                 <>
                   <span className="text-base">✓</span>
@@ -147,16 +143,12 @@ const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorProps) => 
 
             <div>
               <div className="text-xs font-medium text-slate-400 mb-1">VRAM Required</div>
-              <div className="text-sm font-semibold text-white">
-                {selectedModelData.vram_required_gb} GB
-              </div>
+              <div className="text-sm font-semibold text-white">{selectedModelData.vram_required_gb} GB</div>
             </div>
 
             <div>
               <div className="text-xs font-medium text-slate-400 mb-1">Batch Size</div>
-              <div className="text-sm font-semibold text-white">
-                {selectedModelData.batch_size}
-              </div>
+              <div className="text-sm font-semibold text-white">{selectedModelData.batch_size}</div>
             </div>
           </div>
 
@@ -164,15 +156,15 @@ const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorProps) => 
             <div className="text-xs font-medium text-slate-400 mb-2">Default Configuration</div>
             <div className="grid grid-cols-3 gap-2 text-xs">
               <div>
-                <span className="text-slate-500">LR:</span>{' '}
+                <span className="text-slate-500">LR:</span>{" "}
                 <span className="font-mono text-white">{selectedModelData.learning_rate}</span>
               </div>
               <div>
-                <span className="text-slate-500">Max Length:</span>{' '}
+                <span className="text-slate-500">Max Length:</span>{" "}
                 <span className="font-mono text-white">{selectedModelData.max_length}</span>
               </div>
               <div>
-                <span className="text-slate-500">Batch:</span>{' '}
+                <span className="text-slate-500">Batch:</span>{" "}
                 <span className="font-mono text-white">{selectedModelData.batch_size}</span>
               </div>
             </div>

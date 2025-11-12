@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { FileText, Database, Calendar, HardDrive } from 'lucide-react';
-import { api } from '../../services/api';
+import { useState, useEffect, useCallback } from "react";
+import { FileText, Database, Calendar, HardDrive } from "lucide-react";
+import { api } from "../../services/api";
 
 interface Dataset {
   id: string;
@@ -20,46 +20,45 @@ const DatasetSelector = ({ selectedDatasetId, onDatasetChange }: DatasetSelector
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadDatasets();
-  }, []);
-
-  const loadDatasets = async () => {
+  const loadDatasets = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.dataset.listDatasets();
       setDatasets(response.datasets);
-      
+
       // Auto-select first dataset if none selected
       if (!selectedDatasetId && response.datasets.length > 0) {
         onDatasetChange(response.datasets[0].id);
       }
-      
       setError(null);
     } catch (err) {
-      setError('Failed to load datasets');
-      console.error('Error loading datasets:', err);
+      setError("Failed to load datasets");
+      console.error("Error loading datasets:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedDatasetId, onDatasetChange]);
+
+  useEffect(() => {
+    loadDatasets();
+  }, [loadDatasets]);
 
   const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -72,11 +71,7 @@ const DatasetSelector = ({ selectedDatasetId, onDatasetChange }: DatasetSelector
   }
 
   if (error) {
-    return (
-      <div className="text-red-400 text-sm p-3 bg-red-500/10 border border-red-500/30 rounded-xl">
-        {error}
-      </div>
-    );
+    return <div className="text-red-400 text-sm p-3 bg-red-500/10 border border-red-500/30 rounded-xl">{error}</div>;
   }
 
   if (datasets.length === 0) {
@@ -93,9 +88,7 @@ const DatasetSelector = ({ selectedDatasetId, onDatasetChange }: DatasetSelector
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-white">
-        Select Dataset
-      </label>
+      <label className="block text-sm font-medium text-white">Select Dataset</label>
 
       <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto">
         {datasets.map((dataset) => (
@@ -107,8 +100,8 @@ const DatasetSelector = ({ selectedDatasetId, onDatasetChange }: DatasetSelector
               hover:shadow-lg hover:scale-[1.01]
               ${
                 selectedDatasetId === dataset.id
-                  ? 'border-primary-500/50 bg-primary-500/10 shadow-md shadow-primary-500/20'
-                  : 'border-slate-700/50 bg-slate-800/30 hover:border-primary-500/30 hover:bg-slate-800/50 hover:shadow-primary-500/10'
+                  ? "border-primary-500/50 bg-primary-500/10 shadow-md shadow-primary-500/20"
+                  : "border-slate-700/50 bg-slate-800/30 hover:border-primary-500/30 hover:bg-slate-800/50 hover:shadow-primary-500/10"
               }
             `}
           >
@@ -117,11 +110,11 @@ const DatasetSelector = ({ selectedDatasetId, onDatasetChange }: DatasetSelector
                 <div
                   className={`
                     w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors
-                    ${selectedDatasetId === dataset.id ? 'bg-primary-500/20' : 'bg-slate-700/50'}
+                    ${selectedDatasetId === dataset.id ? "bg-primary-500/20" : "bg-slate-700/50"}
                   `}
                 >
                   <FileText
-                    className={`w-5 h-5 ${selectedDatasetId === dataset.id ? 'text-primary-400' : 'text-slate-400'}`}
+                    className={`w-5 h-5 ${selectedDatasetId === dataset.id ? "text-primary-400" : "text-slate-400"}`}
                   />
                 </div>
 
